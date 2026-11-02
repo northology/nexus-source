@@ -1,0 +1,278 @@
+{
+  "plugins": [
+    {
+      "id": "base-graph",
+      "version": "0.2.5",
+      "repo": "andyeveritt/obsidian-base-graph",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "f4b09de6e3eb83db799747002100a73bebc27815fa305f87e2443feeda339635"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "e5fdbd11593db6160b2fbbacb1f55bae6afec333db5677daa63e763441685804"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "da22e7929e6a5d758aa07bc4e54c2763e5b24afce56dd8c195117128d82b517e"
+        }
+      ]
+    },
+    {
+      "id": "datacore",
+      "version": "0.1.29",
+      "repo": "blacksmithgu/datacore",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "e5164215370325321e50252520ff8deeed7456ad4304bb060bb6e866e965df27"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "d061afca680933e46a6b797e24b0c515934fedbd0cff2e1dc6005c5cf6988f36"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "ac31f45cb03dd900196e6b688960404f6ea3c72cd1128a77cabbc63b78c2cfb7"
+        }
+      ]
+    },
+    {
+      "id": "dataview",
+      "version": "0.5.68",
+      "repo": "blacksmithgu/obsidian-dataview",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "794e9eaede73920bb8d54b0eda4f5de2182d698cc638774500f24f14bcd4da0b"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "9235db47112da81b85591c79ecb9ae2574e5e72207056e976472f90616286185"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "3306dd9032e00f989ba7233a37fd255bc4d3f4340cee661762e952f3f6aa1de9"
+        }
+      ]
+    },
+    {
+      "id": "extended-graph",
+      "version": "2.7.6",
+      "repo": "elsatam/obsidian-extended-graph",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "56bf1761dc350fc7d996cc3e286400b5488f7b0e33f26f152e7dbd1670c3c99c"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "d02c3be055973d8e79a0d6fe56f9aa32d71ccbb3cf55d0ce83b0f1c64905a772"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "ce754cb01a6435e83c0197f765feee866896556f14cff24166bf399c3a329cef"
+        }
+      ]
+    },
+    {
+      "id": "folders2graph",
+      "version": "1.2.0",
+      "repo": "ratibus11/folders2graph",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "0be1783429f30642c049161b28196be6b1ab9697f20fb00655bf18483aff8e61"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "164dc4d2cc7b0c0eb95387747140117fe6ca42719a84ca8c726d7a13fede09cf"
+        }
+      ]
+    },
+    {
+      "id": "hearth",
+      "version": "3.3.0",
+      "repo": "ondreu/Hearth",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "d88ed4514a513ecb9a7bf0663b62cc4b498a33d46a6ff352500942d49a9dc7ec"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "4a61f97ca9229f64235a3d18b5de0937b3c69299a3ec761d43d0882c7386f914"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "b89ab1445af06c351ff24ceb48d8630e0037ed22e885e28f0822363e9eba5b2d"
+        }
+      ]
+    },
+    {
+      "id": "notebook-navigator",
+      "version": "3.4.3",
+      "repo": "johansan/notebook-navigator",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "e4d43a6e7e3c5e2c312c2bf0507046e7a6f25cddf9f7fe2b16b1b1f73a1d4829"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "451be9829f362013c4713ace4234326755cab729e45d1e334f205b92d7fa87e5"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "bfacd004c3c5a29f63573aa57b98ca60ab586be64fdc242cc34d6da8dc7744ec"
+        }
+      ]
+    },
+    {
+      "id": "obsidian-better-command-palette",
+      "version": "0.17.1",
+      "repo": "alexbieg/obsidian-better-command-palette",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "1ed1e01812fd810eeafbf4858bba9add40a26f3fdebf440bded2bbe0a3e8dbbf"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "04ba8e952f6903b151a2e43ff55a4bbb6a73f08692db364da16724402649194a"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "fc6cc53a391db7f860b48868c17241f5eefa5748b911c21545aaa527d1625607"
+        }
+      ]
+    },
+    {
+      "id": "obsidian-style-settings",
+      "version": "1.0.9",
+      "repo": "obsidian-community/obsidian-style-settings",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "1828abaacdab4c5578b705a625c585b30512f8efad4c7cfc5a18e70cc3557468"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "9cffdc20cf2aa1354820e0050b694b0f9b576446e3d5d44a36ae8b0187e5bfb8"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "ee7937d2be50653a89ccb30ae5f0572b23507d5b7f1328d005271a363075bfd8"
+        }
+      ]
+    },
+    {
+      "id": "obsidian-vault-statistics-plugin",
+      "version": "0.1.3",
+      "repo": "bkyle/obsidian-vault-statistics-plugin",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "35f1e9dd4354afebb99002aab3c898317637458eab4ad595e4181a35891582ec"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "4981c28da06ee1efb832c4e0189bcf9f9ced1c197dd7739435b232c6904dfa69"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "6074905e2577502684fcb753837c9106ca870e0f54a1b3fdec469d24ecc9c651"
+        }
+      ]
+    },
+    {
+      "id": "omnisearch",
+      "version": "1.31.0",
+      "repo": "scambier/obsidian-omnisearch",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "9f2456705d0840f3cccf62a8e99a6fdaf8901939936e44d4dd27fc6b2d522f31"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "26b1ffc250b1d90605f60c132f783e3148dd399e5baf5862040671d86294bc85"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "c6a56b1a18ff867f12ebbb3a139060a249704281e1b449003ff487969621a2e6"
+        }
+      ]
+    },
+    {
+      "id": "persistent-graph",
+      "version": "0.3.2",
+      "repo": "sanqui/obsidian-persistent-graph",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "d7457976637fb54369dcada254ecb0fe1c99b1763bba1fdd050a1549035dfe4e"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "ed88e3e79ffe097a1b9c6693077577be0040c30748a8644d8478059a192848b1"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "5f8eedc9beb1224c5df03cb326cb7ef79903207382445404ce8fa11924a67acd"
+        }
+      ]
+    },
+    {
+      "id": "tag-wrangler",
+      "version": "0.6.5",
+      "repo": "pjeby/tag-wrangler",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "f390bf135135033cb2b8485438af42efb993ddd93255ac0836016e112ee9ab20"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "271a93e605b09f689fb4b05af1f73f5080e0876fc247635e4fe9e2c2d88ada96"
+        }
+      ]
+    },
+    {
+      "id": "terminal",
+      "version": "3.27.2",
+      "repo": "polyipseity/obsidian-terminal",
+      "files": [
+        {
+          "name": "main.js",
+          "sha256": "227e5cd8915ca9649007dfc089299b231eafebf06142bd1c715a0d7ae22bb467"
+        },
+        {
+          "name": "manifest.json",
+          "sha256": "213714012652ff27e0fb0a798cd9549752d3d02d41eee6459f88790131d896d2"
+        },
+        {
+          "name": "styles.css",
+          "sha256": "39ab74656d85ed316e92d94b891eb9800a6244bb2a4375916065e51703f572bb"
+        }
+      ]
+    }
+  ],
+  "theme": {
+    "name": "Baseline",
+    "version": "4.0.0",
+    "repo": "svnaxis/obsidian-baseline",
+    "commit": "e961258f5eef6f91fe2171488c7061535f60969d",
+    "files": [
+      {
+        "name": "theme.css",
+        "sha256": "ff34928ab291ee7d922b2378131a0549309cd828859d20380f3087f8b101f330"
+      },
+      {
+        "name": "manifest.json",
+        "sha256": "130e2ae48906770292fc913687d675f5ac1a91e3bb9de8ac875ace07c63c2997"
+      }
+    ]
+  }
+}

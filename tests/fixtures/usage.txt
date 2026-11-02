@@ -1,0 +1,39 @@
+nexus: a temporary cockpit for one build
+Usage: node nexus.mjs <command> [options]
+
+  builds                                             list this checkout's builds: phase, stage, active or finished, branch
+  new <name> [--summary <text>] [--branch <name>] [--phase <name>] [--check]   start a build in .build/<name>/ (its first phase); --check only validates
+  phase start <name> [--branch <b>] [--check]        start the next phase once the current one is in close-out; --check only validates
+  phase status [--build <b>]                         the current phase's gates, and the /nexus:plan step to resume at
+  stage <planning|plan|build|close-out>              set the build's stage
+  decommission check <build>                         check that a finished build can be decommissioned
+  decommission apply <build>                         move a finished build into the repo's record, in one commit
+  init [root] [--answers <file>] [--no-plugins] [--check]   set a repo up once: docs/ vault, Obsidian, nexus enabled
+  obsidian install [root] [--check]                  download the pinned Obsidian plugins and theme that are missing
+  docs generate [root] [--check]                     write the vault's rules where the agent reads them, and the vault hubs; --check reports drift
+  docs upgrade [root] [--check]                      add the standard classes a vault lacks and raise its contract
+  governance list [root] [--json] [--outside]        list the standing instructions an agent loads here, recorded or not
+  log add <log> <name> --text <t> --status <s> --source <src> [--note <n>] [--quote <q>] [--commit <c>] [--topic <t>]
+  log status <log> <name> <status>                   change an entry's status
+  guardrail propose <name> --text <t> --source <src> --raised-by <user|claude|agent> [--quote <q>] [--note <n>]
+  guardrail withdraw <name>                          take back a proposal
+  guardrail list [--accepted]                        guardrails and their state, which comes from gate answers
+  gate open <request.json>                           validate a gate request and open it
+  gate apply <gate>                                  fold the user's answers into the logs and mark them read
+  review open <request.json>                         open a review of listed instructions in the Repo view
+  review apply <name>                                mark a review applied once its changes are made
+  review list                                        list this repo's reviews and their state
+  check                                              validate every file in the build
+  ledger import <progress.md>                        add a run's rulings and minors to the logs and keep its task record
+  plan [--phase <name>]                              the phase's plan: each task by title, with its progress
+  plan index <gate>                                  index the tasks of a plan gate approved before nexus tracked them
+  doctor guard                                       check that the wall's guard bundle loads
+  doctor superpowers [--path <dir>]                  check the Superpowers anchors nexus relies on
+  doctor docs                                        check the docs vault machinery: bundle, hook, registry
+  docs check [root] [--file <p>] [--stale] [--json]  check the docs/ vault against its registry
+  serve [--port <n>] [--open] [--cockpit <dir>]      start the cockpit (127.0.0.1, default port 4410)
+  hook                                               UserPromptSubmit hook (reads the hook JSON on stdin)
+  guard                                              PreToolUse hook: the wall (reads the hook JSON on stdin)
+
+  --build <name> picks the build when a checkout holds more than one.
+  Logs and statuses: decisions (accepted, declined) · questions (exploring, research, answered) · issues (open, addressed, closed) · changes (applied, reverted)

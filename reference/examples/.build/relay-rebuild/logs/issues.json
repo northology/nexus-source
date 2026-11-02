@@ -1,0 +1,5 @@
+{
+  "entries": [
+    { "name": "range-replay-skip", "text": "Replaying a range skips the last message", "status": "open", "source": "manual replay test", "note": "Off by one at the range end; repro in notes/working.md.", "time": "2026-10-02T14:05:00-06:00" }
+  ]
+}

@@ -1,0 +1,51 @@
+/* View bar and log rows; ported from design/mockups/cockpit-swiss-v2.html. */
+.viewbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-bottom: 8px; }
+.toggles { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.toggles .lbl { font-size: var(--f-label); color: var(--g2); margin-right: 4px; }
+.tg { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: var(--f-label); padding: 5px 10px; border: 1px solid var(--rule); color: var(--g2); border-radius: 2px; }
+.tg[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); }
+.tg[aria-pressed="false"] { color: var(--g3); text-decoration: line-through; text-decoration-thickness: 1px; }
+.search { margin-left: auto; width: calc(240 * var(--px)); padding: 6px 10px; border: 1px solid var(--rule); border-radius: 2px; background: transparent; }
+.search::placeholder { color: var(--g3); }
+.search:focus-visible { border-color: var(--ink); outline: none; }
+.matches { font-size: var(--f-label); color: var(--g2); min-width: 56px; text-align: right; }
+.copy { display: inline-flex; align-items: center; gap: 8px; }
+.copy-manual { width: 320px; font-size: var(--f-label); padding: 5px 8px; border: 1px solid var(--rule); background: transparent; }
+
+.ecols, .erow { display: grid; grid-template-columns: calc(28 * var(--px)) minmax(0, 1fr) calc(96 * var(--px)) calc(132 * var(--px)) calc(96 * var(--px)); column-gap: 12px; align-items: center; }
+.ecols { padding: 10px 0 8px; font-size: var(--f-label); color: var(--g3); border-bottom: 1px solid var(--rule); margin-top: 8px; }
+.ecols span:last-child, .erow .ed { text-align: right; }
+.entries { list-style: none; }
+.erow { min-height: calc(48 * var(--px)); border-bottom: 1px solid var(--rule-soft); }
+.emark { display: grid; place-items: center; }
+.et { padding: 12px 0; min-width: 0; }
+.et small { display: block; color: var(--g2); font-size: var(--f-label); margin-top: 2px; }
+.es, .ew, .ed { font-size: var(--f-label); color: var(--g2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ed { color: var(--g3); }
+.erow.closed .et-text { color: var(--g2); }
+.erow.struck .et-text { text-decoration: line-through; text-decoration-thickness: 1px; }
+.hiddennote { font-size: var(--f-label); color: var(--g2); padding: 12px 0; }
+.hiddennote button { text-decoration: underline; text-underline-offset: 3px; color: var(--ink); font-size: var(--f-label); }
+
+/* Narrow windows: the view bar wraps (toggles on one row, search with its count on the next) and the
+   From/Source/Commit column folds under the entry text. */
+@media (max-width: 1200px) {
+  .viewbar .toggles { flex: 1 1 100%; }
+  .search { margin-left: 0; flex: 1 1 240px; width: auto; min-width: 0; }
+  .ecols, .erow { grid-template-columns: 28px minmax(0, 1fr) 96px 96px; }
+  .ecols span:nth-child(4) { display: none; }
+  .erow > .emark { grid-column: 1; grid-row: 1 / span 2; }
+  .erow > .et { grid-column: 2; grid-row: 1; }
+  .erow > .es { grid-column: 3; grid-row: 1 / span 2; }
+  .erow > .ed { grid-column: 4; grid-row: 1 / span 2; }
+  .erow > .ew { grid-column: 2; grid-row: 2; padding-bottom: 12px; }
+  .erow > .ew:empty { display: none; }
+  .erow:has(> .ew:not(:empty)) > .et { padding-bottom: 2px; }
+}
+
+/* Static rules, below the guardrails */
+.rules { margin-top: calc(48 * var(--px)); padding-top: calc(20 * var(--px)); border-top: 1px solid var(--ink); }
+.rules h2 { font-size: var(--f-body); font-weight: 600; }
+.rules-intro { color: var(--g2); max-width: 68ch; margin-top: 4px; }
+.rule-file { margin-top: calc(24 * var(--px)); }
+.rule-file .path { font-size: var(--f-label); color: var(--g2); padding-bottom: 8px; border-bottom: 1px solid var(--rule-soft); margin-bottom: 12px; }

@@ -1,0 +1,19 @@
+{
+  "$id": "urn:nexus:schema:changes",
+  "title": "Change log",
+  "description": "logs/changes.json: changes to scope or plan, each ideally with its commit.",
+  "type": "object",
+  "required": ["entries"],
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          { "$ref": "urn:nexus:schema:log-entry" },
+          { "properties": { "status": { "enum": ["applied", "reverted"] } } }
+        ]
+      }
+    }
+  }
+}

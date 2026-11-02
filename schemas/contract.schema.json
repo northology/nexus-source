@@ -1,0 +1,11 @@
+{
+  "$id": "urn:nexus:schema:contract",
+  "title": "Vault contract",
+  "description": "docs/_meta/contract.md frontmatter: the version of the vault standard this vault follows.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract"],
+  "properties": {
+    "contract": { "type": "integer", "minimum": 1, "description": "The contract version." }
+  }
+}

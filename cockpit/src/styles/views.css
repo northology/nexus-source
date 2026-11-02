@@ -1,0 +1,46 @@
+/* Declared views and the shared renderers. */
+.view-desc { color: var(--g2); max-width: 72ch; margin-bottom: 20px; }
+.view-note { font-size: var(--f-label); color: var(--g2); padding: 10px 0; }
+.vtable-wrap { overflow: auto; max-height: 70vh; border-top: 1px solid var(--ink); }
+.vtable { border-collapse: collapse; width: 100%; font-size: var(--f-body); }
+.vtable th { position: sticky; top: 0; background: var(--ground); text-align: left; border-bottom: 1px solid var(--rule); padding: 0; }
+.vtable th button { width: 100%; text-align: inherit; padding: 10px 12px 8px; font-size: var(--f-label); color: var(--g2); }
+.vtable th[aria-sort="ascending"] button, .vtable th[aria-sort="descending"] button { color: var(--ink); font-weight: 600; }
+.vtable td { padding: 9px 12px; border-bottom: 1px solid var(--rule-soft); color: var(--g1); }
+/* font-size: gate.css's page-wide .num is a label size; a number in a table reads at the table's size. */
+.vtable .num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: inherit; }
+.vtable th.num button { text-align: right; }
+/* The Phases table has no sort buttons, so its headers carry the buttons' padding and label type themselves. */
+.phases-table th { padding: 10px 12px 8px; font-size: var(--f-label); font-weight: 400; color: var(--g2); }
+/* .vtable .num would set the number column's header in mono at body size; it reads as a label like the others. */
+.phases-table th.num { text-align: right; font-family: inherit; font-size: var(--f-label); }
+.phases-table td:nth-child(2) { white-space: nowrap; }
+/* The view body is already inset by --x. */
+.view-body .problems { margin: 24px 0 0; }
+/* Charts: React draws the marks, d3 does the maths. */
+.chart-view { width: 100%; }
+.chart-frame { position: relative; outline-offset: 4px; }
+.chart-frame:focus-visible { outline: 1px solid var(--ink); }
+.chart-canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
+.chart-view .tick line { stroke: var(--rule-soft); }
+.chart-view text { fill: var(--g2); font-family: var(--mono); font-size: var(--f-label); }
+.chart-view .cursor { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 2 3; }
+.legend { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--f-label); color: var(--g2); margin-top: 8px; }
+.legend li { display: inline-flex; align-items: center; gap: 6px; }
+.chart-readout { font-size: var(--f-label); color: var(--g2); margin-top: 8px; min-height: 1.4em; }
+/* Galleries: the repo's images, by position from the server. */
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(220 * var(--px)), 1fr)); gap: 20px; }
+.gallery figure { margin: 0; }
+.gallery button { display: block; width: 100%; border: 1px solid var(--rule); background: var(--sheet); padding: 0; }
+/* The image a link named: its frame in ink, and its name. */
+.gallery figure.selected button { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.gallery figure.selected figcaption { color: var(--ink); font-weight: 600; }
+.gallery button:focus-visible { outline: 1px solid var(--ink); outline-offset: 2px; }
+.gallery img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; }
+.gallery figcaption { font-size: var(--f-label); color: var(--g2); margin-top: 6px; }
+.gallery-failed { display: grid; place-content: center; gap: 4px; aspect-ratio: 4 / 3; padding: 12px; font-size: var(--f-label); color: var(--g2); text-align: center; }
+.gallery-large { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; align-content: center; gap: 12px; background: color-mix(in srgb, var(--ground) 94%, transparent); }
+.gallery-large:focus-visible { outline: 1px solid var(--ink); outline-offset: -8px; }
+.gallery-large img { max-width: 88vw; max-height: 80vh; border: 1px solid var(--rule); background: var(--sheet); }
+.gallery-large p { font-size: var(--f-label); color: var(--g2); }
+.gallery-large .gallery-failed { aspect-ratio: auto; border: 1px solid var(--rule); background: var(--sheet); padding: 40px 60px; }

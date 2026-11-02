@@ -1,0 +1,532 @@
+{
+  "title": "__REPO_NAME__",
+  "showTitle": false,
+  "tabIcon": "home",
+  "themeColorTarget": "both",
+  "showSearch": false,
+  "searchPlaceholder": "search or command",
+  "showNewNoteButton": false,
+  "newNoteButtonMode": "searchOnline",
+  "newNoteButtonLabel": "",
+  "newNoteTemplate": "",
+  "newNoteFolder": "",
+  "newNoteFilename": "",
+  "searchContents": true,
+  "searchInstantAnswers": true,
+  "hiddenInstantAnswers": [
+    "currency",
+    "market",
+    "chance"
+  ],
+  "searchEngine": "omnisearch",
+  "webSearchEngine": "google",
+  "backgroundOpacity": 0.1,
+  "backgroundBlur": 3,
+  "backgroundLayout": "full",
+  "bannerHeight": 220,
+  "bannerFade": true,
+  "bannerFullWidth": false,
+  "openOnStartup": true,
+  "replaceNewTabs": true,
+  "focusSearchOnOpen": false,
+  "liveRefresh": true,
+  "liveSettingsSync": true,
+  "mobileSearchOnly": false,
+  "showMobileActionBar": true,
+  "mobileActionButtons": [
+    {
+      "id": "action-new-note",
+      "label": "New note",
+      "icon": "plus",
+      "type": "command",
+      "target": "hearth:new-note"
+    },
+    {
+      "id": "action-new-drawing",
+      "label": "New drawing",
+      "icon": "pen-tool",
+      "type": "command",
+      "target": "hearth:new-drawing"
+    },
+    {
+      "id": "action-daily-note",
+      "label": "Daily note",
+      "icon": "calendar",
+      "type": "command",
+      "target": "hearth:open-daily-note"
+    }
+  ],
+  "stackOnNarrow": true,
+  "narrowWidth": 700,
+  "disableExternalCalls": false,
+  "openIn": "tab",
+  "openInOverrides": {
+    "link": "default",
+    "search": "default",
+    "card": "default",
+    "newNote": "default"
+  },
+  "openFromOutside": "tab",
+  "performanceTier": "full",
+  "mobilePerformanceTier": "full",
+  "lowPowerBackgroundColor": "#4a4459",
+  "pauseWhenUnfocused": true,
+  "compact": true,
+  "arrangeButtonVisibility": "always",
+  "dashboardSwitcherVisibility": "always",
+  "cardOpacity": 0.15,
+  "cardBlur": 10,
+  "cardRadius": 2,
+  "cardBorderWidth": 0,
+  "hiddenFilters": [],
+  "dashboards": [
+    {
+      "id": "dash-mujk7ttv-4945",
+      "name": "home",
+      "cards": [
+        {
+          "id": "card-mumy1dgl-2697",
+          "x": 0,
+          "y": 0,
+          "kind": "clock",
+          "title": "",
+          "w": 4,
+          "h": 2,
+          "fx": 0.17520969245107176,
+          "fy": 0,
+          "fw": 0.271668219944082,
+          "fh": 182.64367816091956,
+          "accent": "#8e8573",
+          "clock": {
+            "playfulGreetings": true
+          },
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        },
+        {
+          "id": "card-mumyxh8n-4299",
+          "x": 3,
+          "y": 0,
+          "kind": "stats",
+          "title": "",
+          "w": 4,
+          "h": 2,
+          "fx": 0.4543336439888164,
+          "fy": 0,
+          "fw": 0.266076421248835,
+          "fh": 180.6366047745358,
+          "stats": {
+            "advanced": true,
+            "queries": [],
+            "builtins": [
+              "notes",
+              "folders",
+              "tags"
+            ],
+            "attachmentTypes": [
+              "bases",
+              "images"
+            ]
+          },
+          "design": "classic",
+          "cardOpacity": 1
+        },
+        {
+          "id": "card-mumyxtnl-3622",
+          "x": 3,
+          "y": 0,
+          "kind": "heatmap",
+          "title": "",
+          "heatmap": {},
+          "w": 6,
+          "h": 3,
+          "fx": 0,
+          "fy": 243.85941644562337,
+          "fw": 0.16589002795899346,
+          "fh": 134.47391688771,
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        },
+        {
+          "id": "card-mumyz8yr-48",
+          "x": 3,
+          "y": 0,
+          "kind": "commands",
+          "title": "",
+          "commands": [
+            {
+              "id": "app:open-settings",
+              "name": "Open settings",
+              "icon": "lucide-settings",
+              "scaleCol": 9,
+              "scaleRow": 1
+            },
+            {
+              "id": "theme:switch",
+              "name": "Change theme..."
+            },
+            {
+              "id": "obsidian-better-command-palette:open-better-commmand-palette",
+              "name": "Better Command Palette: Open better command palette"
+            },
+            {
+              "id": "file-explorer:new-file",
+              "name": "Create new note",
+              "icon": "lucide-file-plus"
+            },
+            {
+              "id": "obsidian-git:commit",
+              "name": "Git: Commit all changes"
+            }
+          ],
+          "tileSizing": "scale",
+          "w": 6,
+          "h": 2,
+          "fx": 0.727865796831314,
+          "fy": 103.36427939876216,
+          "fw": 0.2721342031686859,
+          "fh": 77.27232537577366,
+          "tileCols": 5,
+          "tileMinSize": 20,
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3,
+          "tileAutoFlow": true
+        },
+        {
+          "id": "card-mumz4tks-3450",
+          "x": 3,
+          "y": 0,
+          "kind": "git",
+          "title": "git",
+          "git": {},
+          "w": 4,
+          "h": 4,
+          "fx": 0.7339449541284404,
+          "fy": 199.5477642276423,
+          "fw": 0.26605504587155965,
+          "fh": 461.3821138211382,
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        },
+        {
+          "id": "card-mumz6dw4-3234",
+          "x": 3,
+          "y": 0,
+          "kind": "pet",
+          "title": "",
+          "vaultPet": {},
+          "w": 3,
+          "h": 4,
+          "fx": 0,
+          "fy": 0,
+          "fw": 0.1668219944082013,
+          "fh": 243.85941644562337,
+          "pet": {
+            "species": "dog",
+            "size": "md",
+            "metric": "created",
+            "nightSleep": "always",
+            "name": "freddie"
+          },
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        },
+        {
+          "id": "card-mun0n3in-7396",
+          "x": 0,
+          "y": 11,
+          "kind": "searchbar",
+          "title": "",
+          "searchBar": {
+            "button": "newNote",
+            "seamless": true
+          },
+          "w": 6,
+          "h": 1,
+          "fx": 0.727865796831314,
+          "fy": 0,
+          "fw": 0.2721342031686859,
+          "fh": 103.36427939876216,
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        },
+        {
+          "id": "card-mun0s4vj-5011",
+          "x": 0,
+          "y": 9,
+          "kind": "recent",
+          "title": "recent",
+          "count": 8,
+          "w": 4,
+          "h": 3,
+          "fx": 0.7339449541284404,
+          "fy": 667.8506097560976,
+          "fw": 0.26605504587155965,
+          "fh": 467.1493902439025,
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        },
+        {
+          "id": "card-mup1ti44-1872",
+          "x": 0,
+          "y": 9,
+          "kind": "text",
+          "title": "scratch",
+          "text": "",
+          "w": 4,
+          "h": 2,
+          "fx": 0,
+          "fy": 394.4817073170732,
+          "fw": 0.16763969974979148,
+          "fh": 740.5182926829268,
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        }
+      ],
+      "iconLucide": "home",
+      "fitToPage": true,
+      "cardDesign": "expressive",
+      "backgroundLayout": "full",
+      "bannerFullWidth": true,
+      "bannerHeight": 220
+    },
+    {
+      "id": "dash-mun1pj00-2232",
+      "name": "home copy",
+      "cards": [
+        {
+          "id": "card-mun1pj00-4691",
+          "x": 0,
+          "y": 0,
+          "kind": "clock",
+          "title": "",
+          "w": 4,
+          "h": 2,
+          "fx": 0.3125,
+          "fy": 0,
+          "fw": 0.6875,
+          "fh": 117,
+          "accent": "#8e8573",
+          "clock": {
+            "playfulGreetings": true
+          },
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        },
+        {
+          "id": "card-mun1pj01-5983",
+          "x": 3,
+          "y": 0,
+          "kind": "heatmap",
+          "title": "",
+          "heatmap": {},
+          "w": 6,
+          "h": 3,
+          "fx": 0.46710526315789475,
+          "fy": 274,
+          "fw": 0.5197368421052632,
+          "fh": 56,
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        },
+        {
+          "id": "card-mun1pj01-8379",
+          "x": 3,
+          "y": 0,
+          "kind": "commands",
+          "title": "",
+          "commands": [
+            {
+              "id": "app:switch-vault",
+              "name": "Change vault...",
+              "icon": "vault"
+            },
+            {
+              "id": "app:open-settings",
+              "name": "Open settings",
+              "icon": "lucide-settings"
+            },
+            {
+              "id": "theme:switch",
+              "name": "Change theme..."
+            },
+            {
+              "id": "theme:toggle-light-dark",
+              "name": "Toggle light/dark mode"
+            },
+            {
+              "id": "graph:open",
+              "name": "Graph view: Open graph view",
+              "icon": "lucide-git-fork",
+              "scaleCol": 5,
+              "scaleRow": 1
+            },
+            {
+              "id": "obsidian-better-command-palette:open-better-commmand-palette",
+              "name": "Better Command Palette: Open better command palette"
+            },
+            {
+              "id": "window:reset-zoom",
+              "name": "Reset zoom"
+            },
+            {
+              "id": "file-explorer:new-file",
+              "name": "Create new note",
+              "icon": "lucide-file-plus"
+            },
+            {
+              "id": "canvas:new-file",
+              "name": "Canvas: Create new canvas",
+              "icon": "lucide-layout-dashboard"
+            },
+            {
+              "id": "obsidian-git:commit",
+              "name": "Git: Commit all changes"
+            }
+          ],
+          "tileSizing": "scale",
+          "w": 6,
+          "h": 2,
+          "fx": 0.0075,
+          "fy": 274,
+          "fw": 0.435,
+          "fh": 86,
+          "tileCols": 5,
+          "tileMinSize": 20,
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3,
+          "tileAutoFlow": true
+        },
+        {
+          "id": "card-mun1pj01-7616",
+          "x": 3,
+          "y": 0,
+          "kind": "git",
+          "title": "",
+          "git": {},
+          "w": 4,
+          "h": 4,
+          "fx": 0,
+          "fy": 983,
+          "fw": 1,
+          "fh": 186,
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        },
+        {
+          "id": "card-mun1pj01-7535",
+          "x": 3,
+          "y": 0,
+          "kind": "pet",
+          "title": "",
+          "vaultPet": {},
+          "w": 3,
+          "h": 4,
+          "fx": 0,
+          "fy": 0,
+          "fw": 0.3125,
+          "fh": 117,
+          "pet": {
+            "species": "dog",
+            "size": "md",
+            "metric": "created",
+            "nightSleep": "always",
+            "name": "freddie",
+            "showActivity": false
+          },
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        },
+        {
+          "id": "card-mun1pj01-427",
+          "x": 0,
+          "y": 11,
+          "kind": "searchbar",
+          "title": "",
+          "searchBar": {
+            "button": "newNote",
+            "seamless": true
+          },
+          "w": 6,
+          "h": 1,
+          "fx": 0.0025,
+          "fy": 202,
+          "fw": 0.985,
+          "fh": 56,
+          "design": "classic",
+          "cardOpacity": 0.5,
+          "cardBlur": 3
+        },
+        {
+          "id": "card-mun1xezz-9004",
+          "x": 3,
+          "y": 0,
+          "kind": "stats",
+          "title": "",
+          "w": 4,
+          "h": 2,
+          "fx": 0,
+          "fy": 117,
+          "fw": 1,
+          "fh": 85,
+          "stats": {
+            "advanced": true,
+            "queries": [],
+            "builtins": [
+              "notes",
+              "folders",
+              "tags"
+            ],
+            "attachmentTypes": [
+              "bases"
+            ]
+          },
+          "design": "classic",
+          "cardOpacity": 1
+        }
+      ],
+      "iconLucide": "smartphone",
+      "fitToPage": false,
+      "cardDesign": "expressive",
+      "backgroundLayout": "full",
+      "bannerFullWidth": true,
+      "bannerHeight": 220,
+      "stackOnNarrow": false,
+      "mobileDefault": true
+    }
+  ],
+  "activeDashboardId": "dash-mujk7ttv-4945",
+  "pinnedCards": [],
+  "gridColumns": 12,
+  "rowHeight": 92,
+  "favorites": [],
+  "fitToPage": true,
+  "taskNotesStatusField": "status",
+  "taskNotesDueField": "due",
+  "taskNotesPriorityField": "priority",
+  "taskNotesDoneValue": "done",
+  "taskFieldsEnabled": false,
+  "taskFields": [],
+  "customFileIcons": true,
+  "iconizeIconProperty": "icon",
+  "maxWidth": 1600,
+  "fullWidth": true,
+  "lastSeenVersion": "3.3.0",
+  "setupStatus": "skipped",
+  "authorKey": "",
+  "authorKeySaved": false,
+  "galleryUrl": "https://gallery.o-uhnavy.com"
+}

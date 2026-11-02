@@ -1,0 +1,13 @@
+{
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "absolute",
+  "newFileLocation": "current",
+  "attachmentFolderPath": "./assets",
+  "showUnsupportedFiles": true,
+  "trashOption": "local",
+  "promptDelete": false,
+  "defaultViewMode": "preview",
+  "showInlineTitle": true,
+  "propertiesInDocument": "visible",
+  "userIgnoreFilters": ["governance/archive/", "superpowers/archive/"]
+}

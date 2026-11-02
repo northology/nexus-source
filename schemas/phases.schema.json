@@ -1,0 +1,23 @@
+{
+  "$id": "urn:nexus:schema:phases",
+  "title": "Phases",
+  "description": "The build's planned phases, in order: the list ideation lays out, kept current as phases are added, split, reordered or dropped. The agent edits it; the cockpit's Phases tab shows it, numbering each phase by its place.",
+  "type": "object",
+  "required": ["phases"],
+  "additionalProperties": false,
+  "properties": {
+    "phases": {
+      "type": "array",
+      "description": "One entry per planned phase, in the order they run.",
+      "items": {
+        "type": "object",
+        "required": ["name", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "The phase's name, as `nexus phase start` would take it." },
+          "description": { "type": "string", "minLength": 1, "description": "What the phase delivers, in a sentence or two." }
+        }
+      }
+    }
+  }
+}

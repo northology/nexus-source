@@ -1,0 +1,21 @@
+{
+  "entries": [
+    {
+      "name": "no-new-external-calls",
+      "text": "No new external network calls without a gate",
+      "status": "proposed",
+      "source": "guardrails draft",
+      "raisedBy": "claude",
+      "time": "2026-10-02T11:10:00-06:00"
+    },
+    {
+      "name": "replay-read-only",
+      "text": "Replay never writes to the source systems",
+      "status": "proposed",
+      "source": "chat 11:12",
+      "raisedBy": "user",
+      "quote": "Replay must never touch the sources.",
+      "time": "2026-10-02T11:12:00-06:00"
+    }
+  ]
+}

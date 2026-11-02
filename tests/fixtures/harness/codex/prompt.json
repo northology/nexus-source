@@ -1,0 +1,10 @@
+{
+  "session_id": "00000000-0000-0000-0000-000000000000",
+  "turn_id": "00000000-0000-0000-0000-000000000000",
+  "transcript_path": "C:\\Users\\someone\\.codex\\sessions\\2026\\11\\02\\rollout-2026-11-02T11-53-14-01a19d64-d00b-72a2-8f5a-289be71a8507.jsonl",
+  "cwd": "C:\\work\\repo",
+  "hook_event_name": "UserPromptSubmit",
+  "model": "gpt-6.1-sol",
+  "permission_mode": "bypassPermissions",
+  "prompt": "(the user prompt)"
+}

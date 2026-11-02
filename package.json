@@ -1,0 +1,48 @@
+{
+  "name": "nexus",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p . && tsc -p cockpit && tsc -p tests/e2e",
+    "contracts": "node scripts/gen-contracts.ts",
+    "cockpit": "vite build --config cockpit/vite.config.ts",
+    "cockpit:watch": "vite build --config cockpit/vite.config.ts --watch",
+    "serve:example": "node tests/e2e/serve-example.mjs",
+    "e2e": "vite build --config cockpit/vite.config.ts && playwright test",
+    "build": "vite build --config cockpit/vite.config.ts && node build.mjs",
+    "guide": "node scripts/gen-guide.ts",
+    "snapshot": "node scripts/publish-source.ts",
+    "obsidian:pin": "node scripts/obsidian-pin.ts"
+  },
+  "devDependencies": {
+    "@fontsource/fragment-mono": "5.3.0",
+    "@fontsource/schibsted-grotesk": "5.3.0",
+    "@playwright/test": "1.63.0",
+    "@types/d3-array": "^3.2.2",
+    "@types/d3-scale": "^4.0.9",
+    "@types/d3-shape": "^3.2.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "ajv": "^8.17.1",
+    "esbuild": "^0.25.0",
+    "mermaid": "12.0.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-markdown": "10.1.0",
+    "rehype-highlight": "7.0.2",
+    "remark-gfm": "4.0.1",
+    "typescript": "^5.9.0",
+    "vite": "7.3.6",
+    "vitest": "^3.2.0",
+    "yaml": "^2.9.1"
+  },
+  "dependencies": {
+    "d3-array": "^3.2.4",
+    "d3-scale": "^4.0.2",
+    "d3-shape": "^3.2.0"
+  }
+}

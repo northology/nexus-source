@@ -1,0 +1,19 @@
+{
+  "$id": "urn:nexus:schema:decisions",
+  "title": "Decision log",
+  "description": "logs/decisions.json: settled items, accepted or declined.",
+  "type": "object",
+  "required": ["entries"],
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          { "$ref": "urn:nexus:schema:log-entry" },
+          { "properties": { "status": { "enum": ["accepted", "declined"] } } }
+        ]
+      }
+    }
+  }
+}

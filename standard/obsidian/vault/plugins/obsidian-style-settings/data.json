@@ -1,0 +1,12 @@
+{
+  "baseline-style@@accented-interface": true,
+  "baseline-style@@color-scheme-dark": "everforest-dark",
+  "baseline-style@@background-contrast-dark": "contrast-dark",
+  "baseline-style@@icon-color@@dark": "#C4C49D",
+  "baseline-style@@text-normal@@dark": "#C4C49D",
+  "baseline-style@@density-modifier": 0.75,
+  "baseline-style@@icon-stroke-modifier": 0.5,
+  "baseline-style@@graph-line@@dark": "#7E827E",
+  "baseline-style@@color-scheme-accent": true,
+  "baseline-style@@graph-node@@dark": "#D1E3BF"
+}

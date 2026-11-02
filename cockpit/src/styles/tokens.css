@@ -1,0 +1,57 @@
+/* The cockpit's visual tokens. Light is the default; dark is set by data-theme on <html> (see lib/prefs.ts). */
+:root {
+  --ground: #F5F5F3;
+  --sheet: #FAFAF8;
+  --ink: #111111;
+  --g1: #2B2B2A;
+  --g2: #5C5C59;
+  --g3: #6E6E6A;
+  --rule: #D9D9D5;
+  --rule-soft: #E7E7E3;
+  --signal: #E63B2E;
+  --signal-text: #C2301F; /* red for text under 18px: 5.15:1 on --ground */
+  --select: #11111122;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Four sizes, fluid: 12/14/22/60 up to a 1920px window, growing linearly to 14/16/26/72 at 2560. */
+  --f-label: clamp(12px, calc(12px + (100vw - 1920px) * 0.003125), 14px);
+  --f-body: clamp(14px, calc(14px + (100vw - 1920px) * 0.003125), 16px);
+  --f-title: clamp(22px, calc(22px + (100vw - 1920px) * 0.00625), 26px);
+  --f-figure: clamp(60px, calc(60px + (100vw - 1920px) * 0.01875), 72px);
+  /* One pixel that grows with the body type (1px up to 1920, 16/14px at 2560): dimensions that sit with text
+     (rail, top bar, stage steps, row columns, marks, icons) are written as calc(n * var(--px)). Hairlines stay 1px. */
+  --px: calc(var(--f-body) / 14);
+  --rail: calc(232 * var(--px));
+  --top: calc(64 * var(--px));
+  /* Content width: 1180px up to a 1920px window, then using the width up to 1800px at 2560. */
+  --view-max: clamp(1180px, calc(1180px + (100vw - 1920px) * 0.96875), 1800px);
+  --view-max-wide: clamp(1240px, calc(1240px + (100vw - 1920px) * 0.875), 1800px);
+  --x: 48px; /* main field side padding */
+  --edge: 24px; /* rail and top-bar inset */
+  --sans: "Schibsted Grotesk", system-ui, sans-serif;
+  --mono: "Fragment Mono", ui-monospace, monospace;
+  color-scheme: light;
+}
+
+/* Narrow windows (a 1080p screen split beside a terminal): a slimmer rail and tighter insets. */
+@media (max-width: 1200px) {
+  :root {
+    --rail: 176px;
+    --x: 32px;
+    --edge: 16px;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #141414;
+  --sheet: #191919;
+  --ink: #EDEDEA;
+  --g1: #CFCFCB;
+  --g2: #9B9B97;
+  --g3: #8E8E8A;
+  --rule: #2E2E2D;
+  --rule-soft: #242423;
+  --signal: #FF5A4B;
+  --signal-text: #FF5A4B;
+  --select: #EDEDEA2E;
+  color-scheme: dark;
+}

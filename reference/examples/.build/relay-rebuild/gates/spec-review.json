@@ -1,0 +1,8 @@
+{
+  "name": "spec-review",
+  "type": "approve",
+  "title": "Review the relay rebuild spec",
+  "why": "Approve the spec or send it back with a note.",
+  "opened": "2026-10-02T13:20:00-06:00",
+  "document": "documents/specs/relay-rebuild-spec.md"
+}

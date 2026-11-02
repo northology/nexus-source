@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node"]
+  },
+  "include": ["."],
+  // e2e-server.ts imports the server, which only typechecks under the root project's NodeNext resolution; the root
+  // project checks it through tests/e2e-server.test.ts.
+  "exclude": ["e2e-server.ts"]
+}

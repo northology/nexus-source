@@ -1,0 +1,11 @@
+{
+  "name": "look",
+  "type": "concept-pick",
+  "title": "Pick a direction for the status page",
+  "why": "Two concepts for the lag view. Open each, then pick one.",
+  "opened": "2026-10-02T12:30:00-06:00",
+  "options": [
+    { "name": "quiet-board", "label": "Quiet board", "page": "concepts/quiet-board.html" },
+    { "name": "dense-table", "label": "Dense table", "page": "concepts/dense-table.html" }
+  ]
+}

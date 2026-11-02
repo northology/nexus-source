@@ -1,0 +1,19 @@
+{
+  "$id": "urn:nexus:schema:issues",
+  "title": "Issues log",
+  "description": "logs/issues.json: problems found during the build.",
+  "type": "object",
+  "required": ["entries"],
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          { "$ref": "urn:nexus:schema:log-entry" },
+          { "properties": { "status": { "enum": ["open", "addressed", "closed"] } } }
+        ]
+      }
+    }
+  }
+}

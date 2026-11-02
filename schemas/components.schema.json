@@ -1,0 +1,11 @@
+{
+  "$id": "urn:nexus:schema:components",
+  "title": "Components",
+  "description": "docs/_meta/components.md frontmatter: the repo's components. shared is always allowed and isn't listed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["components"],
+  "properties": {
+    "components": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$", "not": { "const": "shared" } }, "description": "Component names." }
+  }
+}

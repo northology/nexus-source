@@ -1,0 +1,77 @@
+/* The Plan section: header bar, progress strip, task rows and detail. Ink and graphite only: nothing here waits on
+   the user, so nothing is red. */
+.plan-meta { font-size: var(--f-label); }
+.plan-meta a { color: var(--ink); text-underline-offset: calc(3 * var(--px)); }
+.plan-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 20px 0 12px; }
+.plan-summary { flex: 1 1 auto; min-width: 0; font-size: var(--f-label); color: var(--g2); }
+.plan-notice { font-size: var(--f-label); color: var(--g1); padding-bottom: 12px; }
+
+.plan-strip { display: flex; gap: 4px; margin: 4px 0 20px; }
+.ps { flex: 1; height: calc(8 * var(--px)); }
+.ps-done { background: var(--ink); }
+.ps-fix { background: repeating-linear-gradient(90deg, var(--ink) 0 calc(6 * var(--px)), transparent calc(6 * var(--px)) calc(9 * var(--px))); }
+.ps-cur { border: 1px solid var(--ink); }
+.ps-pend, .ps-unknown { height: 0; align-self: center; border-top: 1px dashed var(--g3); }
+.ps-unknown { border-top-style: dotted; }
+
+.pcols, .prow { display: grid; grid-template-columns: calc(28 * var(--px)) minmax(0, 1fr) calc(150 * var(--px)) calc(150 * var(--px)) calc(64 * var(--px)) calc(64 * var(--px)); column-gap: 12px; align-items: center; }
+.pcols { padding: 10px 0 8px; font-size: var(--f-label); color: var(--g3); border-bottom: 1px solid var(--rule); }
+.ptasks { list-style: none; }
+.ptask { border-bottom: 1px solid var(--rule-soft); }
+.prow { width: 100%; min-height: calc(48 * var(--px)); text-align: left; color: var(--ink); }
+.prow:hover .pt-title, .ptask.open .pt-title { text-decoration: underline; text-underline-offset: calc(3 * var(--px)); }
+.prow:focus-visible { outline: 1px solid var(--ink); outline-offset: -1px; }
+.prow .mono { font-size: var(--f-label); color: var(--g2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pt { padding: 12px 0; min-width: 0; }
+.pt small { display: block; font-size: var(--f-label); color: var(--g2); margin-top: 2px; }
+
+.pg { display: inline-grid; place-items: center; justify-self: center; width: calc(12 * var(--px)); height: calc(12 * var(--px)); font-family: var(--mono); font-size: var(--f-label); line-height: 1; color: var(--g3); }
+.pg-done { background: var(--ink); }
+.pg-cur { border: 1px solid var(--ink); }
+.pg-fix { border: 1px solid var(--ink); background: repeating-linear-gradient(135deg, var(--ink) 0 2px, transparent 2px 4px); }
+.pg-pend { border: 1px dashed var(--g3); }
+
+.pdetail { padding: 4px 0 16px 40px; background: var(--sheet); }
+.pdetail h3, .pfinal h3 { font-size: var(--f-label); font-weight: 500; color: var(--g2); margin: 12px 0 4px; }
+.pdetail ul, .pfinal ul { list-style: none; }
+.pdetail li, .pfinal li { padding: 2px 0; line-height: 1.5; }
+.pdetail .mono { font-size: var(--f-label); color: var(--g1); }
+.pd-done { overflow-wrap: anywhere; padding-top: 12px; font-size: var(--f-label); color: var(--g1); }
+.pd-none { padding-top: 12px; font-size: var(--f-label); color: var(--g2); }
+
+.pfinal { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.pfinal h2 { font-size: var(--f-body); font-weight: 600; }
+.pfinal p { margin-top: 4px; font-size: var(--f-label); color: var(--g2); }
+
+/* Narrow windows: commits and the counts fold away; the state stays. */
+@media (max-width: 1200px) {
+  .pcols, .prow { grid-template-columns: calc(28 * var(--px)) minmax(0, 1fr) calc(140 * var(--px)); }
+  .pcols > :nth-child(n + 4), .prow > :nth-child(n + 4) { display: none; }
+}
+
+/* The List | Board toggle, drawn like the theme switch. */
+.plan-modes { display: flex; border: 1px solid var(--rule); border-radius: 2px; }
+.plan-modes button { font-family: var(--mono); font-size: var(--f-label); padding: 5px 10px; color: var(--g2); }
+.plan-modes button[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+
+.board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 8px; }
+.bcol-head { display: flex; justify-content: space-between; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid var(--rule); font-size: var(--f-label); font-weight: 400; color: var(--g2); }
+.bcol ul { list-style: none; display: grid; gap: 8px; }
+.bcard { display: block; width: 100%; text-align: left; padding: 10px 12px; background: var(--sheet); border: 1px solid var(--rule); color: var(--ink); }
+.bcard-cur, .bcard-fix, .bcard[aria-expanded="true"] { border-color: var(--ink); }
+.bcard-pend, .bcard-unknown { border-style: dashed; color: var(--g2); }
+/* The open card alone carries the bar, and its border is solid whatever its state. */
+.bcard[aria-expanded="true"] { border-style: solid; box-shadow: inset calc(3 * var(--px)) 0 0 var(--ink); }
+.bcol-none { font-size: var(--f-label); color: var(--g2); }
+.bcard:focus-visible { outline: 1px solid var(--ink); outline-offset: 1px; }
+.bcard-title { display: block; }
+.bcard-meta { display: block; margin-top: 6px; font-size: var(--f-label); color: var(--g2); }
+.board-detail { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.board-detail h2 { font-size: var(--f-body); font-weight: 600; }
+.board-detail h2:focus { outline: none; }
+.board-detail > .mono { font-size: var(--f-label); color: var(--g2); }
+.board-detail .pdetail { padding-left: 0; background: none; }
+
+@media (max-width: 1200px) {
+  .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

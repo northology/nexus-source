@@ -1,0 +1,41 @@
+{
+  "$id": "urn:nexus:schema:view",
+  "title": "View note",
+  "description": "A page the cockpit shows from one data file in the repo, declared in docs/_meta/views/. The note's body describes it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "title", "type", "data"],
+  "properties": {
+    "name": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$", "description": "Lowercase words joined by hyphens; the note is <name>.md." },
+    "title": { "type": "string", "minLength": 1, "maxLength": 80, "description": "The tab label in the cockpit." },
+    "type": { "enum": ["table", "markdown", "chart", "gallery"], "description": "One of the view types nexus ships." },
+    "data": { "type": "string", "minLength": 1, "description": "The data file (or, for a gallery, a folder) as a path from the repo root, outside docs/." },
+    "component": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$", "description": "A registered component the view belongs to." },
+    "table": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Table options.",
+      "properties": {
+        "columns": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 }, "description": "Which columns to show, in order." },
+        "sort": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["column"],
+          "properties": { "column": { "type": "string", "minLength": 1, "description": "The column to sort by, by name." }, "dir": { "enum": ["asc", "desc"], "description": "Ascending unless desc." } },
+          "description": "The starting sort."
+        }
+      }
+    },
+    "chart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "x", "y"],
+      "description": "Chart options: required for a chart view.",
+      "properties": {
+        "kind": { "enum": ["bar", "line", "area", "scatter"], "description": "The kind of chart." },
+        "x": { "type": "string", "minLength": 1, "description": "The column along the x-axis." },
+        "y": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }], "description": "The column, or columns, drawn as series." }
+      }
+    }
+  }
+}

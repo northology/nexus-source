@@ -1,0 +1,201 @@
+/* A concept round, one option at a time: thumbnail strip on top, the selected page large, the answer panel beside it.
+   Ink and graphite only: the round's "needs you" red stays with the gate head and the rail. */
+.cround { display: grid; grid-template-columns: minmax(0, 1fr) calc(280 * var(--px)); column-gap: 24px; row-gap: 16px; margin-top: 24px; }
+.cstrip-row, .coutcome { grid-column: 1 / -1; }
+.cview { grid-column: 1; min-width: 0; }
+.cpanel { grid-column: 2; }
+
+/* The strip: thumbnails scaled down from a 1280x800 frame, scrolling sideways when there are many. */
+.cstrip-row { display: flex; align-items: flex-end; gap: 16px; border-bottom: 1px solid var(--rule); }
+.cstrip { list-style: none; display: flex; gap: 8px; min-width: 0; overflow-x: auto; padding: 4px 4px 12px; }
+.cstrip li { flex: none; }
+/* An option: its thumbnail, and its button laid over the whole item, transparent, with the label under the thumbnail.
+   The button carries the state, the click and the focus ring; the frame stays outside it. */
+.copt { display: grid; }
+.copt > * { grid-area: 1 / 1; }
+.copt > .cthumb-box { align-self: start; justify-self: start; }
+/* Positioned after the thumbnail, the button paints over it. */
+.copt > button { position: relative; display: block; text-align: left; }
+.cstrip .copt > .cthumb-box { margin: 8px 0 0 12px; }
+/* The top padding clears the thumbnail: its height, its margin of 8 and a gap of 6. */
+.cstrip button { padding: calc(100 * var(--px) + 14px) 8px 8px 12px; color: var(--g2); }
+.cstrip button:hover { color: var(--ink); }
+.cstrip button[aria-pressed="true"] { color: var(--ink); font-weight: 600; box-shadow: inset 3px 0 0 var(--ink); }
+.cthumb-box { position: relative; display: block; width: calc(160 * var(--px)); height: calc(100 * var(--px)); overflow: hidden; border: 1px solid var(--rule); background: var(--sheet); }
+.cthumb { position: absolute; top: 0; left: 0; width: calc(1280 * var(--px)); height: calc(800 * var(--px)); border: 0; transform: scale(0.125); transform-origin: 0 0; pointer-events: none; }
+.cthumb-missing { display: grid; place-items: center; height: 100%; font-size: var(--f-label); font-weight: 400; color: var(--g2); }
+/* A label is never cut short: a long one wraps under its thumbnail. */
+.clabel { display: block; max-width: calc(160 * var(--px)); overflow-wrap: anywhere; }
+/* Once answered, here and in the lineage: kept options outlined, dropped ones' pages dimmed. Labels never dim, nor does
+   a missing page's note. */
+.copt:has(> button[data-kept="true"]) > .cthumb-box { outline: 2px solid var(--ink); outline-offset: -1px; }
+.copt:has(> button[data-kept="false"]) > .cthumb-box > .cthumb { opacity: 0.4; }
+.ccount { flex: none; padding-bottom: 14px; font-size: var(--f-label); color: var(--g2); }
+.coutcome { font-size: var(--f-label); color: var(--g1); }
+
+/* The selected page, large, at 16:10, no taller than the window leaves below the strip (--cframe-avail, set by the
+   round), so the whole round fits on screen. The bar takes the frame's width, keeping Full view at its corner. */
+.cview { container-type: inline-size; }
+.cview > .cframe, .cview > .cframe-missing { height: min(62.5cqi, var(--cframe-avail, 100vh)); aspect-ratio: auto; }
+.cview > .cframe, .cview > .cframe-missing, .cview-bar { width: min(100%, calc(var(--cframe-avail, 100vh) * 1.6)); }
+.cview-bar { display: flex; align-items: baseline; justify-content: flex-end; gap: 12px; padding-bottom: 8px; }
+.cview-label { margin-right: auto; font-weight: 600; }
+.cframe, .cframe-missing { display: block; width: 100%; aspect-ratio: 16 / 10; border: 1px solid var(--rule); background: var(--sheet); }
+.cframe-missing { display: grid; place-items: center; padding: 16px; color: var(--g2); }
+
+/* Compare: the two ticked options at once, side by side or one page over the other (swipe); the answer panel moves
+   below them. Ink and graphite only, as the rest of the round. */
+.cround[data-compare] { grid-template-columns: minmax(0, 1fr); }
+.cround[data-compare] .cpanel { grid-column: 1; padding-top: 0; max-width: calc(560 * var(--px)); }
+/* The bar keeps its buttons at the corner of what is compared: the pair's full width, or the swipe's. */
+.cround[data-compare="side"] .cview-bar { width: 100%; }
+.cround[data-compare="swipe"] .cview-bar { width: min(100%, calc(var(--swipe-room) * 1.6)); }
+/* Side by side or swipe: a segmented toggle, as the plan's modes. */
+.cmodes { display: flex; border: 1px solid var(--rule); border-radius: 2px; }
+.cmodes button { font-family: var(--mono); font-size: var(--f-label); padding: 5px 10px; color: var(--g2); }
+.cmodes button:hover { color: var(--ink); }
+.cmodes button[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+/* Side by side: two pages at half width, each at 16:10 and no taller than the single frame may be. */
+.cpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.cpair figure { display: grid; align-content: start; gap: 8px; min-width: 0; margin: 0; }
+.cpair .cframe, .cpair .cframe-missing { max-height: var(--cframe-avail, none); }
+.cpair figcaption { display: flex; flex-wrap: wrap; align-items: center; column-gap: 12px; row-gap: 4px; }
+.cpair-label { font-weight: 600; }
+.cpair .src { font-size: var(--f-label); color: var(--g2); }
+.cpair figcaption .btn { margin-left: auto; }
+/* A compared option's own tick box, in its caption. */
+.ctick { display: inline-flex; align-items: center; gap: 6px; font-size: var(--f-label); color: var(--g1); }
+.ctick input { accent-color: var(--ink); }
+/* Swipe: both pages the same size, at 16:10, the first over the second, cut off at the Reveal edge, which a 1.5px ink
+   line marks. Each label sits at its page's edge. The pair and the slider under it take the single frame's room. */
+.cview { --swipe-room: calc(var(--cframe-avail, 100vh) - 8px - 18 * var(--px)); }
+.cswipe { position: relative; height: min(62.5cqi, var(--swipe-room)); width: min(100%, calc(var(--swipe-room) * 1.6)); }
+.cswipe .cframe, .cswipe .cframe-missing, .cswipe-top { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
+.cswipe-top { clip-path: inset(0 calc(100% - var(--reveal)) 0 0); }
+.cswipe::after { content: ""; position: absolute; top: 0; bottom: 0; left: var(--reveal); width: 1.5px; margin-left: -0.75px; background: var(--ink); box-shadow: 0 0 0 1px var(--ground); pointer-events: none; }
+.cswipe-label { position: absolute; top: 8px; padding: 2px 8px; font-size: var(--f-label); font-weight: 600; color: var(--ink); background: var(--ground); pointer-events: none; }
+.cswipe-label[data-edge="start"] { left: 8px; }
+.cswipe-label[data-edge="end"] { right: 8px; }
+.creveal { display: flex; align-items: center; gap: 12px; width: min(100%, calc(var(--swipe-room) * 1.6)); padding-top: 8px; font-size: var(--f-label); color: var(--g2); }
+.creveal input { flex: 1; accent-color: var(--ink); }
+@media (max-width: 899px) {
+  .cpair { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* The answer panel. */
+.cpanel { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-top: 36px; min-width: 0; }
+.cpanel h3 { font-size: var(--f-body); font-weight: 600; }
+.cpanel .src { color: var(--g2); }
+.cpath { font-size: var(--f-label); color: var(--g2); overflow-wrap: anywhere; }
+.ccombine { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--rule-soft); align-self: stretch; }
+.ccombine input { accent-color: var(--ink); }
+.cacts { display: flex; flex-wrap: wrap; gap: 8px; }
+.cpanel .note-field { align-self: stretch; margin-top: 8px; }
+.chint { font-size: var(--f-label); color: var(--g3); }
+
+/* Full view: the frame fills the main area, below the top bar and beside the rail. */
+.cround[data-full="true"] { position: fixed; top: var(--top); left: var(--rail); right: 0; bottom: 0; z-index: 3; margin: 0; padding: 12px var(--x) 24px; background: var(--ground); grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+.cround[data-full="true"] > :not(.cview) { display: none; }
+.cround[data-full="true"] .cview { display: flex; flex-direction: column; min-height: 0; }
+.cround[data-full="true"] .cview-bar { width: 100%; }
+.cround[data-full="true"] .cview > .cframe, .cround[data-full="true"] .cview > .cframe-missing { flex: 1; width: 100%; height: auto; min-height: 0; aspect-ratio: auto; }
+/* Compared in full view: the pair, or the swipe, takes the whole area. */
+.cround[data-full="true"] .cpair { flex: 1; min-height: 0; grid-auto-rows: minmax(0, 1fr); }
+.cround[data-full="true"] .cpair figure { display: flex; flex-direction: column; min-height: 0; }
+.cround[data-full="true"] .cpair .cframe, .cround[data-full="true"] .cpair .cframe-missing { flex: 1; min-height: 0; max-height: none; aspect-ratio: auto; }
+.cround[data-full="true"] .cswipe { flex: 1; width: 100%; height: auto; min-height: 0; }
+.cround[data-full="true"] .creveal { width: 100%; }
+
+/* In the Gate view, a later round's link back to its topic; in Proposed, an answered round's link to Chosen. */
+.crumb, .cseen { margin-top: 12px; font-size: var(--f-label); color: var(--g2); }
+.crumb a, .cseen a { color: var(--ink); text-underline-offset: 3px; }
+
+/* Narrow windows: the panel folds under the frame. */
+@media (max-width: 1200px) {
+  .cround { grid-template-columns: minmax(0, 1fr); }
+  .cpanel { grid-column: 1; padding-top: 0; }
+}
+
+/* The Concepts section. Proposed: the open rounds, one at a time, then pages in no round. Chosen: one topic at a
+   time, its pick large with the lineage of its rounds beside it. Red only marks a round waiting for you, in Proposed
+   (and on the rail and the Proposed tab); Chosen has none. */
+
+/* Rounds waiting and topics: ruled rows above the view, as the gate list. */
+.crounds ul, .ctopics ul { list-style: none; margin-bottom: 28px; border-top: 1px solid var(--rule); }
+.crounds li, .ctopics li { border-bottom: 1px solid var(--rule-soft); }
+.crounds button, .ctopics button { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; column-gap: 16px; align-items: baseline; width: 100%; padding: 10px 0 10px 12px; text-align: left; color: var(--g2); }
+.ctopics button { grid-template-columns: minmax(0, 1fr) auto; }
+.crounds button:hover, .ctopics button:hover { color: var(--ink); }
+.crounds button[aria-current="true"], .ctopics button[aria-current="true"] { color: var(--ink); font-weight: 600; box-shadow: inset 2px 0 0 var(--ink); }
+.cnum { font-size: var(--f-label); font-weight: 400; color: var(--g3); }
+.crounds .needs { font-size: var(--f-label); font-weight: 500; color: var(--signal-text); }
+
+/* The selected round's heading, closed by an ink rule like the gate head. */
+.chead { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--ink); }
+.chead h2 { font-size: var(--f-title); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; }
+.chead p { flex-basis: 100%; max-width: 68ch; margin-top: 4px; color: var(--g2); }
+
+/* Pages in no round. */
+.cunused { margin-top: 48px; }
+.cunused h2 { font-size: var(--f-body); font-weight: 600; padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
+.cunused ul { list-style: none; }
+.cunused li { border-bottom: 1px solid var(--rule-soft); }
+.cunused button { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 16px; width: 100%; padding: 10px 0 10px 12px; text-align: left; color: var(--g1); }
+.cunused button:hover { color: var(--ink); }
+.cunused button[aria-pressed="true"] { color: var(--ink); box-shadow: inset 2px 0 0 var(--ink); }
+.cunused b { font-weight: 500; }
+.cunused .mono { font-size: var(--f-label); color: var(--g2); overflow-wrap: anywhere; }
+.cunused .cframe { margin-top: 16px; }
+
+/* Chosen: the pick at a fixed preview size, the lineage taking the rest. */
+.chosen { display: grid; grid-template-columns: calc(560 * var(--px)) minmax(0, 1fr); column-gap: 40px; row-gap: 16px; align-items: start; }
+.ctopic { grid-column: 1 / -1; font-size: var(--f-title); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; padding-bottom: 16px; border-bottom: 1px solid var(--ink); }
+.cpick { margin: 0; display: grid; gap: 12px; }
+.cpick .cthumb-box { width: calc(560 * var(--px)); height: calc(350 * var(--px)); }
+.cpick .cthumb { transform: scale(0.4375); }
+.cpick .copt:has(> button:hover) > .cthumb-box, .lthumbs .copt:has(> button:hover) > .cthumb-box { border-color: var(--g2); }
+.cpick figcaption { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 12px; row-gap: 4px; }
+.cpick-label { font-size: var(--f-title); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; }
+.cpick .src { font-size: var(--f-label); color: var(--g2); }
+.cpick-meta { flex-basis: 100%; font-size: var(--f-label); color: var(--g2); }
+.cpick-meta a, .call { color: var(--ink); text-underline-offset: 3px; }
+/* Pending is dashed, as everywhere in the sheet. */
+.cwait { padding-top: 12px; border-top: 1px dashed var(--g3); color: var(--g2); }
+.cnext { font-weight: 500; color: var(--ink); text-underline-offset: 3px; }
+
+/* Refinements: live-mode changes under the lineage, graphite on a hairline. */
+.crefine { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.crefine h3 { font-size: var(--f-body); font-weight: 600; }
+.crefine ol { list-style: none; display: grid; gap: 12px; margin-top: 8px; }
+.crefine p { max-width: 62ch; }
+.crefine .cmeta { font-size: var(--f-label); color: var(--g2); }
+
+/* The lineage: one hairline path through the rounds, a mark at each: ink where something was kept, faint for none of
+   these, dashed for a round still open (pending). */
+.lineage { list-style: none; border-left: 1px solid var(--rule); }
+.lineage > li { position: relative; padding: 0 0 24px 20px; }
+.lineage > li:last-child { padding-bottom: 4px; }
+.lineage > li::before { content: ""; position: absolute; left: -1px; top: calc(3 * var(--px)); width: 1.5px; height: calc(14 * var(--px)); background: var(--ink); }
+.lineage > li[data-outcome="none"]::before { background: var(--g3); opacity: 0.4; }
+.lineage > li[data-outcome="open"]::before { background: repeating-linear-gradient(to bottom, var(--g3) 0 3px, transparent 3px 6px); }
+.lout { font-size: var(--f-body); font-weight: 600; }
+.ltitle { font-size: var(--f-label); color: var(--g2); }
+.lineage q { display: block; max-width: 54ch; margin-top: 6px; color: var(--g2); }
+.lthumbs { list-style: none; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+/* The top padding clears the thumbnail: its height and a gap of 4. */
+.lthumbs button { padding: calc(60 * var(--px) + 4px) 0 0; color: var(--g2); }
+.lthumbs .cthumb-box { width: calc(96 * var(--px)); height: calc(60 * var(--px)); }
+.lthumbs .cthumb { transform: scale(0.075); }
+/* Long labels wrap; nothing truncates a label. */
+.lthumbs .clabel { max-width: calc(96 * var(--px)); font-size: var(--f-label); }
+/* An answered round's labels, kept or dropped, read in ink; the thumbnails tell them apart. */
+.lthumbs button[data-kept] { color: var(--ink); }
+.call { display: inline-block; margin-top: 8px; font-size: var(--f-label); }
+
+/* A page in full view over the main area, as the round's own full view. */
+.cfull { position: fixed; top: var(--top); left: var(--rail); right: 0; bottom: 0; z-index: 3; display: flex; flex-direction: column; padding: 12px var(--x) 24px; background: var(--ground); }
+.cfull .cframe, .cfull .cframe-missing { flex: 1; min-height: 0; aspect-ratio: auto; }
+
+@media (max-width: 1200px) {
+  .chosen { grid-template-columns: minmax(0, 1fr); row-gap: 28px; }
+}

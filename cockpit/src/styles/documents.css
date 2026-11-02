@@ -1,0 +1,93 @@
+/* Documents: list beside a reading view with its own measure. */
+.docs { display: grid; grid-template-columns: calc(260 * var(--px)) minmax(0, 1fr); column-gap: 40px; }
+.dlist { align-self: start; position: sticky; top: calc(72 * var(--px)); }
+.dli { border-bottom: 1px solid var(--rule-soft); }
+.dlist a { display: block; padding: 12px 0; text-decoration: none; color: var(--g1); }
+.dlist a b { display: block; font-weight: 500; }
+.dlist a span.mono { font-size: var(--f-label); color: var(--g2); overflow-wrap: anywhere; }
+.dlist a[aria-current="true"] { box-shadow: inset 1.5px 0 0 var(--ink); padding-left: 12px; }
+.dlist a[aria-current="true"] b { color: var(--ink); font-weight: 600; }
+.dlist a.needs-note { color: var(--signal-text); font-weight: 500; font-size: var(--f-label); padding: 0 0 12px; margin-top: -6px; text-underline-offset: 3px; }
+.dlist a.needs-note:hover { text-decoration: underline; }
+.dli:has(a[aria-current="true"]) a.needs-note { padding-left: 12px; }
+.reader { max-width: 72ch; min-width: 0; }
+.path-end { display: flex; gap: 16px; }
+.path-end a { color: var(--ink); text-underline-offset: 3px; }
+/* The path line above every build document, Markdown or not (PathLine). */
+:is(.reader, .doc-file) > .path { font-size: var(--f-label); color: var(--g2); padding-bottom: 14px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 16px; }
+.reader-msg { padding: 24px 0; color: var(--g2); }
+.toc { font-size: var(--f-label); margin-top: 14px; display: flex; gap: 16px; flex-wrap: wrap; }
+.toc a { color: var(--g2); text-decoration: none; }
+.toc a:hover { color: var(--ink); }
+/* Room for a third column: the contents list sits to the right of the text and stays in view while reading. */
+@media (min-width: 1600px) {
+  .docs .reader:has(> .toc) { display: grid; grid-template-columns: minmax(0, 72ch) calc(220 * var(--px)); column-gap: 48px; max-width: calc(72ch + 48px + 220 * var(--px)); }
+  .docs .reader:has(> .toc) > * { grid-column: 1; }
+  .docs .reader > .toc { grid-column: 2; grid-row: 1 / span 2; align-self: start; position: sticky; top: calc(72 * var(--px)); margin-top: 0; flex-direction: column; flex-wrap: nowrap; gap: 8px; padding-left: 16px; border-left: 1px solid var(--rule); }
+  .docs .reader > .toc a { padding: 2px 0; }
+}
+/* Narrow windows: the document list stacks above the reader at full width. */
+@media (max-width: 1200px) {
+  .docs { grid-template-columns: minmax(0, 1fr); row-gap: 28px; }
+  .dlist { position: static; }
+}
+
+/* rendered markdown */
+.md { margin-top: 8px; overflow-wrap: anywhere; } /* a long hash, URL or path wraps rather than widening the reader; pre keeps its own scroll */
+.md pre, .md .md-mermaid { overflow-wrap: normal; }
+/* prose holds a 65-75 character line; tables, code and diagrams keep the full reader width */
+.md :is(p, li, h1, h2, h3, blockquote) { max-width: 54ch; }
+.md h1 { font-size: var(--f-title); font-weight: 600; letter-spacing: -0.02em; margin: 26px 0 8px; }
+.md h2 { font-size: var(--f-body); font-weight: 600; margin: 28px 0 6px; scroll-margin-top: calc(72 * var(--px)); }
+.md h3 { font-size: var(--f-body); font-weight: 500; color: var(--g1); margin: 22px 0 6px; scroll-margin-top: calc(72 * var(--px)); }
+.md p, .md li { line-height: 1.65; color: var(--g1); }
+.md p + p { margin-top: 10px; }
+.md ul, .md ol { margin: 8px 0 0 20px; }
+.md li.task-list-item { list-style: none; position: relative; margin-left: -20px; padding-left: 21px; }
+.md input[type="checkbox"] { appearance: none; width: calc(11 * var(--px)); height: calc(11 * var(--px)); border: 1px solid var(--g2); position: absolute; left: 0; top: 0.55em; margin: 0; }
+.md input[type="checkbox"]:checked { background: var(--ink); border-color: var(--ink); }
+.md table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+.md th { text-align: left; font-weight: 500; font-size: var(--f-label); color: var(--g2); padding: 6px 12px 6px 0; border-bottom: 1px solid var(--ink); }
+.md td { padding: 8px 12px 8px 0; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+.md pre { margin: 12px 0; padding: 14px 16px; background: var(--sheet); border: 1px solid var(--rule); overflow: auto; line-height: 1.7; }
+/* Guidance code wraps rather than scrolls: dozens of scrolling blocks on a long page become composited layers, which
+   turns the page's text from LCD to greyscale anti-aliasing, and a scrolling block clips its line until it is scrolled. */
+.guide .md pre { overflow: visible; white-space: pre-wrap; overflow-wrap: anywhere; }
+.md code { font-family: var(--mono); font-size: var(--f-label); }
+.md :not(pre) > code { padding: 1px 4px; border: 1px solid var(--rule-soft); border-radius: 2px; }
+.md blockquote { margin: 12px 0; padding-left: 12px; border-left: 1px solid var(--rule); color: var(--g2); }
+.md a { color: var(--ink); text-underline-offset: 3px; }
+.md img { max-width: 100%; height: auto; display: block; margin: 12px 0; }
+.md hr { border: 0; border-top: 1px solid var(--rule); margin: 24px 0; }
+.md .dead-link { color: var(--g2); }
+/* an HTML comment in a standing-rule file: it may reach the agent, so it shows, quiet and labelled */
+.md .md-comment { font-size: var(--f-label); line-height: 1.5; color: var(--g2); white-space: pre-wrap; }
+.md div.md-comment { margin: 12px 0; }
+.md .md-comment-label { font-style: normal; color: var(--g3); margin-right: 8px; padding: 0 4px; border: 1px solid var(--rule-soft); border-radius: 2px; }
+
+/* code: weight and graphite, no hues */
+.hljs-keyword, .hljs-built_in, .hljs-selector-tag, .hljs-literal, .hljs-type { font-weight: 600; color: var(--ink); }
+.hljs-string, .hljs-attr, .hljs-number, .hljs-title { color: var(--g1); }
+.hljs-comment, .hljs-meta { color: var(--g3); }
+
+/* diagrams, restyled to the state grammar after Mermaid draws them */
+.md-mermaid { margin: 16px 0; padding: 16px; border: 1px solid var(--rule); background: var(--sheet); overflow-x: auto; font-size: var(--f-label); color: var(--g2); }
+.md-mermaid svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+/* Mermaid measures labels outside the document, so the reader's paragraph spacing must not reach them: a taller line cuts off a wrapped label's last line. */
+.md .md-mermaid :is(p, li) { line-height: inherit; color: inherit; margin: 0; } /* outranks .md p + p as well */
+.md-mermaid svg * { filter: none !important; } /* no shadows: mermaid draws a drop-shadow on nodes by default */
+.md-mermaid g.done :is(rect, polygon, circle, path) { stroke: var(--ink) !important; stroke-width: 1.5px !important; stroke-dasharray: none !important; }
+.md-mermaid g.pending :is(rect, polygon, circle, path) { stroke: var(--g2) !important; stroke-dasharray: 4 3 !important; }
+.md-mermaid g.needs :is(rect, polygon, circle, path) { stroke: var(--signal) !important; stroke-width: 1.5px !important; }
+.md-mermaid-error { margin: 12px 0; padding: 12px 14px; border: 1px solid var(--ink); }
+.md-mermaid-error strong { display: block; }
+.md-mermaid-error pre { margin: 8px 0 0; padding: 0; border: 0; background: none; font-size: var(--f-label); white-space: pre-wrap; color: var(--g2); }
+
+/* The plan placeholder */
+.head.plain a { color: var(--ink); text-underline-offset: 3px; }
+.raw { margin-top: 24px; }
+.raw summary { cursor: pointer; font-size: var(--f-label); color: var(--g2); }
+.raw pre { margin-top: 8px; padding: 14px 16px; background: var(--sheet); border: 1px solid var(--rule); font-size: var(--f-label); overflow: auto; }
+/* A build file that isn't Markdown: a table or gallery at the view's full width, under its path line. */
+.doc-file { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); row-gap: 16px; align-content: start; }
+.doc-file > pre { margin: 0; padding: 14px 16px; background: var(--sheet); border: 1px solid var(--rule); font-size: var(--f-label); line-height: 1.7; overflow: auto; max-height: 70vh; }

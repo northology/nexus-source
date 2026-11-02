@@ -1,0 +1,96 @@
+/* Gate view: ruled rows with line-form state; ported from design/mockups/cockpit-swiss-v1.html. */
+.cols, .row { display: grid; grid-template-columns: calc(28 * var(--px)) calc(36 * var(--px)) minmax(0, 1fr) calc(132 * var(--px)) calc(112 * var(--px)); align-items: center; column-gap: 12px; }
+.cols { padding: 14px 0 8px; font-size: var(--f-label); color: var(--g3); border-bottom: 1px solid var(--rule); }
+.cols span:nth-child(5) { text-align: right; }
+.rows { list-style: none; }
+.row { min-height: calc(52 * var(--px)); border-bottom: 1px solid var(--rule-soft); }
+.row:hover { background: color-mix(in srgb, var(--ink) 2.5%, transparent); }
+.row:focus-visible { outline-offset: -1.5px; }
+
+.mark { position: relative; width: calc(14 * var(--px)); height: calc(20 * var(--px)); justify-self: center; flex: none; }
+.mark svg { position: absolute; inset: 0; overflow: visible; }
+.mark line { stroke: var(--g3); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.mark .solid { stroke: var(--ink); stroke-dasharray: none; transform-origin: 7px 20px; transform: scaleY(0); transition: transform .32s var(--ease); }
+.row[data-state="accepted"] .mark .solid { transform: scaleY(1); }
+.row[data-state="research"] .mark .solid { transform: scaleY(.5); }
+.row[data-state="accepted"] .mark .dash, .row[data-state="research"] .mark .dash { opacity: 0; }
+.row[data-state="declined"] .mark .dash { opacity: .35; }
+
+.num { font-size: var(--f-label); color: var(--g3); }
+.stmt { position: relative; padding: 14px 0; min-width: 0; }
+.stmt .t { position: relative; display: inline; text-align: left; line-height: 1.5; }
+.stmt button.t:hover { text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; }
+.stmt .t::after { content: ""; position: absolute; left: 0; right: 0; top: 52%; height: 1.5px; background: var(--ink); transform: scaleX(0); transform-origin: left; transition: transform .36s var(--ease); }
+.row[data-state="declined"] .stmt .t { color: var(--g3); }
+.row[data-state="declined"] .stmt .t::after { transform: scaleX(1); background: var(--g2); }
+.stmt .q { margin-top: 8px; padding-left: 12px; border-left: 1px solid var(--rule); color: var(--g2); max-width: 66ch; }
+.src { font-size: var(--f-label); color: var(--g2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acts { display: flex; justify-content: flex-end; gap: 4px; }
+.act { width: calc(32 * var(--px)); height: calc(28 * var(--px)); display: grid; place-items: center; border: 1px solid var(--rule); border-radius: 2px; color: var(--g2); transition: background .15s, color .15s, border-color .15s; }
+.act:hover:not(:disabled) { border-color: var(--g2); color: var(--ink); }
+.act[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--ground); }
+.act:disabled { opacity: .55; }
+.act svg { width: calc(14 * var(--px)); height: calc(14 * var(--px)); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.submit { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; padding-top: 18px; margin-top: 28px; border-top: 1px solid var(--ink); }
+.submit-left { display: grid; gap: 14px; flex: 1; max-width: calc(560 * var(--px)); }
+.tally { display: flex; gap: 22px; font-size: var(--f-label); color: var(--g2); }
+.tally b { color: var(--ink); font-weight: 400; }
+.note-field { display: grid; gap: 6px; font-size: var(--f-label); color: var(--g2); }
+.note-field textarea { font-size: var(--f-body); color: var(--ink); background: transparent; border: 1px solid var(--rule); border-radius: 2px; padding: 8px 10px; resize: vertical; min-height: 44px; }
+.note-field textarea:focus-visible { border-color: var(--ink); outline: none; }
+.send { display: flex; align-items: center; gap: 12px; }
+.send .hint { font-size: var(--f-label); color: var(--g3); }
+.outcome { margin-top: 20px; padding: 12px 0; border-bottom: 1px solid var(--rule); color: var(--g1); }
+.outcome b { font-weight: 600; color: var(--ink); }
+.gate-error { margin-top: 16px; padding: 10px 12px; border: 1px solid var(--ink); }
+
+.gate-doc { margin-top: 28px; }
+/* A mark-list's document sits above its rows: the same gap as above it, so the rows read as their own block. */
+.gate-doc + .cols { margin-top: 28px; }
+
+.status .facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(calc(180 * var(--px)), 1fr)); margin-top: 28px; }
+.facts div { padding: 14px 0; border-bottom: 1px solid var(--rule-soft); }
+.facts dt { font-size: var(--f-label); color: var(--g2); }
+.facts dd { font-size: var(--f-title); }
+
+/* Narrow windows: the source folds under the statement, the marks stay on the row, and the submit bar wraps. */
+@media (max-width: 1200px) {
+  .cols, .row { grid-template-columns: 28px 36px minmax(0, 1fr) 112px; }
+  .cols span:nth-child(4) { display: none; }
+  .row > .mark, .row > .num, .row > .acts { grid-row: 1 / span 2; }
+  .row > .mark { grid-column: 1; }
+  .row > .num { grid-column: 2; }
+  .row > .acts { grid-column: 4; }
+  .row > .stmt { grid-column: 3; grid-row: 1; }
+  .row > .src { grid-column: 3; grid-row: 2; padding-bottom: 14px; }
+  .row > .src:empty { display: none; }
+  .row:has(> .src:not(:empty)) > .stmt { padding-bottom: 4px; }
+  .submit { flex-wrap: wrap; row-gap: 18px; }
+  .submit-left { flex: 1 1 100%; max-width: none; }
+  .send { margin-left: auto; }
+}
+
+/* Conflict notes: red while the gate needs you, quiet once answered */
+.stmt .conflicts { display: block; margin-top: 4px; font-size: var(--f-label); color: var(--g2); }
+.gate[data-state="open"] .stmt .conflicts { color: var(--signal-text); }
+
+/* A permit names the protected file an approval opens */
+.permit { display: grid; gap: 4px; margin-top: calc(20 * var(--px)); padding: calc(14 * var(--px)) 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.permit-label { font-size: var(--f-label); color: var(--g2); }
+.permit code { font-size: var(--f-body); color: var(--ink); }
+.permit p { color: var(--g1); max-width: 68ch; }
+
+.gate-bar { display: flex; align-items: center; gap: calc(16 * var(--px)); padding-top: calc(14 * var(--px)); }
+.gate-list { list-style: none; margin: calc(14 * var(--px)) 0 calc(14 * var(--px)); border-top: 1px solid var(--rule); }
+.gate-list li { border-bottom: 1px solid var(--rule-soft); }
+.gate-list button { display: grid; grid-template-columns: calc(72 * var(--px)) minmax(0, 1fr) auto auto; column-gap: calc(12 * var(--px)); align-items: baseline; width: 100%; padding: calc(10 * var(--px)) 0 calc(10 * var(--px)) calc(12 * var(--px)); text-align: left; color: var(--g2); }
+.gate-list button:hover { color: var(--ink); }
+.gate-list button[aria-current="true"] { color: var(--ink); font-weight: 600; box-shadow: inset 2px 0 0 var(--ink); }
+.gate-list .gl-state, .gate-list .gl-phase, .gate-list .gl-time { font-size: var(--f-label); }
+.gate-list button[data-state="open"] .gl-state { color: var(--signal-text); }
+:is(.stmt, .review-line) .note-link { display: block; margin-top: 4px; font-size: var(--f-label); color: var(--g2); text-decoration: underline; text-underline-offset: 2px; }
+:is(.stmt, .review-line) .note-link:hover { color: var(--ink); }
+:is(.stmt, .review-line) .row-note-field { display: block; width: 100%; margin-top: 6px; font-size: var(--f-body); color: var(--ink); background: transparent; border: 1px solid var(--rule); border-radius: 2px; padding: 6px 8px; resize: vertical; min-height: 40px; }
+:is(.stmt, .review-line) .row-note-field:focus-visible { border-color: var(--ink); outline: none; }
+:is(.stmt, .review-line) .row-note { display: block; margin-top: 4px; font-size: var(--f-label); color: var(--g2); }

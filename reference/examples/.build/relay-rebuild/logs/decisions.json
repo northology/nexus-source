@@ -1,0 +1,7 @@
+{
+  "entries": [
+    { "name": "replay-window", "text": "Replay queue keeps the last 7 days", "status": "accepted", "source": "scope gate", "quote": "A week is plenty, nobody digs further back than that.", "time": "2026-10-02T11:55:00-06:00" },
+    { "name": "auto-retry", "text": "Retry failed relays automatically, up to 3 times", "status": "accepted", "source": "scope gate", "time": "2026-10-02T11:55:00-06:00" },
+    { "name": "new-language", "text": "Rewrite the relay in a new language", "status": "declined", "source": "chat 11:26", "time": "2026-10-02T11:26:00-06:00" }
+  ]
+}

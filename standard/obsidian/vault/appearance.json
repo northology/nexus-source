@@ -1,0 +1,13 @@
+{
+  "accentColor": "#d1e3bf",
+  "baseFontSize": 16,
+  "baseFontSizeAction": true,
+  "cssTheme": "Baseline",
+  "interfaceFontFamily": "Segoe UI,Courier,Yu Gothic UI,Franklin Gothic,Ebrima",
+  "monospaceFontFamily": "Source Code Pro",
+  "showRibbon": true,
+  "nativeMenus": false,
+  "theme": "obsidian",
+  "enabledCssSnippets": [],
+  "textFontFamily": "Segoe UI,Yu Gothic,Consolas,Leelawadee,SimSun,Arial,Century Gothic,Inter,Microsoft Sans Serif"
+}

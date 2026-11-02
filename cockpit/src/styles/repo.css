@@ -1,0 +1,78 @@
+/* Repo mode: overview cards, the grouped list and the reader beside it. */
+.repo-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); margin-bottom: 20px; }
+.repo-cards .card { padding: 18px 20px 20px; }
+.repo-cards .card + .card { border-left: 1px solid var(--rule-soft); }
+/* Ink set here, since gate.css's page-wide .num is grey. */
+.repo-cards .num { font-size: calc(34 * var(--px)); letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink); }
+.repo-cards .num.out { color: var(--signal); }
+.repo-cards .card-title { font-size: var(--f-body); font-weight: 600; color: var(--ink); margin-top: 8px; }
+.repo-cards p { font-size: var(--f-label); color: var(--g2); margin-top: 2px; }
+.repo-hint { font-size: var(--f-label); color: var(--g2); margin-bottom: 12px; }
+.view-body .problems.repo-problems { margin: 0 0 20px; }
+.repo-foot { font-size: var(--f-label); color: var(--g2); max-width: 96ch; margin-top: 28px; padding-top: 12px; border-top: 1px solid var(--rule-soft); }
+.repo-foot code { font-family: var(--mono); color: var(--ink); }
+/* The setting line and the footnote read as one block: one rule above the pair. */
+.repo-foot.repo-setting + .repo-foot { margin-top: 8px; padding-top: 0; border-top: 0; }
+.repo-hint strong { color: var(--ink); font-weight: 600; }
+.repo-hint code { font-family: var(--mono); color: var(--ink); }
+.repo-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; margin-top: 8px; }
+.repo-scope h2 { font-size: var(--f-label); text-transform: uppercase; letter-spacing: .06em; color: var(--g3); font-weight: 500; padding: 16px 12px 6px; border-bottom: 1px solid var(--rule); }
+.repo-scope ul { list-style: none; }
+/* The folder's path is .mono in the markup; a long name wraps inside the list column. */
+.repo-folder h3 { font-size: var(--f-label); font-weight: 500; color: var(--g2); padding: 10px 12px 4px; overflow-wrap: anywhere; }
+.repo-across { display: inline-block; font-size: var(--f-label); padding: 6px 12px 0; color: var(--g2); }
+.repo-item { display: grid; grid-template-columns: calc(14 * var(--px)) minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--rule-soft); color: var(--g1); text-decoration: none; }
+.repo-item[aria-current="true"] { background: var(--sheet); box-shadow: inset 2px 0 0 var(--ink); }
+.repo-item:hover .t { color: var(--ink); }
+.repo-item small { display: block; font-size: var(--f-label); color: var(--g2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.repo-item .m { font-size: var(--f-label); color: var(--g3); }
+/* The dot reads its item's record, not a class of its own: .build is the top bar's. */
+.repo-item .dot { width: calc(8 * var(--px)); height: calc(8 * var(--px)); border-radius: 50%; justify-self: center; }
+.repo-item:is([data-record="recorded"], [data-record="generated"]) .dot { background: var(--g2); }
+.repo-item[data-record="outside"] .dot { border: 1.5px solid var(--signal); }
+.repo-item[data-record="build"] .dot { border: 1.5px dashed var(--g2); }
+@media (max-width: 1200px) {
+  .repo-split { grid-template-columns: minmax(0, 1fr); }
+}
+.repo-reader { border-left: 1px solid var(--rule); padding-left: 28px; align-self: start; min-width: 0; }
+.repo-reader h2 { font-size: var(--f-title); font-weight: 600; letter-spacing: -0.02em; }
+/* gate.css sizes every .facts dd as a title; here the facts are small print. */
+.repo-reader .facts { display: grid; grid-template-columns: calc(110 * var(--px)) minmax(0, 1fr); gap: 4px 12px; font-size: var(--f-label); color: var(--g2); margin: 12px 0 18px; }
+.repo-reader .facts dt { color: var(--g3); }
+.repo-reader .facts dd { font-size: inherit; min-width: 0; overflow-wrap: anywhere; }
+.repo-reader .facts dd.out { color: var(--signal-text); }
+.repo-reader .fm { border-collapse: collapse; font-size: var(--f-label); margin-bottom: 16px; }
+.repo-reader .fm th { text-align: left; color: var(--g3); font-weight: 400; padding: 2px 16px 2px 0; }
+.repo-reader .fm td { color: var(--g1); padding: 2px 0; }
+@media (max-width: 1200px) {
+  .repo-reader { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); padding-top: 20px; }
+}
+.repo-reader .fm-error { font-size: var(--f-label); color: var(--signal-text); margin-bottom: 16px; }
+/* A conditional note is a caveat on whether the item loads at all: it wraps rather than clipping. */
+.repo-item small.cond { white-space: normal; color: var(--signal-text); }
+/* A review: a banner ruled like the problems notice, and Keep / Adjust / Remove under each item it names. */
+.review-banner { margin: 0 0 20px; padding: 14px 16px; border: 1px solid var(--rule); border-top: 1px solid var(--ink); }
+.review-banner h2 { font-size: var(--f-body); font-weight: 600; }
+.review-banner > p { font-size: var(--f-label); color: var(--g2); margin-top: 2px; max-width: 96ch; }
+.review-banner .review-status { color: var(--g1); margin-top: 6px; }
+.review-banner .review-status .needs { color: var(--signal-text); }
+/* The submit bar's rule runs edge to edge; its contents keep the banner's inset. */
+.review-banner .submit { margin: 14px -16px 0; padding: 14px 16px 0; }
+.review-gone { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule-soft); }
+.review-gone h3 { font-size: var(--f-label); font-weight: 600; color: var(--g1); }
+.review-gone p { font-size: var(--f-label); color: var(--g2); margin-top: 2px; max-width: 96ch; }
+.review-gone ul { list-style: none; display: grid; gap: 8px; margin-top: 6px; }
+.review-gone .t { font-size: var(--f-body); color: var(--g1); }
+.review-gone .review-line { padding: 4px 0 0; border-bottom: 0; }
+.repo-list li.reviewed > .repo-item { border-bottom: 0; }
+/* 22px + 14 * --px lines the marks up under the item's title: the row's 12px inset, the dot's column and the 10px gap. */
+.review-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 0 12px 10px calc(22px + 14 * var(--px)); border-bottom: 1px solid var(--rule-soft); }
+.review-line :is(.row-note-field, .row-note) { flex-basis: 100%; }
+.review-line :is(.note-link, .row-note) { margin-top: 0; }
+.repo-reader .review-line { padding: 10px 0 0; border-bottom: 0; }
+.review-acts { display: inline-flex; gap: 6px; }
+.review-act { font-size: var(--f-label); padding: 4px 10px; border: 1px solid var(--rule); border-radius: 2px; color: var(--g2); background: transparent; }
+/* Not the chosen mark: its hover ink would sit on its ink ground. */
+.review-act:hover:not(:disabled, [aria-pressed="true"]) { border-color: var(--g2); color: var(--ink); }
+.review-act[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--ground); }
+.review-act:disabled { opacity: .55; }

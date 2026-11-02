@@ -1,0 +1,122 @@
+{
+  "$id": "urn:nexus:schema:gate-request",
+  "title": "Gate request",
+  "description": "Written by the agent. mark-list and review need items, concept-pick needs options (2+), approve has neither.",
+  "type": "object",
+  "required": ["name", "type", "title", "why", "opened"],
+  "additionalProperties": false,
+  "properties": {
+    "phase": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "The phase it belongs to; nexus fills it in." },
+    "step": {
+      "enum": ["guardrails", "scope", "spec", "plan", "finish", "decommission"],
+      "description": "Which standard step this gate is: one of a phase's five, or decommission, after a build's last phase. The cockpit files the gate under that tab; nexus checks the gate fits the step."
+    },
+    "name": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "Same as the file name." },
+    "type": { "enum": ["mark-list", "concept-pick", "approve", "review"], "description": "What the user does. A review lives in .nexus/reviews/ and opens with nexus review open." },
+    "title": { "type": "string", "minLength": 1, "description": "Shown as the gate's heading." },
+    "why": { "type": "string", "minLength": 1, "description": "One line on what to do and why." },
+    "topic": {
+      "$ref": "urn:nexus:schema:defs#/definitions/name",
+      "description": "concept-pick only: the question this round belongs to. Gates with the same topic are its rounds, in the order they opened."
+    },
+    "opened": { "$ref": "urn:nexus:schema:defs#/definitions/time", "description": "When the gate opened." },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "description": "mark-list and review rows.",
+      "items": {
+        "type": "object",
+        "required": ["name", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "Unique within the gate." },
+          "text": { "type": "string", "minLength": 1, "description": "The point to mark." },
+          "source": { "type": "string", "description": "Where it came from, e.g. \"chat 11:20\"." },
+          "quote": { "type": "string", "description": "Shown when the user opens the row." },
+          "conflicts": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 },
+            "description": "Accepted items, guardrails or documents this row conflicts with. The cockpit shows them on the row."
+          },
+          "item": { "type": "string", "pattern": "^[0-9a-f]{12}$", "description": "review only: the inventory id of the item the row is about." },
+          "target": { "type": "string", "minLength": 1, "description": "review only: the item's location, exactly as the inventory lists it." }
+        }
+      }
+    },
+    "options": {
+      "type": "array",
+      "minItems": 2,
+      "description": "concept-pick choices.",
+      "items": {
+        "type": "object",
+        "required": ["name", "label", "page"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "Unique within the gate." },
+          "label": { "type": "string", "minLength": 1, "description": "The option's title." },
+          "source": { "enum": ["self", "impeccable", "superpowers"], "description": "What produced the option." },
+          "page": {
+            "type": "string",
+            "pattern": "^(?!.*\\.\\.)concepts/[^\\\\]+\\.html$",
+            "description": "The concept page, a path inside the build such as concepts/quiet-board.html."
+          }
+        }
+      }
+    },
+    "document": {
+      "type": "string",
+      "pattern": "^(?!.*\\.\\.)(documents|notes)/[^\\\\]+\\.md$",
+      "description": "Optional Markdown document the review is about: shown beside an approve gate, or above a mark-list's rows. A decommission gate's document is the draft final report, in documents/reports/."
+    },
+    "log": {
+      "enum": ["guardrails"],
+      "description": "Set on mark-list gates that decide guardrails. Their marks stay in the answers file and decide each guardrail's state; applying them changes no log."
+    },
+    "permit": {
+      "type": "object",
+      "required": ["target", "change"],
+      "additionalProperties": false,
+      "description": "Approve gates only. Approving lets the agent change one protected file for 30 minutes, until the gate is applied.",
+      "properties": {
+        "target": { "type": "string", "minLength": 1, "description": "The protected file, relative to the repo root or absolute, e.g. CLAUDE.md." },
+        "change": { "type": "string", "minLength": 1, "description": "One sentence on the change, shown above the approve button." }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "required": ["type"], "properties": { "type": { "const": "mark-list" } } },
+      "then": { "required": ["items"], "not": { "required": ["options"] } }
+    },
+    {
+      "if": { "required": ["type"], "properties": { "type": { "const": "concept-pick" } } },
+      "then": { "required": ["options"], "not": { "required": ["items"] } }
+    },
+    {
+      "if": { "required": ["type"], "properties": { "type": { "const": "approve" } } },
+      "then": { "not": { "anyOf": [{ "required": ["items"] }, { "required": ["options"] }] } }
+    },
+    {
+      "if": { "required": ["log"] },
+      "then": { "properties": { "type": { "const": "mark-list" } } }
+    },
+    {
+      "if": { "required": ["topic"] },
+      "then": { "properties": { "type": { "const": "concept-pick" } } }
+    },
+    {
+      "if": { "required": ["permit"] },
+      "then": { "properties": { "type": { "const": "approve" } } }
+    },
+    {
+      "if": { "required": ["type"], "properties": { "type": { "const": "review" } } },
+      "then": {
+        "required": ["items"],
+        "properties": { "items": { "items": { "required": ["item", "target"] } } },
+        "not": { "anyOf": [{ "required": ["options"] }, { "required": ["step"] }, { "required": ["log"] }, { "required": ["permit"] }, { "required": ["topic"] }, { "required": ["document"] }] }
+      },
+      "else": { "properties": { "items": { "items": { "not": { "anyOf": [{ "required": ["item"] }, { "required": ["target"] }] } } } } }
+    }
+  ]
+}

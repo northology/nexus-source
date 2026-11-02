@@ -1,0 +1,47 @@
+{
+  "$id": "urn:nexus:schema:obsidian-pins",
+  "title": "Pinned Obsidian plugins",
+  "description": "standard/obsidian/plugins.json: the plugin and theme files nexus init downloads, each pinned by version and SHA-256.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["plugins", "theme"],
+  "definitions": {
+    "repo": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*$" },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "sha256"],
+      "properties": { "name": { "enum": ["main.js", "manifest.json", "styles.css", "theme.css"] }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }
+    }
+  },
+  "properties": {
+    "plugins": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "version", "repo", "files"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "version": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+          "repo": { "$ref": "#/definitions/repo" },
+          "files": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/file" } }
+        }
+      },
+      "description": "Each plugin: its id, the release version, the GitHub repo and the hash of each file."
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "repo", "commit", "files"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9 _.-]*$" },
+        "version": { "type": "string" },
+        "repo": { "$ref": "#/definitions/repo" },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "files": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/file" } }
+      },
+      "description": "The theme: its name, version, GitHub repo, the commit its files come from and the hash of each."
+    }
+  }
+}

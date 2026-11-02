@@ -1,0 +1,32 @@
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local Claude settings
+.claude/settings.local.json
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+dist/
+
+# Superpowers working folders (plans' ledgers and briefs)
+.superpowers/
+
+# impeccable runtime state (decision-page sessions) and hook cache (config.json is tracked)
+.impeccable/questions/
+**/.impeccable/hook.cache.json
+
+# Stable copy of the compiled plugin for trial sessions (dist/ is rebuilt by the tests)
+.trial/
+
+# Cockpit end-to-end runs
+.e2e/
+test-results/
+playwright-report/

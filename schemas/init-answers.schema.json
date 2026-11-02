@@ -1,0 +1,18 @@
+{
+  "$id": "urn:nexus:schema:init-answers",
+  "title": "Init answers",
+  "description": "What nexus init was told when it set the repo up, kept as the record of setup.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["answers", "components", "tags", "seeding"],
+  "properties": {
+    "answers": { "const": 1, "description": "The answers file's format version." },
+    "components": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$", "not": { "const": "shared" } }, "description": "The repo's components, written to docs/_meta/components.md." },
+    "tags": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9]+([-_/][a-z0-9]+)*$" }, "description": "Starter tags, written to docs/_meta/tags.md." },
+    "seeding": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["what", "where"], "properties": { "what": { "type": "string", "minLength": 1 }, "where": { "type": "string", "minLength": 1 } } },
+      "description": "What already exists that the vault should describe: each a what and a where. init never acts on it; /nexus:plan offers it to the repo's first build."
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "types": {
+    "aliases": "aliases",
+    "cssclasses": "multitext",
+    "tags": "tags",
+    "class": "text",
+    "component": "text",
+    "source": "text",
+    "status": "text",
+    "build": "text",
+    "tier": "text",
+    "paths": "multitext",
+    "uses": "multitext",
+    "feeds": "multitext",
+    "supersedes": "multitext",
+    "relates": "multitext"
+  }
+}

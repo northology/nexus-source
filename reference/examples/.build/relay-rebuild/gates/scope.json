@@ -1,0 +1,12 @@
+{
+  "name": "scope",
+  "type": "mark-list",
+  "title": "Scope gate: confirm what we're building",
+  "why": "Three points taken from this morning's planning chat. Mark each one, then submit.",
+  "opened": "2026-10-02T11:50:00-06:00",
+  "items": [
+    { "name": "replay-window", "text": "Replay queue keeps the last 7 days", "source": "chat 11:20", "quote": "A week is plenty, nobody digs further back than that." },
+    { "name": "auto-retry", "text": "Retry failed relays automatically, up to 3 times", "source": "chat 11:24" },
+    { "name": "alerting-channel", "text": "Alerting by email or the team channel", "source": "chat 11:41" }
+  ]
+}

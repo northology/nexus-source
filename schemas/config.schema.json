@@ -1,0 +1,19 @@
+{
+  "$id": "urn:nexus:schema:config",
+  "title": "Repo config",
+  "description": "Where the repo's standing rules live, and extra files to protect during a build.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "staticRules": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[^*?]+\\.[mM][dD]$" },
+      "description": "Markdown files holding the repo's and workspace's standing rules, relative to the repo root or absolute, no globs. The cockpit shows them read-only; nexus never writes them."
+    },
+    "protect": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Extra files to protect during a build: globs relative to the repo root, starting with ~/, or absolute. Added to the defaults; a repo can't remove a default."
+    }
+  }
+}

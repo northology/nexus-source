@@ -1,0 +1,59 @@
+{
+  "$id": "urn:nexus:schema:gate-answers",
+  "title": "Gate answers",
+  "description": "Written only by the cockpit, once per gate. Exactly one of marks, choice, choices, none or decision.",
+  "type": "object",
+  "required": ["gate", "submitted"],
+  "additionalProperties": false,
+  "properties": {
+    "gate": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "The gate answered." },
+    "submitted": { "$ref": "urn:nexus:schema:defs#/definitions/time", "description": "Set by the server." },
+    "marks": {
+      "type": "object",
+      "description": "mark-list: one mark per item name.",
+      "propertyNames": { "$ref": "urn:nexus:schema:defs#/definitions/name" },
+      "additionalProperties": { "enum": ["accepted", "research", "declined"] }
+    },
+    "choice": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "concept-pick: the option name." },
+    "choices": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": { "$ref": "urn:nexus:schema:defs#/definitions/name" },
+      "description": "concept-pick: combine these options in the next round."
+    },
+    "none": { "const": true, "description": "concept-pick: none of these; the note says what was missing." },
+    "decision": { "enum": ["approve", "send-back"], "description": "approve gates." },
+    "note": { "type": "string", "maxLength": 2000, "description": "Optional note from the user." },
+    "notes": {
+      "type": "object",
+      "description": "mark-list only: optional notes from the user, by row name. Applying copies each into the note of the log entry its row creates.",
+      "propertyNames": { "$ref": "urn:nexus:schema:defs#/definitions/name" },
+      "additionalProperties": { "type": "string", "minLength": 1, "maxLength": 2000, "pattern": "\\S" }
+    },
+    "log": { "enum": ["guardrails"], "description": "Stamped by the server from the gate request: this gate decided guardrails." },
+    "texts": {
+      "type": "object",
+      "description": "Stamped by the server: each row's text exactly as the user saw it.",
+      "propertyNames": { "$ref": "urn:nexus:schema:defs#/definitions/name" },
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "permit": {
+      "type": "object",
+      "description": "Stamped by the server from an approve gate's permit, exactly as the user saw it.",
+      "required": ["target", "change"],
+      "additionalProperties": false,
+      "properties": {
+        "target": { "type": "string", "minLength": 1, "description": "The protected file the user approved a change to." },
+        "change": { "type": "string", "minLength": 1, "description": "The one-sentence change, as the user saw it." }
+      }
+    },
+    "targets": {
+      "type": "object",
+      "description": "Stamped by the server on review answers: the files each row's mark may change, exactly as the user saw them.",
+      "propertyNames": { "$ref": "urn:nexus:schema:defs#/definitions/name" },
+      "additionalProperties": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+    }
+  },
+  "oneOf": [{ "required": ["marks"] }, { "required": ["choice"] }, { "required": ["choices"] }, { "required": ["none"] }, { "required": ["decision"] }]
+}

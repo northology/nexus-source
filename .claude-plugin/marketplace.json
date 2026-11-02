@@ -1,0 +1,6 @@
+{
+  "name": "nexus",
+  "owner": { "name": "Brent Colman" },
+  "metadata": { "description": "nexus and the tools under its umbrella." },
+  "plugins": [{ "name": "nexus", "source": "./plugins/nexus", "description": "A cockpit for planned builds with an AI agent." }]
+}

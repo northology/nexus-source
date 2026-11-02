@@ -1,0 +1,95 @@
+{
+  "$id": "urn:nexus:schema:plan",
+  "title": "Plan",
+  "description": "The tasks of each approved plan, indexed when its plan gate is applied, and the record kept when its run's ledger is imported. Only nexus commands write it.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "plans": {
+      "type": "array",
+      "description": "One entry per approved plan, oldest first. A phase's current plan is its newest entry.",
+      "items": {
+        "type": "object",
+        "required": ["id", "phase", "gate", "document", "title", "indexed", "tasks", "record"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^p-[0-9a-f]{8}$", "description": "Opaque; never shown." },
+          "phase": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "The phase the plan belongs to." },
+          "gate": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "The plan gate that approved it." },
+          "document": { "type": "string", "minLength": 1, "description": "The plan document, relative to the build folder." },
+          "title": { "type": "string", "minLength": 1, "description": "The document's first # heading, or its file name." },
+          "indexed": { "$ref": "urn:nexus:schema:defs#/definitions/time", "description": "When the tasks were indexed." },
+          "tasks": {
+            "type": "array",
+            "description": "The plan's `### Task <N>: <title>` headings, in document order.",
+            "items": {
+              "type": "object",
+              "required": ["id", "number", "title", "steps"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "pattern": "^t-[0-9a-f]{8}$", "description": "Opaque; never shown." },
+                "number": { "type": "integer", "minimum": 1, "description": "The plan's task number; only joins ledger lines, never shown." },
+                "title": { "type": "string", "minLength": 1, "description": "How the task is named everywhere a person reads." },
+                "steps": { "type": "integer", "minimum": 0, "description": "Checkbox steps under the heading." }
+              }
+            }
+          },
+          "record": {
+            "description": "Kept by `nexus ledger import`: each task's outcome when the run's ledger was imported. Null until then.",
+            "anyOf": [{ "type": "null" }, { "$ref": "#/definitions/record" }]
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "fixRound": {
+      "type": "object",
+      "required": ["round", "addressed", "open", "findings", "commits"],
+      "additionalProperties": false,
+      "properties": {
+        "round": { "type": "integer", "minimum": 1, "description": "The fix round's number, from 1." },
+        "addressed": { "type": "integer", "minimum": 0, "description": "Findings this round fixed." },
+        "open": { "type": "integer", "minimum": 0, "description": "Findings still open after it." },
+        "findings": { "type": ["string", "null"], "description": "What the round's findings were, as the ledger says." },
+        "commits": { "type": ["string", "null"], "description": "The round's commit range." }
+      }
+    },
+    "record": {
+      "type": "object",
+      "required": ["imported", "ledger", "tasks", "final"],
+      "additionalProperties": false,
+      "properties": {
+        "imported": { "$ref": "urn:nexus:schema:defs#/definitions/time", "description": "When `nexus ledger import` kept this record." },
+        "ledger": { "type": "string", "minLength": 1, "description": "The ledger it was imported from: relative to the repo root, or absolute when it sits outside it." },
+        "tasks": {
+          "description": "Each plan task's outcome, by task ID.",
+          "type": "object",
+          "propertyNames": { "pattern": "^t-[0-9a-f]{8}$" },
+          "additionalProperties": {
+            "type": "object",
+            "required": ["state", "commits", "parked", "fixRounds"],
+            "additionalProperties": false,
+            "properties": {
+              "state": { "enum": ["done", "incomplete"], "description": "`done` once the ledger has the task's completion line." },
+              "commits": { "type": ["string", "null"], "description": "The commit range on the completion line." },
+              "note": { "type": ["string", "null"], "description": "The note on the task's completion line, such as its test command or review result." },
+              "parked": { "type": "integer", "minimum": 0, "description": "How many findings were parked for later." },
+              "fixRounds": { "type": "array", "items": { "$ref": "#/definitions/fixRound" }, "description": "Each fix round the task's review needed." }
+            }
+          }
+        },
+        "final": {
+          "description": "Counts from the final review.",
+          "type": "object",
+          "required": ["rulings", "minors"],
+          "additionalProperties": false,
+          "properties": {
+            "rulings": { "type": "integer", "minimum": 0, "description": "Rulings made in the final review." },
+            "minors": { "type": "integer", "minimum": 0, "description": "Minor findings the final review deferred." }
+          }
+        }
+      }
+    }
+  }
+}

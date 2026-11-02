@@ -1,0 +1,19 @@
+{
+  "$id": "urn:nexus:schema:questions",
+  "title": "Open questions",
+  "description": "logs/questions.json: items still exploring or under research. Planning items start here.",
+  "type": "object",
+  "required": ["entries"],
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          { "$ref": "urn:nexus:schema:log-entry" },
+          { "properties": { "status": { "enum": ["exploring", "research", "answered"] } } }
+        ]
+      }
+    }
+  }
+}

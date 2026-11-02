@@ -1,0 +1,11 @@
+{
+  "$id": "urn:nexus:schema:tags",
+  "title": "Tag vocabulary",
+  "description": "docs/_meta/tags.md frontmatter: the tags notes may use. The key is vocabulary, because a tags property would tag this file itself.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["vocabulary"],
+  "properties": {
+    "vocabulary": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9]+([-_/][a-z0-9]+)*$" }, "description": "Registered tags, lowercase; / nests." }
+  }
+}

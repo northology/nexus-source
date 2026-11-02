@@ -1,0 +1,19 @@
+{
+  "$id": "urn:nexus:schema:guardrails",
+  "title": "Guardrails",
+  "description": "logs/guardrails.json: this build's proposed guardrails and assumptions. Whether one is accepted comes only from the answers to guardrail gates, never from this file.",
+  "type": "object",
+  "required": ["entries"],
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          { "$ref": "urn:nexus:schema:log-entry" },
+          { "properties": { "status": { "enum": ["proposed", "withdrawn"] } }, "required": ["raisedBy"] }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "artifactDirectoryPath": "C:/Users/someone/.gemini/antigravity-cli/brain/7f41a80f-cd02-40ce-ad14-7088dd9103de",
+  "conversationId": "00000000-0000-0000-0000-000000000000",
+  "lastUserInput": "(the user prompt)",
+  "modelName": "gemini-3.8-flash-high",
+  "stepIdx": 2,
+  "toolCall": {
+    "args": {
+      "Content": "three\n",
+      "Path": "C:/work/repo/c.txt"
+    },
+    "name": "write_file"
+  },
+  "transcriptPath": "C:/Users/someone/.gemini/antigravity-cli/brain/7f41a80f-cd02-40ce-ad14-7088dd9103de/.system_generated/logs/transcript_full.jsonl",
+  "workspacePaths": [
+    "C:/work/repo"
+  ]
+}

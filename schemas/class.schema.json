@@ -1,0 +1,23 @@
+{
+  "$id": "urn:nexus:schema:class",
+  "title": "Class note",
+  "description": "docs/_meta/classes/<name>.md frontmatter: one class of note in a docs vault. The note's body is its template.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["class", "name", "division", "folder", "produced", "thing", "statuses", "archive", "required", "optional"],
+  "properties": {
+    "class": { "const": "class", "description": "Class notes are notes of class class." },
+    "name": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$", "description": "The name notes use in their class property." },
+    "division": { "enum": ["dev", "data", "governance", "documentation", "design", "superpowers"], "description": "One of the six fixed divisions." },
+    "folder": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*(/[a-z0-9]+(-[a-z0-9]+)*)*$", "description": "Where its notes live, under docs/, inside its division." },
+    "produced": { "enum": ["authored", "generated", "log"], "description": "How its notes are made." },
+    "thing": { "type": "boolean", "description": "True when notes describe something that exists: they need a source, one note per source." },
+    "statuses": { "$ref": "#/definitions/names", "description": "Statuses allowed in the live folder; empty means no status." },
+    "archive": { "$ref": "#/definitions/names", "description": "Statuses that must sit under governance/archive/." },
+    "required": { "$ref": "#/definitions/names", "description": "Extra required properties." },
+    "optional": { "$ref": "#/definitions/names", "description": "Extra allowed properties." }
+  },
+  "definitions": {
+    "names": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" } }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$id": "urn:nexus:schema:log-entry",
+  "title": "Log entry",
+  "description": "One entry in any of the four logs.",
+  "type": "object",
+  "required": ["name", "text", "status", "source", "time"],
+  "additionalProperties": false,
+  "properties": {
+    "phase": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "The phase it belongs to; nexus fills it in." },
+    "name": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "Unique within its log." },
+    "text": { "type": "string", "minLength": 1, "description": "The entry itself, in one sentence." },
+    "status": { "type": "string", "description": "Allowed values depend on the log (table below)." },
+    "source": { "type": "string", "minLength": 1, "description": "Where it came from: \"chat 11:20\", \"scope gate\", a test." },
+    "quote": { "type": "string", "description": "Optional words from the source." },
+    "note": { "type": "string", "description": "Optional short note." },
+    "commit": { "type": "string", "description": "Optional commit hash, mainly for the change log." },
+    "raisedBy": { "enum": ["user", "claude", "agent"], "description": "Who raised it: the user, the agent running the build, or a helper agent (a subagent, advisor or workflow). Required for guardrails." },
+    "task": { "type": "string", "pattern": "^t-[0-9a-f]{8}$", "description": "The plan task this entry came from, set by `nexus ledger import`." },
+    "topic": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "The concept topic a live-mode refinement belongs to; Concepts › Chosen lists it." },
+    "time": { "$ref": "urn:nexus:schema:defs#/definitions/time", "description": "When it was recorded." }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "$id": "urn:nexus:schema:build",
+  "title": "Build",
+  "description": "The build's identity, stage and gate bookkeeping.",
+  "type": "object",
+  "required": ["name", "stage", "branch", "summary", "created", "gates"],
+  "additionalProperties": false,
+  "dependencies": { "phase": ["phases"], "phases": ["phase"] },
+  "properties": {
+    "name": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "Same as the folder name." },
+    "stage": { "enum": ["planning", "plan", "build", "close-out"], "description": "Where the build is." },
+    "branch": { "type": "string", "minLength": 1, "description": "The git branch the build lives on." },
+    "summary": { "type": "string", "description": "One line on what the build delivers." },
+    "created": { "$ref": "urn:nexus:schema:defs#/definitions/time", "description": "When the build started." },
+    "phase": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "The current phase. Builds made before phases have neither field and read as one phase named after the build." },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Every phase so far, in order. The stage belongs to the last one.",
+      "items": {
+        "type": "object",
+        "required": ["name", "branch", "started", "finished"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "$ref": "urn:nexus:schema:defs#/definitions/name", "description": "The phase's name; also names its finish gate." },
+          "branch": { "type": "string", "minLength": 1, "description": "The git branch the phase works on." },
+          "started": { "$ref": "urn:nexus:schema:defs#/definitions/time", "description": "When the phase started." },
+          "finished": { "anyOf": [{ "$ref": "urn:nexus:schema:defs#/definitions/time" }, { "type": "null" }], "description": "When the phase finished, or null while it is active." }
+        }
+      }
+    },
+    "gates": {
+      "type": "object",
+      "description": "Every gate opened, by gate name.",
+      "propertyNames": { "$ref": "urn:nexus:schema:defs#/definitions/name" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["opened", "read"],
+        "additionalProperties": false,
+        "properties": {
+          "opened": { "$ref": "urn:nexus:schema:defs#/definitions/time" },
+          "read": { "anyOf": [{ "$ref": "urn:nexus:schema:defs#/definitions/time" }, { "type": "null" }] }
+        }
+      }
+    }
+  }
+}

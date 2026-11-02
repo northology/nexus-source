@@ -1,0 +1,6 @@
+{
+  "entries": [
+    { "name": "alerting-channel", "text": "Alerting by email or the team channel", "status": "research", "source": "scope gate", "time": "2026-10-02T11:55:00-06:00" },
+    { "name": "audit-retention", "text": "Keep replays beyond 7 days for audits", "status": "exploring", "source": "chat 11:50", "time": "2026-10-02T11:50:00-06:00" }
+  ]
+}
