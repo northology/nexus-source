@@ -46,6 +46,8 @@ export interface GateItem {
   item?: string;
   /** review only: the item's location, as the inventory lists it. */
   target?: string;
+  /** guardrails gates only: accepting the row retires the accepted guardrail it names. */
+  retire?: true;
 }
 export type ConceptSource = 'self' | 'impeccable' | 'superpowers';
 export interface GateOption { name: string; label: string; page: string; source?: ConceptSource }
@@ -132,7 +134,8 @@ export interface FileEntry { path: string; size: number; modified: string }
 export interface Problem { file: string; message: string }
 export interface GateView { name: string; request: GateRequest; answers: GateAnswers | null; read: string | null }
 export type FileArea = 'documents' | 'notes' | 'files' | 'concepts';
-export type GuardrailState = 'proposed' | 'accepted' | 'declined' | 'withdrawn';
+/** `retired`: accepted once, then retired at a later gate's retire row. Derived, never stored. */
+export type GuardrailState = 'proposed' | 'accepted' | 'declined' | 'withdrawn' | 'retired';
 export interface GuardrailView { entry: LogEntry; state: GuardrailState; gate: string | null; decided: string | null }
 /** `revision` changes whenever the file does (`<modified>-<size>`); null when it can't be read. */
 export interface RuleFile { index: number; path: string; problem: string | null; revision: string | null }

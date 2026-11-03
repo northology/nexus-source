@@ -127,6 +127,7 @@ The guard works out every file the write or command would change, and refuses it
 is active. Protected means your standing rules (`CLAUDE.md`, `CLAUDE.local.md`, `AGENTS.md`, `.claude/settings*.json`,
 `.claude/rules/`, memory, `.nexus/config.json` and any files that config adds, the docs vault registry `docs/_meta/`,
 and the rule files Codex and Antigravity load: `AGENTS.override.md`, `GEMINI.md`, `.agents/rules/`,
+`.agents/rules.json`, the older rule folders `.agent/rules/`, `_agents/rules/` and `_agent/rules/`,
 `.agents/hooks.json`, `.codex/config.toml` and their global copies) and the build's record: the gate answers,
 `build.json`, `plan.json`,
 concept pages whose round has opened, and `docs/superpowers/`, so specs and plans land in the build. A review's answers

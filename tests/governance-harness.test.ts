@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { governanceInventory } from '../core/governance/inventory.ts';
 import { memoryKey } from '../core/governance/env.ts';
 import { walkSubfolders } from '../core/governance/subfolders.ts';
+import { splitGlobs } from '../core/governance/globs.ts';
 import { put, sandbox } from './governance-helpers.ts';
 
 /** One repo with every harness's instruction files, seen from each harness. */
@@ -53,5 +54,20 @@ describe('the Repo view under each harness', () => {
     expect(named.harness).toBe('claude-code');
     expect(named.setting).not.toBeNull();
     expect(instructionFiles(named)).toContain('CLAUDE.md');
+  });
+});
+
+describe('Antigravity globs', () => {
+  it('split only on commas outside braces', () => {
+    expect(splitGlobs('src/{a,b}/**, docs/**')).toEqual(['src/{a,b}/**', 'docs/**']);
+    expect(splitGlobs('a, ,b')).toEqual(['a', 'b']);
+    expect(splitGlobs('{x,{y,z}}')).toEqual(['{x,{y,z}}']);
+  });
+  it('a glob rule with braces lists each of its paths', () => {
+    const s = sandbox();
+    put(s.root, { '.agents/rules/nexus-x.md': '---\ntrigger: glob\nglobs: "src/{a,b}/**, docs/**"\n---\n# Scoped\n' });
+    const inv = governanceInventory(s.root, s.env, { subfolders: walkSubfolders(s.root, s.env).found, harness: 'antigravity' });
+    const item = inv.items.find((i) => slash(i.location).endsWith('.agents/rules/nexus-x.md'));
+    expect(item?.paths).toEqual(['src/{a,b}/**', 'docs/**']);
   });
 });

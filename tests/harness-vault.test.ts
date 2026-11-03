@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { applyPlan, planInit } from '../core/init/init.ts';
@@ -6,11 +6,12 @@ import { RULES_END, RULES_START } from '../core/init/shared.ts';
 import type { InitAnswers } from '../core/init/answers.ts';
 import type { Fetcher } from '../core/init/obsidian.ts';
 import { runInit } from '../core/init/run.ts';
-import { applyGenerate, expectedOutputs, planGenerate } from '../core/vault/generate.ts';
+import { applyGenerate, capWarning, expectedOutputs, planGenerate } from '../core/vault/generate.ts';
+import { main, type CliIO } from '../scripts/cli.ts';
 import { readMarker } from '../core/vault/generated.ts';
 import { governanceInventory } from '../core/governance/inventory.ts';
 import { inventoryEnv } from '../core/governance/env.ts';
-import { tempDir } from './helpers.ts';
+import { NOW, tempDir } from './helpers.ts';
 import { note, STANDARD, vaultRepo } from './vault-helpers.ts';
 
 // init and docs generate under Codex and Antigravity (phase-9 Task 9). Antigravity reads .agents/rules/ flat
@@ -214,5 +215,55 @@ describe('docs generate under Claude Code', () => {
     const root = vaultRepo(RULES);
     expect(expectedOutputs(root, 'claude-code')).toEqual(expectedOutputs(root));
     expect([...expectedOutputs(root).keys()].filter((k) => !k.startsWith('docs/'))).toEqual(['.claude/rules/nexus/explicit-staging.md', '.claude/rules/nexus/merge-loads.md']);
+  });
+});
+
+describe("Codex's AGENTS.md cap", () => {
+  const rules = (n: number) => Array.from({ length: n }, (_, i) => ({ source: `docs/governance/rules/r${i}.md`, bytes: 100 * (i + 1) }));
+  it('is quiet at the cap', () => {
+    expect(capWarning('x'.repeat(32768), [])).toBeNull();
+  });
+  it('names the size, the limit and the three largest rules past it', () => {
+    const w = capWarning('x'.repeat(32769), rules(4)) ?? '';
+    for (const s of ['32,769 bytes', '32,768', 'project_doc_max_bytes']) expect(w).toContain(s);
+    expect(w).toContain('docs/governance/rules/r3.md (400 bytes), docs/governance/rules/r2.md (300 bytes), docs/governance/rules/r1.md (200 bytes)');
+    expect(w).not.toContain('r0.md');
+  });
+  it('names the size with no rules to list', () => {
+    const w = capWarning('x'.repeat(40000), []) ?? '';
+    expect(w).toContain('40,000 bytes');
+    expect(w).not.toContain('Largest');
+  });
+  const bigRepo = () => {
+    const root = vaultRepo({ ...RULES, 'docs/governance/rules/huge.md': note({ class: 'rule', component: 'shared', status: 'active', tier: 'always' }, `# A long rule\n\n${'word '.repeat(7000)}\n`) });
+    put(root, 'AGENTS.md', `# Mine\n\n${block('codex')}`);
+    return root;
+  };
+  it('warns on a CRLF AGENTS.md too', () => {
+    const root = bigRepo();
+    writeFileSync(join(root, 'AGENTS.md'), read(root, 'AGENTS.md').replace(/\n/g, '\r\n'));
+    expect(planGenerate(root, 'codex').warnings).toHaveLength(1);
+  });
+  it('warns in the Codex plan, and only there', () => {
+    const root = bigRepo();
+    const warnings = planGenerate(root, 'codex').warnings;
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('docs/governance/rules/huge.md');
+    expect(planGenerate(root, 'claude-code').warnings).toEqual([]);
+  });
+  it('docs generate prints the warning, with or without --check', async () => {
+    vi.stubGlobal('__NEXUS_HARNESS__', 'codex');
+    try {
+      for (const args of [['docs', 'generate', '--check'], ['docs', 'generate']]) {
+        const root = bigRepo();
+        const out: string[] = [];
+        const io: CliIO = { cwd: root, out: (l) => out.push(l), err: () => {}, now: () => NOW, readStdin: async () => '', env: {} };
+        const code = await main(args, io);
+        expect(out.filter((l) => l.startsWith('  warning  ')), args.join(' ')).toHaveLength(1);
+        if (args.includes('--check')) expect(code).toBe(1);
+      }
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

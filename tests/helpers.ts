@@ -5,14 +5,16 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { applyAnswers, openGate, submitAnswers } from '../core/gates.ts';
 import { changeStage } from '../core/lifecycle.ts';
+import { trackTempDir } from './setup/temp-dirs.ts';
 
 export const ARTIFACTS = fileURLToPath(new URL('..', import.meta.url));
 export const EXAMPLES = join(ARTIFACTS, 'reference', 'examples');
 export const NOW = '2026-10-02T14:00:00-06:00';
 export const LATER = '2026-10-02T15:00:00-06:00';
 
+/** A new folder in the system temp folder, removed after the test file's last test. */
 export function tempDir(prefix = 'nexus-'): string {
-  return mkdtempSync(join(tmpdir(), prefix));
+  return trackTempDir(mkdtempSync(join(tmpdir(), prefix)));
 }
 
 /** A temp repo root containing a copy of reference/examples/.build/relay-rebuild. */

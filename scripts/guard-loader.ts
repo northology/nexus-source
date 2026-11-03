@@ -116,7 +116,12 @@ export async function runLoader(raw: string | Error, deps: Deps): Promise<Result
     }
   }
   const inputs = failure ? [] : adapter.toGuardInputs(input);
-  const found = inputs.flatMap((i) => candidateFolders(i, deps.cwd, deps.win));
+  let found = inputs.flatMap((i) => candidateFolders(i, deps.cwd, deps.win));
+  if (failure && adapter.foldersFromText) {
+    const placed = adapter.foldersFromText(typeof raw === 'string' ? raw : '');
+    if (placed === null) return adapter.refusal("The nexus wall couldn't tell which workspace this call is in, so it refused it. Run `nexus doctor guard` to see why.\n");
+    found = placed;
+  }
   const folders = found.length ? [...new Set(found)] : [deps.cwd];
   const allow: Result = { code: 0, stdout: adapter.toGuardOutput(''), stderr: '' };
   // Outside every build the guard has nothing to protect, so it isn't loaded. A shell command's paths are only known

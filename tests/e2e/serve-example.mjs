@@ -14,13 +14,16 @@ import { addEntry } from '../../core/logs.ts';
 import { startPhase } from '../../core/phases.ts';
 import { openReview } from '../../core/reviews.ts';
 // Every fixture's server reads an empty, temporary home (see e2e-server.ts): e2e never reads the real ~/.claude.
-import { isolatedEnv, startE2eServer } from './e2e-server.ts';
+import { isolatedEnv, removePreviousRun, startE2eServer } from './e2e-server.ts';
 
 const ARTIFACTS = fileURLToPath(new URL('../../', import.meta.url));
 const EXAMPLES = join(ARTIFACTS, 'reference', 'examples');
 const COCKPIT = join(ARTIFACTS, 'cockpit', 'dist');
 const B = 'relay-rebuild';
 const PORTS = { live: 4490, empty: 4491, broken: 4492, visual: 4493, watch: 4494, two: 4495, planning: 4497, gates: 4498, plan: 4499, concepts: 4489, repo: 4488, reviews: 4487, finished: 4486 };
+// The servers are killed at the end of a run, so the run before this one left its temp folders: they go now.
+const TEMP_LIST = join(ARTIFACTS, '.e2e', 'temp.json');
+removePreviousRun(TEMP_LIST);
 
 function plainCopy() {
   const root = mkdtempSync(join(tmpdir(), 'nexus-e2e-'));
@@ -349,6 +352,9 @@ const REPORT = [
 const REPORT_FILE = join(F, '.build', B, ...reportDraft(B).split('/'));
 mkdirSync(dirname(REPORT_FILE), { recursive: true });
 writeFileSync(REPORT_FILE, REPORT);
+// A fixed time, so the date beside the report (masked in the screenshot) has the same width every day.
+const REPORT_TIME = new Date('2026-10-10T15:30:00Z');
+utimesSync(REPORT_FILE, REPORT_TIME, REPORT_TIME);
 openGate(
   F,
   B,
@@ -368,7 +374,11 @@ const envs = { repo: repo.env, reviews: reviews.env };
 
 mkdirSync(join(ARTIFACTS, '.e2e'), { recursive: true });
 writeFileSync(join(ARTIFACTS, '.e2e', 'roots.json'), `${JSON.stringify(roots, null, 2)}\n`);
+const inventories = Object.fromEntries(Object.keys(roots).map((name) => [name, envs[name] ?? isolatedEnv()]));
+// Every temp folder this run made, for the next run to remove.
+const temp = [...Object.values(roots), ...new Set(Object.values(inventories).map((env) => dirname(env.home)))];
+writeFileSync(TEMP_LIST, `${JSON.stringify(temp, null, 2)}\n`);
 for (const [name, root] of Object.entries(roots)) {
-  const s = await startE2eServer({ root, cockpitDir: COCKPIT, port: PORTS[name], tries: 1, inventory: envs[name] ?? isolatedEnv() });
+  const s = await startE2eServer({ root, cockpitDir: COCKPIT, port: PORTS[name], tries: 1, inventory: inventories[name] });
   console.log(`nexus e2e ${name}: ${s.url} (${root})`);
 }

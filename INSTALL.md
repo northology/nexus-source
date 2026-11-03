@@ -49,7 +49,8 @@ multi_agent = true
 ```
 
 nexus relies on particular passages of Superpowers' skills. After installing or updating Superpowers, run
-`nexus doctor superpowers`: it says whether each passage is there, and what breaks if one has moved.
+`nexus doctor superpowers`: it says whether each passage is there, and what breaks if one has moved. nexus supports
+6.4.1, 7.0.0 and 7.0.1; with several installed, only the newest is checked, since that is the one the harness loads.
 
 ## Get nexus
 

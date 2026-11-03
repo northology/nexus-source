@@ -376,6 +376,7 @@ function MarkList({ items, marks, readOnly, onMark, notes, saved, noteOpen, onNo
                 {String(i + 1)}
               </span>
               <div className="stmt">
+                {item.retire && <span className="retire-tag mono">Retire</span>}
                 {item.quote ? (
                   <button type="button" className="t" aria-expanded={isOpen} onClick={() => setOpenRow(isOpen ? null : item.name)}>
                     {item.text}
@@ -397,11 +398,15 @@ function MarkList({ items, marks, readOnly, onMark, notes, saved, noteOpen, onNo
               </div>
               <span className="src mono">{item.source ?? ''}</span>
               <span className="acts" role="group" aria-label={`Mark: ${item.text}`}>
-                {GATE_MARKS.map((m) => (
-                  <button key={m} type="button" className="act" aria-pressed={mark === m} aria-label={MARK_LABEL[m]} title={`${MARK_LABEL[m]} (${MARK_KEY[m]})`} disabled={readOnly} onClick={() => onMark(item.name, m)}>
-                    <MarkIcon kind={m} />
-                  </button>
-                ))}
+                {GATE_MARKS.map((m) => {
+                  // On a retire row, accepting retires the guardrail: the button says so, not "Accept".
+                  const label = item.retire && m === 'accepted' ? 'Retire it' : MARK_LABEL[m];
+                  return (
+                    <button key={m} type="button" className="act" aria-pressed={mark === m} aria-label={label} title={`${label} (${MARK_KEY[m]})`} disabled={readOnly} onClick={() => onMark(item.name, m)}>
+                      <MarkIcon kind={m} />
+                    </button>
+                  );
+                })}
               </span>
             </li>
           );

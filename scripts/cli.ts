@@ -378,6 +378,7 @@ async function run(p: string[], o: Opts, io: CliIO): Promise<number> {
       const plan = planGenerate(root);
       if (o.check) {
         for (const i of plan.issues) io.out(`  ${i.kind.padEnd(8)} ${i.file}`);
+        for (const w of plan.warnings) io.out(`  warning  ${w}`);
         io.out(`${plan.expected.size} generated files expected: ${plan.issues.length} to fix`);
         return plan.issues.length ? 1 : 0;
       }
@@ -385,6 +386,7 @@ async function run(p: string[], o: Opts, io: CliIO): Promise<number> {
       io.out(`nexus docs generate: ${plan.writes.length} written, ${plan.removes.length} removed`);
       for (const f of plan.writes) io.out(`  write    ${f}`);
       for (const f of plan.removes) io.out(`  remove   ${f}`);
+      for (const w of plan.warnings) io.out(`  warning  ${w}`);
       return 0;
     }
     if (rest[0] !== 'check') throw new NexusError('Use `docs check [root] [--file <path>] [--stale] [--json]`, `docs generate [root] [--check]` or `docs upgrade [root] [--check]`');
@@ -682,6 +684,8 @@ function describeApply(s: ApplySummary): string {
   const lines = [`Applied gate "${s.gate}".`];
   if (s.type === 'mark-list') {
     lines.push(`Accepted: ${s.accepted.join(', ') || 'none'}`, `Research: ${s.research.join(', ') || 'none'}`, `Declined: ${s.declined.join(', ') || 'none'}`);
+    if (s.retired?.length) lines.push(`Retired: ${s.retired.join(', ')}`);
+    if (s.kept?.length) lines.push(`Kept, not retired: ${s.kept.join(', ')}`);
     if (s.closed.length) lines.push(`Closed questions: ${s.closed.join(', ')}`);
     if (s.reopened.length) lines.push(`Reopened as questions: ${s.reopened.join(', ')}`);
   }

@@ -4,8 +4,8 @@ import { checkAnswers } from './answers.ts';
 import { NexusError } from './errors.ts';
 import type { GateInput } from './gates.ts';
 import { inventoryEnv } from './governance/env.ts';
-import { fullInventory } from './governance/inventory.ts';
-import type { InventoryEnv, InventoryItem, ItemKind } from './governance/types.ts';
+import { fullInventory, governanceInventory } from './governance/inventory.ts';
+import type { Found, InventoryEnv, InventoryItem, InventoryProblem, ItemKind } from './governance/types.ts';
 import { assertReadableName, duplicateNames } from './names.ts';
 import { REVIEW_INDEX, readReviewIndex, reviewPath, reviewsDir, writeReviewIndex } from './review-files.ts';
 import { validate } from './schemas.ts';
@@ -83,15 +83,19 @@ export function openReview(root: string, input: GateInput, now: string, env: Inv
   return request;
 }
 
-/** Called by the server only: the one place nexus writes a review's answers. Targets come from a fresh inventory. */
-export function submitReviewAnswers(root: string, name: string, body: unknown, now: string, env: InventoryEnv = inventoryEnv()): GateAnswers {
+/**
+ * Called by the server only: the one place nexus writes a review's answers. Targets come from a fresh inventory, built
+ * on the server's walk below the repo when it passes one (so the request doesn't walk the repo itself).
+ */
+export function submitReviewAnswers(root: string, name: string, body: unknown, now: string, env: InventoryEnv = inventoryEnv(), walk?: { found: Found[]; problems: InventoryProblem[] }): GateAnswers {
   const request = readRequest(root, name);
   if (existsSync(reviewPath(root, name, true))) throw new NexusError(`Review "${name}" has already been answered`, 409);
   if (typeof body !== 'object' || body === null || Array.isArray(body)) throw new NexusError('Answers must be a JSON object');
   const { log: _log, texts: _texts, permit: _permit, targets: _targets, ...supplied } = body as Record<string, unknown>;
   const answers: Record<string, unknown> = { ...supplied, gate: name, submitted: now };
   answers['texts'] = Object.fromEntries((request.items ?? []).map((i) => [i.name, i.text]));
-  const items = new Map(fullInventory(root, env).items.map((i) => [i.id, i]));
+  const inventory = walk ? governanceInventory(root, env, { subfolders: walk.found, subfolderProblems: walk.problems }) : fullInventory(root, env);
+  const items = new Map(inventory.items.map((i) => [i.id, i]));
   const targets: Record<string, string[]> = {};
   for (const row of request.items ?? []) {
     const item = items.get(row.item ?? '');

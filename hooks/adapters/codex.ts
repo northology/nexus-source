@@ -27,7 +27,7 @@ export function patchPaths(patch: string): string[] {
 }
 
 /** The shell tools: Bash (what the spike saw), and the names Codex's docs and older versions give theirs. */
-const SHELL_TOOLS = new Set(['Bash', 'shell', 'exec_command', 'local_shell', 'container.exec']);
+export const SHELL_TOOLS = new Set(['Bash', 'shell', 'exec_command', 'local_shell', 'container.exec']);
 
 /** A shell call's command line: a string, or an argv whose last entry is the script (`powershell -Command <script>`). */
 function commandOf(input: Record<string, unknown>): string | null {

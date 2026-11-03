@@ -46,7 +46,20 @@ export interface GenerateIssue { file: string; kind: GenerateKind }
  * refusals: why generate won't write (a duplicate output, a rule it can't generate), one sentence each. section: under
  * Codex, the text of AGENTS.md's rules section (written between its markers when writes names AGENTS.md); else null.
  */
-export interface GeneratePlan { expected: Map<string, string>; writes: string[]; removes: string[]; issues: GenerateIssue[]; refusals: string[]; section: string | null }
+/** `warnings`: what generate still does but the user should know, such as an AGENTS.md past Codex's cap. */
+export interface GeneratePlan { expected: Map<string, string>; writes: string[]; removes: string[]; issues: GenerateIssue[]; refusals: string[]; section: string | null; warnings: string[] }
+
+/** Codex reads at most this many bytes of AGENTS.md (its project_doc_max_bytes default). */
+export const CODEX_DOC_MAX_BYTES = 32768;
+
+/** The warning for an AGENTS.md past Codex's cap, naming the three largest rules nexus put in it; null within it. */
+export function capWarning(text: string, rules: { source: string; bytes: number }[]): string | null {
+  const bytes = Buffer.byteLength(text, 'utf8');
+  if (bytes <= CODEX_DOC_MAX_BYTES) return null;
+  const n = (v: number) => v.toLocaleString('en-US');
+  const largest = [...rules].sort((a, b) => b.bytes - a.bytes).slice(0, 3).map((r) => `${r.source} (${n(r.bytes)} bytes)`);
+  return `AGENTS.md would be ${n(bytes)} bytes, over the ${n(CODEX_DOC_MAX_BYTES)} bytes Codex reads (project_doc_max_bytes): Codex won't see what comes after.${largest.length ? ` Largest nexus rules: ${largest.join(', ')}.` : ''}`;
+}
 
 interface Doc { rel: string; fm: Frontmatter }
 interface Rule { source: string; body: string[]; paths: string[] }
@@ -184,6 +197,16 @@ function planSection(root: string, plan: GeneratePlan, section: string): void {
   plan.issues.push({ file: AGENTS_FILE, kind: marker.hash === marker.actual ? 'stale' : 'edited' });
 }
 
+/** AGENTS.md as it reads once generate fills its section, checked against Codex's cap; null with no section to fill. */
+function agentsMdCap(root: string, section: string, rules: Rule[]): string | null {
+  const path = join(root, AGENTS_FILE);
+  const current = existsSync(path) ? readFileSync(path, 'utf8') : null;
+  const at = current === null ? null : findSection(current);
+  if (current === null || at === null) return null;
+  const always = rules.filter((r) => r.paths.length === 0).map((r) => ({ source: r.source, bytes: Buffer.byteLength(demote(r.body).join('\n'), 'utf8') }));
+  return capWarning(`${current.slice(0, at.start)}${section}${current.slice(at.end)}`, always);
+}
+
 /** The repo's decision and issue logs, docs-relative, which a hub's Builds section links beside the records. */
 const REPO_LOGS = ['governance/decisions.json', 'governance/issues.json'];
 
@@ -257,7 +280,7 @@ export function planGenerate(root: string, harness: Harness = currentHarness()):
   const g = outputs(root, harness);
   const vault = isVault(join(root, 'docs'));
   const section = vault && harness === 'codex' ? codexSection(g.rules) : null;
-  const plan: GeneratePlan = { expected: g.out, writes: [], removes: [], issues: [...g.issues], refusals: [...g.refusals], section };
+  const plan: GeneratePlan = { expected: g.out, writes: [], removes: [], issues: [...g.issues], refusals: [...g.refusals], section, warnings: [] };
   if (!vault) return plan;
   for (const [file, text] of [...plan.expected].sort(([a], [b]) => a.localeCompare(b))) {
     const path = join(root, file);
@@ -276,7 +299,11 @@ export function planGenerate(root: string, harness: Harness = currentHarness()):
     plan.writes.push(file);
     plan.issues.push({ file, kind: marker.hash === marker.actual ? 'stale' : 'edited' });
   }
-  if (section !== null) planSection(root, plan, section);
+  if (section !== null) {
+    planSection(root, plan, section);
+    const warning = agentsMdCap(root, section, g.rules);
+    if (warning) plan.warnings.push(warning);
+  }
   const target = ruleTarget(harness);
   for (const { dir, prefix } of [...(target ? [target] : []), { dir: HUBS_DIR, prefix: '' }]) {
     const abs = join(root, dir);

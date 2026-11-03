@@ -17,7 +17,7 @@ export interface Proposal { name: string; text: string; source: string; raisedBy
 export function deriveGuardrails(entries: LogEntry[], gates: Pick<GateView, 'name' | 'request' | 'answers'>[]): GuardrailView[] {
   const answered = gates.flatMap((g) =>
     g.answers?.log === 'guardrails' && g.answers.marks && checkAnswers(g.request, g.answers).length === 0
-      ? [{ gate: g.name, submitted: g.answers.submitted, marks: g.answers.marks, texts: g.answers.texts ?? {} }]
+      ? [{ gate: g.name, submitted: g.answers.submitted, marks: g.answers.marks, texts: g.answers.texts ?? {}, retire: new Set((g.request.items ?? []).filter((i) => i.retire).map((i) => i.name)) }]
       : [],
   );
   answered.sort((a, b) => Date.parse(a.submitted) - Date.parse(b.submitted));
@@ -28,6 +28,11 @@ export function deriveGuardrails(entries: LogEntry[], gates: Pick<GateView, 'nam
       if (!Object.hasOwn(a.marks, entry.name) || !Object.hasOwn(a.texts, entry.name) || a.texts[entry.name] !== entry.text) continue;
       const mark = a.marks[entry.name];
       if (!mark) continue;
+      // A retire row asks whether to retire it: accepted retires it; declined or research leaves it as it was.
+      if (a.retire.has(entry.name)) {
+        if (mark === 'accepted') view = { entry, state: 'retired', gate: a.gate, decided: a.submitted };
+        continue;
+      }
       view = { entry, state: mark === 'research' ? 'proposed' : mark, gate: a.gate, decided: a.submitted };
     }
     // A withdrawal takes back a proposal. It can't lift what the user accepted: only a later gate can.
@@ -64,8 +69,10 @@ export function withdrawGuardrail(root: string, build: string, name: string, gat
   const entry = file.entries.find((e) => e.name === name);
   if (!entry) throw new NexusError(`No guardrail "${name}" in this build`, 404);
   const [view] = deriveGuardrails([entry], gates);
+  // A retirement is the user's decision at a gate: withdrawing would drop the record of which gate made it.
+  if (view?.state === 'retired') throw new NexusError(`"${name}" was retired at ${view.gate ?? 'a gate'}; it stays in the record as retired.`, 409);
   if (view?.state === 'accepted') {
-    throw new NexusError(`"${name}" was accepted at ${view.gate ?? 'a gate'}. Only the user can lift it: open a guardrails gate that lists it again, and they can decline it there.`, 409);
+    throw new NexusError(`"${name}" was accepted at ${view.gate ?? 'a gate'}. Only the user can lift it: open a guardrails gate with a retire row for it ("retire": true); accepting that row retires it.`, 409);
   }
   entry.status = 'withdrawn';
   writeLog(root, build, 'guardrails', file);

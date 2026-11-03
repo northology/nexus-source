@@ -40,7 +40,8 @@
             "description": "Accepted items, guardrails or documents this row conflicts with. The cockpit shows them on the row."
           },
           "item": { "type": "string", "pattern": "^[0-9a-f]{12}$", "description": "review only: the inventory id of the item the row is about." },
-          "target": { "type": "string", "minLength": 1, "description": "review only: the item's location, exactly as the inventory lists it." }
+          "target": { "type": "string", "minLength": 1, "description": "review only: the item's location, exactly as the inventory lists it." },
+          "retire": { "const": true, "description": "guardrails gates only: accepting the row retires the accepted guardrail it names." }
         }
       }
     },

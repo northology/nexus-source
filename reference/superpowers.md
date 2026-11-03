@@ -4,9 +4,8 @@ nexus runs planning through Superpowers (brainstorming, writing-plans, execution
 every point where nexus depends on Superpowers, so an update that moves one is caught. `nexus doctor superpowers`
 checks the anchors at the end of this file against the installed Superpowers. Run it after every Superpowers update.
 
-nexus supports Superpowers 6.4.1 and 7.0.0. Where their wording differs, the row below names both, and the anchor
-lists each version's wording; the doctor says which one it found. 6.4.1 support goes once nothing still runs it (the
-build issue `retire-superpowers-6-4-1`).
+nexus supports Superpowers 6.4.1, 7.0.0 and 7.0.1. Where their wording differs, the row below names both, and the
+anchor lists each version's wording; the doctor says which one it found. 6.4.1 support goes once nothing still runs it.
 
 ## How the two connect
 
@@ -14,7 +13,7 @@ build issue `retire-superpowers-6-4-1`).
 |---|---|---|---|
 | `brainstorming` | the spec location yields to the user: 6.4.1 "(User preferences for spec location override this default)", 7.0.0 "Your human partner's preferences override both." | `/nexus:plan` sends the spec to `documents/specs/<phase>/` | specs head for `docs/superpowers/specs/`, and the wall refuses them |
 | `brainstorming` | the companion is offered at a moment nexus can override: 6.4.1 "Offer the visual companion just-in-time", 7.0.0 "**Offer it just-in-time.**" (7.0.0 also offers it during playback and whenever seeing would help) | `/nexus:plan` treats the offer as made and declined, and shows real choices as concept-pick rounds | the companion may open its own tab again, and choices made there skip the build's record |
-| `brainstorming` | how the spec is checked before the user sees it: 6.4.1 the agent's own "**Spec Self-Review:**", 7.0.0 a fresh subagent with `builder-check-prompt.md` | `/nexus:plan`'s builder-check line: questions asked in chat and logged, then listed in the spec's Decisions to confirm for the spec gate | the spec reaches the gate unchecked, or the check's questions and the agent's calls skip the build's record |
+| `brainstorming` | how the spec is checked before the user sees it: 6.4.1 the agent's own "**Spec Self-Review:**", 7.0.0 the "**Builder check:**" instruction, a fresh subagent with `builder-check-prompt.md` | `/nexus:plan`'s builder-check line: questions asked in chat and logged, then listed in the spec's Decisions to confirm for the spec gate | the spec reaches the gate unchecked, or the check's questions and the agent's calls skip the build's record |
 | `writing-plans` | "(User preferences for plan location override this default)" | `/nexus:plan` sends the plan to `documents/plans/<phase>/` | plans head for `docs/superpowers/plans/`, and the wall refuses them |
 | `using-superpowers` | user instructions "take precedence over skills" | every nexus override is a user instruction | Superpowers may stop honouring the overrides |
 | `subagent-driven-development`, `executing-plans` | ledger lines "Ruling: <what you decided> …" and "minor (deferred)" | `nexus ledger import` | rulings and deferred minors stop reaching the logs |
@@ -99,7 +98,7 @@ session's `cwd`.
 [
   { "file": "skills/brainstorming/SKILL.md", "text": [{ "version": "6.4.1", "text": "(User preferences for spec location override this default)" }, { "version": "7.0.0", "text": "Your human partner's preferences override both." }], "breaks": "Specs head for docs/superpowers/specs/ instead of the build; the wall refuses them." },
   { "file": "skills/brainstorming/SKILL.md", "text": [{ "version": "6.4.1", "text": "Offer the visual companion just-in-time" }, { "version": "7.0.0", "text": "**Offer it just-in-time.**" }], "breaks": "/nexus:plan's companion override may stop matching, and choices could be made outside the cockpit again." },
-  { "file": "skills/brainstorming/SKILL.md", "text": [{ "version": "6.4.1", "text": "**Spec Self-Review:**" }, { "version": "7.0.0", "text": "builder-check-prompt.md" }], "breaks": "/nexus:plan's builder-check line may stop matching, so the spec could reach the gate unchecked, or the check's questions could skip the build's record." },
+  { "file": "skills/brainstorming/SKILL.md", "text": [{ "version": "6.4.1", "text": "**Spec Self-Review:**" }, { "version": "7.0.0", "text": "**Builder check:**" }], "breaks": "/nexus:plan's builder-check line may stop matching, so the spec could reach the gate unchecked, or the check's questions could skip the build's record." },
   { "file": "skills/writing-plans/SKILL.md", "text": "(User preferences for plan location override this default)", "breaks": "Plans head for docs/superpowers/plans/ instead of the build; the wall refuses them." },
   { "file": "skills/using-superpowers/SKILL.md", "text": "take precedence over skills", "breaks": "Superpowers may stop honouring nexus's overrides." },
   { "file": "skills/subagent-driven-development/SKILL.md", "text": "Ruling: <what you decided>", "breaks": "nexus ledger import may stop finding rulings." },

@@ -18,11 +18,18 @@ export const WORDING: Record<Harness, [string, string][]> = {
   antigravity: [['${CLAUDE_PLUGIN_ROOT}/', '../../'], [OFFER, '(offer `AGENTS.md` and any `.agents/rules/*.md`)'], [SET_UP, ADD_HARNESS]],
 };
 
+/** Whether a skill is for the user to start only (disable-model-invocation), in an LF or CRLF checkout. */
+export function userOnly(text: string): boolean {
+  return /^disable-model-invocation: true\r?$/m.test(text);
+}
+
 /** A skill's text for the harness: the table's substitutions, then the line saying how to read a relative path. */
 export function rewriteSkill(text: string, harness: Harness): string {
-  let out = text;
+  // The table and the frontmatter test are LF; a CRLF checkout reads the same.
+  const lf = text.replace(/\r\n/g, '\n');
+  let out = lf;
   for (const [from, to] of WORDING[harness]) out = out.split(from).join(to);
-  if (out === text || !out.includes('../../')) return out;
+  if (out === lf || !out.includes('../../')) return out;
   const end = out.startsWith('---\n') ? out.indexOf('\n---\n', 4) : -1;
   const at = end === -1 ? 0 : end + 5;
   return `${out.slice(0, at)}${RESOLVE_LINE}\n${out.slice(at)}`;

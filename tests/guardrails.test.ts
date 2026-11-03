@@ -10,7 +10,7 @@ import type { GateView } from '../core/types.ts';
 import { exampleRepo, NOW, LATER } from './helpers.ts';
 
 const B = 'relay-rebuild';
-const guardrailGate = (name: string, items: { name: string; text: string }[]) => ({
+const guardrailGate = (name: string, items: { name: string; text: string; retire?: true }[]) => ({
   name,
   type: 'mark-list' as const,
   log: 'guardrails' as const,
@@ -49,7 +49,7 @@ describe('guardrail state comes only from gate answers', () => {
     openGate(root, B, guardrailGate('build-guardrails', [NO_CALLS]), NOW);
     submitAnswers(root, B, 'build-guardrails', { marks: { [NO_CALLS.name]: 'accepted' } }, NOW);
     expect(() => withdrawGuardrail(root, B, NO_CALLS.name, readSnapshot(root, B).gates)).toThrow(
-      /"no-new-external-calls" was accepted at build-guardrails\. Only the user can lift it: open a guardrails gate that lists it again, and they can decline it there\./,
+      /"no-new-external-calls" was accepted at build-guardrails\. Only the user can lift it: open a guardrails gate with a retire row for it \("retire": true\); accepting that row retires it\./,
     );
     expect(stateOf(root, NO_CALLS.name)).toBe('accepted');
   });
@@ -207,5 +207,76 @@ describe('guardrail command', () => {
     const s = io(root);
     expect(await main(['log', 'status', 'guardrails', NO_CALLS.name, 'withdrawn'], s.value)).toBe(1);
     expect(s.err[0]).toMatch(/own command/);
+  });
+});
+
+describe('retiring an accepted guardrail', () => {
+  const LATEST = '2026-10-02T16:00:00-06:00';
+  const accept = (root: string) => {
+    openGate(root, B, guardrailGate('first-guardrails', [NO_CALLS]), NOW);
+    submitAnswers(root, B, 'first-guardrails', { marks: { [NO_CALLS.name]: 'accepted' } }, NOW);
+  };
+  const retireGate = (name: string) => guardrailGate(name, [{ ...NO_CALLS, retire: true }]);
+  it('accepting a retire row retires the guardrail', () => {
+    const root = exampleRepo();
+    accept(root);
+    openGate(root, B, retireGate('retire-guardrails'), LATER);
+    submitAnswers(root, B, 'retire-guardrails', { marks: { [NO_CALLS.name]: 'accepted' } }, LATER);
+    expect(stateOf(root, NO_CALLS.name)).toBe('retired');
+  });
+  it('declining a retire row leaves it accepted', () => {
+    const root = exampleRepo();
+    accept(root);
+    openGate(root, B, retireGate('retire-guardrails'), LATER);
+    submitAnswers(root, B, 'retire-guardrails', { marks: { [NO_CALLS.name]: 'declined' } }, LATER);
+    expect(stateOf(root, NO_CALLS.name)).toBe('accepted');
+  });
+  it('a later accept row brings a retired guardrail back', () => {
+    const root = exampleRepo();
+    accept(root);
+    openGate(root, B, retireGate('retire-guardrails'), LATER);
+    submitAnswers(root, B, 'retire-guardrails', { marks: { [NO_CALLS.name]: 'accepted' } }, LATER);
+    openGate(root, B, guardrailGate('again-guardrails', [NO_CALLS]), LATEST);
+    submitAnswers(root, B, 'again-guardrails', { marks: { [NO_CALLS.name]: 'accepted' } }, LATEST);
+    expect(stateOf(root, NO_CALLS.name)).toBe('accepted');
+  });
+  it('refuses a retire row for a guardrail that is not accepted', () => {
+    const root = exampleRepo();
+    expect(() => openGate(root, B, retireGate('retire-guardrails'), NOW)).toThrow(/Row "no-new-external-calls" retires .*not an accepted guardrail/);
+  });
+  it('refuses a retire row on a gate that is not a guardrails gate', () => {
+    const root = exampleRepo();
+    accept(root);
+    const { log: _log, ...plain } = retireGate('plain-gate');
+    expect(() => openGate(root, B, plain, LATER)).toThrow(/a retire row belongs on a guardrails gate/);
+  });
+  it('gate apply says a retire row retired the guardrail, or kept it', async () => {
+    for (const [mark, line] of [['accepted', 'Retired: no-new-external-calls'], ['declined', 'Kept, not retired: no-new-external-calls']] as const) {
+      const root = exampleRepo();
+      accept(root);
+      openGate(root, B, retireGate('retire-guardrails'), LATER);
+      submitAnswers(root, B, 'retire-guardrails', { marks: { [NO_CALLS.name]: mark } }, LATER);
+      const out: string[] = [];
+      const io: CliIO = { cwd: root, out: (l) => out.push(l), err: () => {}, now: () => LATER, readStdin: async () => '', env: {} };
+      expect(await main(['gate', 'apply', 'retire-guardrails'], io)).toBe(0);
+      const text = out.join('\n');
+      expect(text).toContain(line);
+      expect(text).toContain('Accepted: none');
+      expect(text).toContain('Declined: none');
+    }
+  });
+  it('refuses to withdraw a retired guardrail, so the record keeps the gate that retired it', () => {
+    const root = exampleRepo();
+    accept(root);
+    openGate(root, B, retireGate('retire-guardrails'), LATER);
+    submitAnswers(root, B, 'retire-guardrails', { marks: { [NO_CALLS.name]: 'accepted' } }, LATER);
+    expect(() => withdrawGuardrail(root, B, NO_CALLS.name, readSnapshot(root, B).gates)).toThrow(/was retired at retire-guardrails/);
+    const view = readSnapshot(root, B).guardrails.find((g) => g.entry.name === NO_CALLS.name);
+    expect(view).toMatchObject({ state: 'retired', gate: 'retire-guardrails' });
+  });
+  it("withdraw's refusal points to a retire row", () => {
+    const root = exampleRepo();
+    accept(root);
+    expect(() => withdrawGuardrail(root, B, NO_CALLS.name, readSnapshot(root, B).gates)).toThrow(/retire row/);
   });
 });

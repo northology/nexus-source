@@ -6,6 +6,7 @@ import { readFrontmatter } from '../vault/frontmatter.ts';
 import { readMarker } from '../vault/generated.ts';
 import { AGENT_RULES_DIR, AGENT_RULES_PREFIX } from '../vault/generate.ts';
 import { attempt, fileFacts, linkProblem } from './env.ts';
+import { splitGlobs } from './globs.ts';
 import { titleOf } from './instructions.ts';
 import type { Found, InventoryEnv, InventoryProblem } from './types.ts';
 
@@ -46,7 +47,7 @@ function agentRuleItems(root: string, found: Found[], problems: InventoryProblem
     const data = readFrontmatter(text).data;
     const trigger = data?.['trigger'];
     const globs = data?.['globs'] ?? data?.['glob'];
-    const paths = trigger === 'glob' && typeof globs === 'string' ? globs.split(',').map((g) => g.trim()).filter((g) => g !== '') : [];
+    const paths = trigger === 'glob' && typeof globs === 'string' ? splitGlobs(globs) : [];
     const marker = e.name.startsWith(AGENT_RULES_PREFIX) ? readMarker(text) : null;
     const scope = trigger === 'always_on' ? 'always' : paths.length ? 'path-scoped' : 'on-demand';
     const known = ['always_on', 'glob', 'model_decision', 'manual'].includes(String(trigger));

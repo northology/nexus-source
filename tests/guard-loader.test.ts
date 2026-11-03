@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { activeBuilds } from '../core/lifecycle.ts';
 import { buildInProgress, candidateFolders, hasBuildDir, runLoader } from '../scripts/guard-loader.ts';
 import { EXAMPLES, exampleRepo, finishPhase, tempDir } from './helpers.ts';
+import { antigravityAdapter } from '../hooks/adapters/antigravity.ts';
+import { codexAdapter } from '../hooks/adapters/codex.ts';
 
 const broken = () => Promise.reject(new Error('bundle failed to load'));
 type Load = Parameters<typeof runLoader>[1]['load'];
@@ -107,3 +109,28 @@ describe('the guard loader', () => {
   });
 });
 
+describe('hook input that is not JSON', () => {
+  const agy = (cwd: string) => ({ ...deps(cwd), adapter: antigravityAdapter });
+  const named = (root: string) => `{"workspacePaths":[${JSON.stringify(root)}], broken`;
+  it('Antigravity: non-JSON input naming a workspace with a build is refused', async () => {
+    const r = await runLoader(named(exampleRepo()), agy(tempDir()));
+    expect(JSON.parse(r.stdout)).toMatchObject({ decision: 'deny' });
+  });
+  it('Antigravity: non-JSON input naming a workspace without a build is allowed', async () => {
+    const r = await runLoader(named(tempDir()), agy(exampleRepo()));
+    expect(JSON.parse(r.stdout)).toEqual({ decision: 'allow' });
+  });
+  it('Antigravity: non-JSON input naming no workspace is refused', async () => {
+    const r = await runLoader('garbage', agy(tempDir()));
+    const out = JSON.parse(r.stdout) as { decision: string; reason: string };
+    expect(out.decision).toBe('deny');
+    expect(out.reason).toContain("couldn't tell which workspace");
+  });
+  it('Codex: non-JSON input judges the session folder', async () => {
+    const refused = await runLoader('garbage', { ...deps(exampleRepo()), adapter: codexAdapter });
+    expect(refused.stdout).toContain('deny');
+    const allowed = await runLoader('garbage', { ...deps(tempDir()), adapter: codexAdapter });
+    expect(allowed.stdout).not.toContain('deny');
+    expect(allowed.code).toBe(0);
+  });
+});

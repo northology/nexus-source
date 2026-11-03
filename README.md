@@ -18,7 +18,7 @@ from source, checking the install, updating and troubleshooting. In short:
 | Claude Code 2.1.288 or later, or Codex or Antigravity (see [Harnesses](#harnesses)) | the plugin's hooks and skills; the wall was verified on Claude Code 2.1.288 |
 | Node.js 20 or later, as `node` on the PATH | the hooks and the CLI run with it |
 | git | builds work on their own branches, and the record is committed |
-| The Superpowers plugin | `/nexus:plan` runs planning through its brainstorming, plan-writing and execution skills |
+| The Superpowers plugin, 6.4.1, 7.0.0 and 7.0.1 | `/nexus:plan` runs planning through its brainstorming, plan-writing and execution skills; `nexus doctor superpowers` checks only the newest installed |
 
 nexus is developed on Windows; macOS and Linux paths are handled too.
 
@@ -99,7 +99,8 @@ build, and had the wall refuse a write to the record.
 - Start nexus's skills as `$nexus:plan`, `$nexus:init` and `$nexus:decommission`: Codex names a plugin's skills
   `<plugin>:<skill>`.
 - `nexus init` writes its block to `AGENTS.md`; `nexus docs generate` writes the vault's rules into a generated
-  section inside that block, since Codex reads no rules folder.
+  section inside that block, since Codex reads no rules folder. Codex reads only the first 32 KiB of `AGENTS.md`, so
+  `docs generate` warns when the file would pass that, naming the largest rules.
 
 **In Antigravity:**
 
@@ -237,7 +238,9 @@ when the CLI handles a command the table lacks. Visual baselines are updated in 
    release folders, copy `.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json` and `CHANGELOG.md`
    over, and run `claude plugin validate .`. Then
    commit `nexus <version>`, tag `nexus--v<version>`, and push the branch and the tag. That repo's README, LICENSE
-   and CLAUDE.md are its own: update its Known issues when a release fixes one.
+   and CLAUDE.md are its own: update its Known issues when a release fixes one. `.agents/plugins/marketplace.json`
+   points at `./plugins/nexus-codex`, which only step 4 creates: a Codex marketplace added from a checkout between
+   releases finds the last release's folder, or none.
 6. Publish the public source to `northology/nexus-source`, in a clone of it beside this repo: `pnpm snapshot
    ../nexus-source` replaces the clone's files with this commit's, leaving out the build records (`.build/`), the
    design history (`design/`), the built releases (`plugins/`) and this repo's own config. It refuses on uncommitted

@@ -2,6 +2,39 @@
 
 nexus follows semantic versioning. In the source repo, the design behind each change is in `design/`, by date.
 
+## 1.4.1 (2026-11-03)
+
+A remediation pass: fixes for the issues still open after 1.4.0, and a gate row for retiring a guardrail. Records
+written by 1.4.0 read the same.
+
+- **Retiring a guardrail:** a guardrails-gate row can carry `"retire": true`, naming an accepted guardrail with its
+  text as accepted. The cockpit labels it "Retire" and its accept button "Retire it", the tally counts it as a
+  retirement, and accepting it retires the guardrail (state `retired`, out of `nexus guardrail list --accepted`);
+  declining it keeps the guardrail. `gate apply` reports "Retired:" or "Kept, not retired:". A retired guardrail can't
+  be withdrawn, so the record keeps the gate that retired it. Before, retiring meant declining a re-listed row, which
+  read as agreeing to keep it.
+- **Gates hold under Superpowers 7:** `/nexus:plan` tells brainstorming that skipping the questions, or sizing the work
+  as small, still opens the scope and spec gates.
+- **The wall:** under Antigravity, hook input that isn't JSON is judged against the workspace its text names, and
+  refused when it names none. Codex's hook matcher covers `container.exec`. The wall also protects Antigravity's
+  `.agents/rules.json` and the older rule folders `.agent/rules/`, `_agents/rules/` and `_agent/rules/`; the guides
+  list them.
+- **Codex's AGENTS.md cap:** `nexus docs generate` warns when `AGENTS.md` would pass the 32 KiB Codex reads, naming
+  the largest rules, and still writes it.
+- **The Repo view:** a review can be submitted from the foot of its cards as well as from the banner, and a submit
+  reuses the server's walk below the repo rather than walking it again.
+- **`nexus doctor superpowers`:** a malformed, empty or blank anchor wording is named instead of failing with a
+  TypeError or matching any file; the 7.0.0 spec-check anchor is the "**Builder check:**" instruction. The README,
+  INSTALL.md and the guide name the supported versions (6.4.1, 7.0.0 and 7.0.1) and say only the newest install is
+  checked.
+- **Other fixes:** Antigravity rule globs with braces (`src/{a,b}/**`) read back as one path; skills with CRLF line
+  endings are rewritten and marked user-only correctly; decommissioning the last build removes `.build/` too; the
+  Antigravity package carries a logo.
+- **The harness blocks** that `nexus init` writes name the repo's record (`docs/governance/decisions.json`,
+  `issues.json` and `builds/`). Repos set up before 1.4.1 keep their old block; add the line by hand if you want it.
+- **Development:** tests remove their temporary folders (a run used to leave hundreds behind), and
+  `node scripts/clear-test-temp.ts [--delete]` clears ones left by older runs. The per-test timeout is 60 s.
+
 ## 1.4.0 (2026-11-02)
 
 nexus in Codex and Antigravity, beside Claude Code: three packages from one source, each proven in a live session

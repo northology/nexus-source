@@ -103,6 +103,11 @@ describe('the Antigravity package', () => {
     expect(Object.keys(manifest).filter((k) => !ALLOWED.includes(k))).toEqual([]);
     expect(existsSync(join(agyPkg, '.claude-plugin'))).toBe(false);
   });
+  it('carries its logo', () => {
+    const manifest = readJsonFile(join(agyPkg, '.antigravity-plugin', 'plugin.json')) as Record<string, unknown>;
+    expect(manifest['logo']).toBe('assets/logo.svg');
+    expect(readFileSync(join(agyPkg, 'assets', 'logo.svg'), 'utf8')).toMatch(/^<svg [^>]*viewBox="0 0 256 256"/);
+  });
   it('has a root hooks.json with a named group, commands relative to the plugin root, and no PostToolUse', () => {
     const groups = readJsonFile(join(agyPkg, 'hooks.json')) as Record<string, Record<string, unknown>>;
     expect(Object.keys(groups)).toEqual(['nexus']);

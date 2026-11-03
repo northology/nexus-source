@@ -97,9 +97,13 @@ guardrail's state: accepted, declined, or (for research) still proposed. Applyin
 submission the server stamps `log: "guardrails"` and each row's text into the answers file; a mark counts only while
 the guardrail's text still matches its stamp, so rewording an accepted guardrail returns it to proposed.
 
-To lift an accepted guardrail, open a guardrails gate that lists it again; declining it there retires it, since the
-latest answer wins. `nexus guardrail withdraw` takes back only a proposal or a declined guardrail, and refuses an
-accepted one.
+To retire an accepted guardrail, give it a row of its own with `"retire": true`, its name and text exactly as accepted.
+The cockpit labels the row as a retirement, and accepting it retires the guardrail (state `retired`, out of
+`nexus guardrail list --accepted` and the governance list); declining it, or marking it research, leaves the guardrail
+accepted. A retire row belongs only on a guardrails gate and only names an accepted guardrail; the gate is refused
+otherwise. A later row that accepts the guardrail again brings it back, since the latest answer wins. Never ask for a
+decline to retire one: an accept reads as agreeing to keep it. `nexus guardrail withdraw` takes back only a proposal
+or a declined guardrail, and refuses an accepted one.
 
 ```json
 { "name": "build-guardrails", "type": "mark-list", "log": "guardrails", "title": "Confirm this phase's guardrails", "why": "Mark each one.",

@@ -52,6 +52,22 @@ export const antigravityAdapter: HarnessAdapter = {
     }
     return [];
   },
+  // Hooks run from the plugin's folder, so the process folder says nothing about the workspace: read any
+  // workspacePaths the broken input still holds, and refuse when there are none.
+  foldersFromText(raw) {
+    const found: string[] = [];
+    for (const list of raw.matchAll(/"workspacePaths"\s*:\s*\[([^\]]*)/g)) {
+      for (const item of (list[1] ?? '').matchAll(/"((?:[^"\\]|\\.)*)"/g)) {
+        try {
+          const path = JSON.parse(`"${item[1] ?? ''}"`) as string;
+          if (path) found.push(path);
+        } catch {
+          // a mangled escape: that path can't be read
+        }
+      }
+    }
+    return found.length ? found : null;
+  },
   toGuardOutput(guardOutput) {
     if (!guardOutput) return JSON.stringify({ decision: 'allow' });
     let reason = guardOutput;

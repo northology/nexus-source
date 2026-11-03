@@ -21,6 +21,11 @@ export const DEFAULT_TARGETS: Target[] = [
   { pattern: 'GEMINI.md', kind: 'rules', base: 'anywhere' },
   { pattern: '.agents/rules/**', kind: 'rules', base: 'anywhere' },
   { pattern: '.agents/hooks.json', kind: 'rules', base: 'anywhere' },
+  // rules.json pulls in rule files from anywhere; .agent/ is the legacy rules folder, _agents/ and _agent/ older still.
+  { pattern: '.agents/rules.json', kind: 'rules', base: 'anywhere' },
+  { pattern: '.agent/rules/**', kind: 'rules', base: 'anywhere' },
+  { pattern: '_agents/rules/**', kind: 'rules', base: 'anywhere' },
+  { pattern: '_agent/rules/**', kind: 'rules', base: 'anywhere' },
   { pattern: '.codex/config.toml', kind: 'rules', base: 'anywhere' },
   { pattern: '.codex/AGENTS.override.md', kind: 'rules', base: 'home' },
   { pattern: '.gemini/config/**', kind: 'rules', base: 'home' },

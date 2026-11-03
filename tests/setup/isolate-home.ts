@@ -2,6 +2,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterAll, afterEach } from 'vitest';
+import { removeTrackedTempDirsAsync } from './temp-dirs.ts';
 
 /**
  * Runs in every Vitest worker before any test: the default inventoryEnv() (and any child process, which inherits
@@ -29,8 +30,9 @@ process.env['GIT_COMMITTER_NAME'] = 'Test Author';
 process.env['GIT_COMMITTER_EMAIL'] = 'author@example.com';
 
 // Remove only the folders this file made, after the last test in the file (the variables above stay valid until then).
-afterAll(() => {
+afterAll(async () => {
   for (const dir of [cfgDir, managedDir, dirname(emptyGitConfig)]) rmSync(dir, { recursive: true, force: true });
+  await removeTrackedTempDirsAsync();
 });
 
 // Many tests are fully synchronous (execFileSync), so a worker's event loop never turns between them. vitest 3.2.7 sends

@@ -188,7 +188,7 @@ nexus obsidian install
 nexus docs generate [root] [--check]
 ```
 
-Writes the vault's generated files: one rule file per active rule note (scoped rules load only on their paths) where the harness reads them (.claude/rules/nexus/ in Claude Code, .agents/rules/nexus-*.md in Antigravity, a section of AGENTS.md's nexus block in Codex), and one hub per component in docs/dev/context/. Each carries a marker naming its source and a hash, so hand edits show. Marked files whose source is gone are removed; a file without a marker stops it. --check writes nothing and exits 1 when anything is missing, stale, edited or orphaned.
+Writes the vault's generated files: one rule file per active rule note (scoped rules load only on their paths) where the harness reads them (.claude/rules/nexus/ in Claude Code, .agents/rules/nexus-*.md in Antigravity, a section of AGENTS.md's nexus block in Codex), and one hub per component in docs/dev/context/. Each carries a marker naming its source and a hash, so hand edits show. Marked files whose source is gone are removed; a file without a marker stops it. In Codex it warns when AGENTS.md would pass the 32 KiB Codex reads, naming the largest rules, and still writes it. --check writes nothing and exits 1 when anything is missing, stale, edited or orphaned.
 
 **When:** After setting a repo up, after seeding, at decommission, or when CI says the hubs are behind.
 
@@ -484,7 +484,7 @@ nexus doctor guard
 nexus doctor superpowers [--path <dir>]
 ```
 
-Checks that the installed Superpowers skills still contain each line nexus depends on, and names any that moved and what that breaks. --path points at a Superpowers folder other than the installed one.
+Checks that the installed Superpowers skills still contain each line nexus depends on, and names any that moved and what that breaks. Supported: 6.4.1, 7.0.0 and 7.0.1. With several installed, only the newest is checked, since that is the one the harness loads. --path points at a Superpowers folder other than the installed one.
 
 **When:** After every Superpowers update.
 

@@ -139,6 +139,7 @@ Each item (mark-list, review):
 | `conflicts` | list of string | no | Accepted items, guardrails or documents this row conflicts with. The cockpit shows them on the row. |
 | `item` | string | no | review only: the inventory id of the item the row is about. |
 | `target` | string | no | review only: the item's location, exactly as the inventory lists it. |
+| `retire` | `true` | no | guardrails gates only: accepting the row retires the accepted guardrail it names. |
 
 Each option (concept-pick):
 

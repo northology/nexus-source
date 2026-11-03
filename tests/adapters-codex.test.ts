@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { codexAdapter as codex, patchPaths } from '../hooks/adapters/codex.ts';
+import { codexAdapter as codex, patchPaths, SHELL_TOOLS } from '../hooks/adapters/codex.ts';
 import { claudeDeny } from '../hooks/adapters/claude-code.ts';
 import { runLoader } from '../scripts/guard-loader.ts';
 import { ARTIFACTS, exampleRepo, tempDir } from './helpers.ts';
@@ -89,5 +89,13 @@ describe('the loader under Codex', () => {
     const r = await runLoader(patch(root, ['notes.txt']), deps(() => Promise.reject(new Error('bundle failed'))));
     expect(r.code).toBe(0);
     expect(JSON.parse(r.stdout)).toMatchObject({ hookSpecificOutput: { permissionDecision: 'deny' } });
+  });
+});
+
+describe("Codex's hooks.json", () => {
+  it('the Codex PreToolUse matcher covers every shell tool the adapter reads', () => {
+    const hooks = JSON.parse(readFileSync(join(ARTIFACTS, 'harness', 'codex', 'hooks.json'), 'utf8')) as { hooks: { PreToolUse: { matcher: string }[] } };
+    const matcher = new RegExp(`^(?:${hooks.hooks.PreToolUse[0]?.matcher ?? ''})$`);
+    expect([...SHELL_TOOLS].filter((t) => !matcher.test(t))).toEqual([]);
   });
 });

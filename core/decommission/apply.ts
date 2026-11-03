@@ -1,4 +1,4 @@
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, readdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { NexusError } from '../errors.ts';
 import { readAnswers, readGate } from '../gates.ts';
@@ -77,6 +77,8 @@ export function applyDecommission(root: string, build: string, opts: ApplyOption
   let staged = false;
   let done: Applied;
   let record: string | null = null;
+  // Nothing in .build/ but this build and its .gitattributes: the decommission removes the folder too.
+  const lastBuild = readdirSync(join(at, '.build')).every((name) => name === build || name === '.gitattributes');
   const dirty = dirtyPaths(at, []);
   if (dirty.some((p) => p.startsWith(`${buildDir}/`) || p === BUILD_ATTRIBUTES)) {
     const paths = [buildDir, ...(dirty.includes(BUILD_ATTRIBUTES) ? [BUILD_ATTRIBUTES] : [])];
@@ -110,6 +112,8 @@ export function applyDecommission(root: string, build: string, opts: ApplyOption
     git(at, ['add', '-A', '--', 'docs', ...rules], { env });
     // Out of the index only: the folder itself goes once the commit exists.
     git(at, ['rm', '-r', '-q', '-f', '--cached', '--', buildDir], { env });
+    // The last build takes .build/.gitattributes with it, so no empty .build/ is left behind.
+    if (lastBuild) git(at, ['rm', '-q', '-f', '--cached', '--ignore-unmatch', '--', BUILD_ATTRIBUTES], { env });
     git(at, ['commit', '-q', '-m', `Decommission ${build}`], { env });
     done = { commit: revParse(at, 'HEAD') ?? '', record, buildRecord, archived, ...records, generated: [...gen.writes, ...gen.removes], upgraded: [...up.adds.map((a) => a.path), ...(up.contract ? ['docs/_meta/contract.md'] : [])] };
   } catch (e) {
@@ -121,6 +125,15 @@ export function applyDecommission(root: string, build: string, opts: ApplyOption
     rmSync(join(at, buildDir), { recursive: true, force: true, maxRetries: 2, retryDelay: 50 });
   } catch {
     return { ...done, left: buildDir };
+  }
+  // The commit also removed .build/.gitattributes: the folder it leaves goes too, if nothing else has appeared in it.
+  if (lastBuild) {
+    try {
+      rmSync(join(at, BUILD_ATTRIBUTES), { force: true });
+      if (readdirSync(join(at, '.build')).length === 0) rmSync(join(at, '.build'), { recursive: true, force: true });
+    } catch {
+      // left for the next `git clean`
+    }
   }
   return done;
 }

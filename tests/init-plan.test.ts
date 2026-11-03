@@ -155,3 +155,12 @@ describe('describePlan', () => {
     expect(lines).toContain('  create   .nexus/init-answers.json');
   });
 });
+
+describe("the harness blocks", () => {
+  it('every harness block names the repo record', () => {
+    for (const harness of ['claude', 'codex', 'antigravity']) {
+      const text = readFileSync(join(STANDARD, `${harness}-block.md`), 'utf8');
+      for (const s of ['docs/governance/decisions.json', 'issues.json', 'docs/governance/builds/']) expect(text, harness).toContain(s);
+    }
+  });
+});

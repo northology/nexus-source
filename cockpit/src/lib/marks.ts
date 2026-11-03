@@ -48,4 +48,5 @@ export const GUARDRAIL_STYLES: StatusStyle[] = [
   s('proposed', 'dashed', false, true),
   s('declined', 'faint', true, false),
   s('withdrawn', 'faint', true, false),
+  s('retired', 'faint', true, false),
 ];

@@ -1,7 +1,9 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { existsSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { governanceInventory } from '../core/governance/inventory.ts';
+import { walkSubfolders } from '../core/governance/subfolders.ts';
 import type { InventoryEnv } from '../core/governance/types.ts';
 import { openReview, reviewPath } from '../core/reviews.ts';
 import { repoSignature } from '../server/events.ts';
@@ -13,8 +15,8 @@ const open: RunningServer[] = [];
 afterEach(async () => {
   await Promise.all(open.splice(0).map((s) => s.close()));
 });
-async function serve(root: string, inventory: InventoryEnv): Promise<RunningServer> {
-  const s = await startServer({ root, cockpitDir: join(ARTIFACTS, 'cockpit-placeholder'), port: 0, now: () => NOW, watch: false, inventory });
+async function serve(root: string, inventory: InventoryEnv, subfolderStaleMs?: number): Promise<RunningServer> {
+  const s = await startServer({ root, cockpitDir: join(ARTIFACTS, 'cockpit-placeholder'), port: 0, now: () => NOW, watch: false, inventory, ...(subfolderStaleMs === undefined ? {} : { subfolderStaleMs }) });
   open.push(s);
   return s;
 }
@@ -39,6 +41,29 @@ describe('/api/reviews', () => {
     const s = await serve(root, env);
     const body = (await (await fetch(`${s.url}api/reviews`)).json()) as { reviews: { request: { name: string }; answers: unknown; read: unknown }[] };
     expect(body.reviews).toMatchObject([{ request: { name: 'tidy-up' }, answers: null, read: null }]);
+  });
+  /** A review of a subfolder's CLAUDE.md, submitted after the Repo view's read and a .gitignore that hides pkg/. */
+  async function submitAfterHiding(staleMs: number): Promise<{ targets: unknown; location: string | undefined }> {
+    const { root, env } = sandbox();
+    put(root, { 'CLAUDE.md': '# Repo\n', 'pkg/CLAUDE.md': '# Package\n' });
+    execFileSync('git', ['init', '-q'], { cwd: root });
+    const walk = walkSubfolders(root, env);
+    const item = governanceInventory(root, env, { subfolders: walk.found }).items.find((i) => i.location.replace(/\\/g, '/') === 'pkg/CLAUDE.md');
+    expect(item).toBeDefined();
+    openReview(root, { name: 'tidy-up', type: 'review', title: 'Tidy', why: 'Mark it.', items: [{ name: 'pkg-claude', text: 'pkg/CLAUDE.md', item: item?.id ?? '', target: item?.location ?? '' }] }, NOW, env);
+    const s = await serve(root, env, staleMs);
+    await fetch(`${s.url}api/repo`); // the Repo view's read fills the server's walk
+    writeFileSync(join(root, '.gitignore'), 'pkg/\n'); // a fresh walk would now skip pkg/; the file is still there
+    expect((await post(s, { marks: { 'pkg-claude': 'declined' } })).status).toBe(201);
+    return { targets: JSON.parse(readFileSync(reviewPath(root, 'tidy-up', true), 'utf8')).targets, location: item?.location };
+  }
+  it('a review submit reads the cached subfolder walk', async () => {
+    // A cache that stays fresh for ten minutes, so a slow machine can't turn the submit into a fresh walk.
+    const { targets, location } = await submitAfterHiding(600_000);
+    expect(targets).toEqual({ 'pkg-claude': [location] });
+  });
+  it('a review submit walks again once the cache is stale', async () => {
+    expect((await submitAfterHiding(0)).targets).toBeUndefined();
   });
   it('takes the cockpit\'s answers once, stamping targets', async () => {
     const { root, env } = withReview();

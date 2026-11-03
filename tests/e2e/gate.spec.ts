@@ -1,7 +1,7 @@
 import { readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
-import { buildDir, serveSnapshot, urlFor } from './fixtures';
+import { buildDir, guarded, serveSnapshot, urlFor } from './fixtures';
 
 const answers = (gate: string) => JSON.parse(readFileSync(join(buildDir('live'), 'gates', `${gate}.answers.json`), 'utf8')) as Record<string, unknown>;
 const gateCount = (page: Page) => page.getByRole('navigation', { name: 'Sections' }).getByRole('link', { name: /^Gate/ }).locator('.cnt');
@@ -508,4 +508,27 @@ test('shows the server message and re-enables the button when sending fails', as
   await page.getByRole('button', { name: 'Submit marks' }).click();
   await expect(page.getByRole('alert')).toContainText('Disk full');
   await expect(page.getByRole('button', { name: 'Submit marks' })).toBeEnabled();
+});
+
+test('a retire row says it retires, and accepting it says so', async ({ page }) => {
+  // The fixture's guardrails gate, served with its row as a retire row: the cockpit labels it from the field alone.
+  await page.route(
+    /\/api\/builds\/relay-rebuild$/,
+    guarded(async (route) => {
+      const res = await route.fetch();
+      const body = (await res.json()) as { gates: { name: string; request: { items?: Record<string, unknown>[] } }[] };
+      for (const g of body.gates) if (g.name === 'guardrails-dashboard') for (const item of g.request.items ?? []) item['retire'] = true;
+      await route.fulfill({ response: res, json: body });
+    }),
+  );
+  await page.goto(urlFor('gates', '#/gate/guardrails-dashboard'));
+  const row = page.locator('li.row', { hasText: 'Replay never writes to the source systems' });
+  await expect(row.locator('.retire-tag')).toHaveText('Retire');
+  await expect(row.getByRole('button', { name: 'Retire it' })).toBeVisible();
+  await expect(row.getByRole('button', { name: 'Accept' })).toHaveCount(0);
+  // Marked, the tally counts it as a retirement, not as accepted.
+  await row.getByRole('button', { name: 'Retire it' }).click();
+  const tally = page.locator('.submit .tally');
+  await expect(tally).toContainText('Retire 1');
+  await expect(tally).toContainText('Accepted 0');
 });

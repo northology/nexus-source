@@ -1,29 +1,23 @@
-import { useState } from 'react';
+import type { ReactNode } from 'react';
 import type { InventoryItem } from '../../../core/governance/types.ts';
 import type { ReviewState } from '../../../core/types.ts';
-import { ApiError, type AnswerBody, type Client } from '../api/client.ts';
 import { SubmitBar, Tally } from '../components/MarkParts.tsx';
 import { ReviewMarks } from '../components/ReviewMarks.tsx';
 import type { ReviewDraft } from '../hooks/useReviewDraft.ts';
-import { filledNotes, goneRows, REVIEW_LABEL, reviewPhase, unmarked } from '../lib/reviews.ts';
+import type { ReviewSubmit } from '../hooks/useReviewSubmit.ts';
+import { goneRows, REVIEW_LABEL, reviewPhase, unmarked } from '../lib/reviews.ts';
 import { formatTime } from '../lib/time.ts';
 
 interface ReviewBannerProps {
   review: ReviewState;
   items: InventoryItem[];
   draft: ReviewDraft;
-  client: Client;
   /** Answered, or sent from this tab: RepoView's one value, which also locks the marks in the list and the reader. */
   readOnly: boolean;
   /** The answers are on their way: held in RepoView too, so every mark and note is locked until the send settles. */
   sending: boolean;
-  onSending: (sending: boolean) => void;
-  /** The answers were accepted. */
-  onSent: () => void;
-  /** The send was refused because the review already has an answer. */
-  onConflict: () => void;
-  /** Reads the reviews again, after any send. */
-  refresh: () => void;
+  /** RepoView's one send, shared with the Submit at the foot of the cards. */
+  submit: ReviewSubmit;
   zone: string;
 }
 
@@ -31,32 +25,12 @@ interface ReviewBannerProps {
  * The open review, above every Repo section but Views: what it asks, how many rows wait, the rows whose item left the
  * list, and Submit. The cockpit's one write here is the answers file; the agent makes the changes.
  */
-export function ReviewBanner({ review, items, draft, client, readOnly, sending, onSending, onSent, onConflict, refresh, zone }: ReviewBannerProps) {
-  const [error, setError] = useState<string | null>(null);
+export function ReviewBanner({ review, items, draft, readOnly, sending, submit, zone }: ReviewBannerProps) {
+  const { send, error } = submit;
   const phase = reviewPhase(review);
   const rows = review.request.items ?? [];
   const left = unmarked(review, draft.marks);
   const gone = goneRows(review, items);
-
-  async function send(): Promise<void> {
-    // From here until it settles nothing can be marked or typed: what shows is what was sent.
-    onSending(true);
-    setError(null);
-    const notes = filledNotes(draft.notes);
-    const body: AnswerBody = { marks: draft.marks, ...(Object.keys(notes).length ? { notes } : {}), ...(draft.note.trim() ? { note: draft.note.trim() } : {}) };
-    try {
-      await client.postReviewAnswers(review.request.name, body);
-      // Locks every mark at once, here and in the list, whether or not the next read lands: no second send.
-      onSent();
-    } catch (e) {
-      const conflict = e instanceof ApiError && e.status === 409;
-      setError(conflict ? 'This review was already answered, perhaps in another tab. The recorded answer is shown.' : e instanceof Error ? e.message : String(e));
-      if (conflict) onConflict();
-    } finally {
-      onSending(false);
-      refresh();
-    }
-  }
 
   return (
     <section className="review-banner" aria-labelledby="review-title" data-state={phase}>
@@ -106,5 +80,29 @@ export function ReviewBanner({ review, items, draft, client, readOnly, sending, 
         </SubmitBar>
       )}
     </section>
+  );
+}
+
+/**
+ * The Submit at the foot of the review's cards, beside the marks it depends on: the tally, the hint and the same send
+ * as the banner's. The note to the agent stays in the banner, so there is one field for it.
+ */
+export function ReviewSubmitBar({ review, draft, sending, submit }: { review: ReviewState; draft: ReviewDraft; sending: boolean; submit: ReviewSubmit }): ReactNode {
+  const rows = review.request.items ?? [];
+  const left = unmarked(review, draft.marks);
+  return (
+    <div className="repo-review-foot submit">
+      <div className="submit-left">
+        <Tally items={rows} marks={draft.marks} labels={REVIEW_LABEL} />
+        {/* Shown here too, beside the Submit that was pressed; the banner's copy is the one announced. */}
+        {submit.error && <p className="gate-error">{submit.error}</p>}
+      </div>
+      <div className="send">
+        <span className="hint">{left > 0 ? 'Mark every row to submit' : 'Ready to submit'}</span>
+        <button type="button" className="btn" disabled={left > 0 || sending} onClick={() => void submit.send()}>
+          Submit review
+        </button>
+      </div>
+    </div>
   );
 }

@@ -8,6 +8,7 @@ import { GUIDE_START, replaceGuide } from '../scripts/guide-doc.ts';
 import { ARTIFACTS } from './helpers.ts';
 import { RAISED_BY } from '../core/guardrails.ts';
 import { compareVersions } from '../core/doctor.ts';
+import { DEFAULT_TARGETS } from '../core/protect.ts';
 
 const REF = join(ARTIFACTS, 'reference');
 const read = (p: string) => readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
@@ -771,6 +772,13 @@ describe('/nexus:plan on both Superpowers versions', () => {
   it('still sends the spec into the build', () => {
     expect(skill).toContain('.build/<build>/documents/specs/<phase>/');
   });
+  it('keeps the scope and spec gates when the questions are skipped', () => {
+    expect(skill).toContain('skips the questions');
+    expect(skill).toContain('the scope and spec gates still open');
+  });
+  it('puts the builder-check bullet before the spec bullet', () => {
+    expect(skill.indexOf('If brainstorming runs a builder check')).toBeLessThan(skill.indexOf('Write the spec to'));
+  });
 });
 
 /** The lines that still say "Claude" once real names, Claude Code and the stored raisedBy value are taken out. */
@@ -783,15 +791,56 @@ function bareClaude(text: string): string[] {
 }
 
 /** Where the sweep reaches: the cockpit's text, the code's comments and messages, and the docs. */
-const AREAS: Record<string, string[]> = { cockpit: ['cockpit/src'], code: ['core', 'scripts', 'hooks'], docs: ['reference', 'README.md', 'PRODUCT.md'] };
+const AREAS: Record<string, string[]> = { cockpit: ['cockpit/src'], code: ['core', 'scripts', 'hooks'], docs: ['reference', 'README.md', 'PRODUCT.md'], skills: ['skills'] };
 
 function filesUnder(rel: string): string[] {
   const abs = join(ARTIFACTS, rel);
   if (statSync(abs).isFile()) return [rel];
   return (readdirSync(abs, { recursive: true }) as string[])
-    .filter((f) => /\.(ts|tsx|md)$/.test(f))
+    .filter((f) => /\.(ts|tsx|md|css)$/.test(f))
     .map((f) => join(rel, f));
 }
+
+describe("the guides name what the wall protects", () => {
+  it("flow.md and overview.md list every other-harness rule path the wall walls", () => {
+    const paths = DEFAULT_TARGETS.filter((t) => /^(\.agents?|_agents?)\//.test(t.pattern)).map((t) => t.pattern.replace(/\*\*$/, ''));
+    expect(paths).toContain('.agent/rules/');
+    for (const page of ['flow.md', 'overview.md']) {
+      const text = read(join(ARTIFACTS, 'reference', 'guide', page));
+      expect(paths.filter((p) => !text.includes(`\`${p}\``)), page).toEqual([]);
+    }
+  });
+  it("docs generate's guide entry and the README name the AGENTS.md cap warning", () => {
+    const entry = COMMANDS.find((c) => c.usage.startsWith('docs generate'))?.detail ?? '';
+    expect(entry).toContain('32 KiB');
+    expect(read(join(ARTIFACTS, 'README.md'))).toContain('32 KiB');
+  });
+});
+
+describe('retiring a guardrail', () => {
+  it('reference/gates.md describes the retire row, not a decline', () => {
+    const gates = read(join(ARTIFACTS, 'reference', 'gates.md')).replace(/\s+/g, ' ');
+    expect(gates).toContain('"retire": true');
+    expect(gates).not.toContain('declining it there retires it');
+  });
+  it('/nexus:plan says how to retire one', () => {
+    expect(read(join(ARTIFACTS, 'skills', 'plan', 'SKILL.md')).replace(/\s+/g, ' ')).toContain('retire row');
+  });
+});
+
+describe('the supported Superpowers versions', () => {
+  it('are named, with only the newest install checked', () => {
+    const guide = COMMANDS.find((c) => c.usage.startsWith('doctor superpowers'))?.detail ?? '';
+    for (const [where, text] of [['README.md', read(join(ARTIFACTS, 'README.md'))], ['INSTALL.md', read(join(ARTIFACTS, 'INSTALL.md'))], ['the guide', guide]] as const) {
+      const flat = text.replace(/\s+/g, ' ');
+      expect(flat, where).toContain('6.4.1, 7.0.0 and 7.0.1');
+      expect(flat, where).toContain('only the newest');
+    }
+  });
+  it('reference/superpowers.md names no build issue', () => {
+    expect(read(join(ARTIFACTS, 'reference', 'superpowers.md'))).not.toContain('retire-superpowers-6-4-1');
+  });
+});
 
 describe('neutral words', () => {
   it.each(Object.keys(AREAS))('%s has no bare Claude', (area) => {

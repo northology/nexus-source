@@ -124,6 +124,32 @@ test('Submit waits for every row, then sends the marks and notes once', async ({
   });
 });
 
+test('a review can be submitted from the foot of its cards', async ({ page }) => {
+  await page.goto(urlFor('reviews', '#/repo/overview'));
+  const list = page.locator('.repo-list');
+  const foot = page.locator('.repo-review-foot');
+  const submit = foot.getByRole('button', { name: 'Submit review' });
+  await marks(list, ROWS[0]!).getByRole('button', { name: 'Keep' }).click();
+  await marks(list, ROWS[1]!).getByRole('button', { name: 'Keep' }).click();
+  await expect(submit).toBeDisabled();
+  await marks(list, ROWS[2]!).getByRole('button', { name: 'Keep' }).click();
+  await submit.click();
+  await expect(banner(page).locator('.review-status')).toContainText('The agent makes the changes on your next message.');
+  await expect(foot).toHaveCount(0);
+  const sent = JSON.parse(readFileSync(answersFile(), 'utf8')) as Record<string, unknown>;
+  expect(sent).toMatchObject({ gate: 'repo-tidy', marks: { 'keep-agreement': 'accepted', 'web-rules': 'accepted', 'replay-caps': 'accepted' } });
+});
+
+test('a failed submit is announced once, though both Submit bars show it', async ({ page }) => {
+  await page.route(/\/api\/reviews\/repo-tidy\/answers$/, (route) => route.fulfill({ status: 500, json: { error: 'disk full' } }));
+  await page.goto(urlFor('reviews', '#/repo/overview'));
+  const list = page.locator('.repo-list');
+  for (const row of ROWS) await marks(list, row).getByRole('button', { name: 'Keep' }).click();
+  await page.locator('.repo-review-foot').getByRole('button', { name: 'Submit review' }).click();
+  await expect(page.locator('.repo-review-foot .gate-error')).toHaveText('disk full');
+  await expect(page.getByRole('alert')).toHaveCount(1);
+});
+
 test('a row whose item left the list is shown as no longer listed, and can still be marked', async ({ page }) => {
   // The memory is pruned after the review opened: the repo read no longer lists it.
   await page.route(

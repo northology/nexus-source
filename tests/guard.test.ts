@@ -430,6 +430,11 @@ describe("the wall during a build: other harnesses' rule files", () => {
     ['Antigravity workspace hooks', join(root, '.agents', 'hooks.json')],
     ['.agents/AGENTS.md', join(root, '.agents', 'AGENTS.md')],
     ['.agents/GEMINI.md', join(root, '.agents', 'GEMINI.md')],
+    // Antigravity's legacy rules folder, its rules.json, and the older folder names (research note, recheck 2026-11-03).
+    ['a legacy .agent rule', join(root, '.agent', 'rules', 'x.md')],
+    ['an Antigravity rules.json', join(root, '.agents', 'rules.json')],
+    ['an _agents rule', join(root, '_agents', 'rules', 'x.md')],
+    ['an _agent rule', join(root, '_agent', 'rules', 'x.md')],
     ['a project Codex config', join(root, '.codex', 'config.toml')],
     // Codex loads a folder's AGENTS.override.md in place of its AGENTS.md (research note, D8).
     ['a repo AGENTS.override.md', join(root, 'AGENTS.override.md')],

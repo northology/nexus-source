@@ -13,14 +13,19 @@ export function anchorTexts(a: Anchor): AnchorText[] {
   return typeof a.text === 'string' ? [{ version: '', text: a.text }] : a.text;
 }
 
+/** A non-blank string: whitespace alone would match nearly any file. */
+const filled = (v: unknown): v is string => typeof v === 'string' && v.trim() !== '';
+
 /** The anchor's alternatives list, or why it isn't one: non-empty, each entry with version and text, no version twice. */
 function alternativesProblem(text: unknown): string | null {
   if (!Array.isArray(text)) return 'text must be a string or a list of { version, text }';
   if (text.length === 0) return 'its list of wordings is empty';
   const seen = new Set<string>();
-  for (const x of text) {
+  for (const [i, x] of text.entries()) {
+    if (typeof x !== 'object' || x === null) return `wording ${i + 1} must be an object`;
     const o = x as Partial<Record<keyof AnchorText, unknown>>;
-    if (typeof o.version !== 'string' || typeof o.text !== 'string' || (o.file !== undefined && typeof o.file !== 'string')) return 'each wording needs version and text (and file, if given, is a path)';
+    // An empty text would match any file, so it's as good as missing.
+    if (!filled(o.version) || !filled(o.text) || (o.file !== undefined && !filled(o.file))) return `wording ${i + 1} needs version and text (and file, if given, is a path)`;
     if (seen.has(o.version)) return `version ${o.version} is listed twice`;
     seen.add(o.version);
   }
@@ -38,9 +43,10 @@ export function anchorsFrom(doc: string): Anchor[] {
   const json = doc.slice(a + START.length, b).replace(/```json|```/g, '').trim();
   const data = JSON.parse(json) as unknown;
   if (!Array.isArray(data)) throw new Error('The anchors block must be a JSON array');
-  return data.map((x) => {
+  return data.map((x, i) => {
+    if (typeof x !== 'object' || x === null) throw new Error(`anchor ${i + 1} must be an object`);
     const o = x as Partial<Record<keyof Anchor, unknown>>;
-    if (typeof o.file !== 'string' || o.text === undefined || typeof o.breaks !== 'string') throw new Error('Each anchor needs file, text and breaks');
+    if (typeof o.file !== 'string' || o.text === undefined || (typeof o.text === 'string' && !filled(o.text)) || typeof o.breaks !== 'string') throw new Error('Each anchor needs file, text and breaks');
     if (typeof o.text === 'string') return { file: o.file, text: o.text, breaks: o.breaks };
     const problem = alternativesProblem(o.text);
     if (problem) throw new Error(`Anchor in ${o.file}: ${problem}`);

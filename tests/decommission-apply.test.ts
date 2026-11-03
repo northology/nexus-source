@@ -22,6 +22,28 @@ const read = (root: string, rel: string): string => readFileSync(join(root, rel)
 const json = (root: string, rel: string): { entries: Record<string, unknown>[] } => JSON.parse(read(root, rel)) as { entries: Record<string, unknown>[] };
 const apply = (root: string, env: Record<string, string>) => applyDecommission(root, BUILD, { standard: STANDARD, env });
 
+describe('applyDecommission and the .build folder', () => {
+  it('removes .build/ when only .gitattributes is left', () => {
+    const { root, env } = readyToApply(BOTH);
+    expect(git(root, ['ls-files', '.build/.gitattributes'])).toBe('.build/.gitattributes');
+    apply(root, env);
+    expect(existsSync(join(root, '.build'))).toBe(false);
+    expect(git(root, ['show', '--name-status', '--format=', 'HEAD'])).toContain('D\t.build/.gitattributes');
+    expect(git(root, ['status', '--porcelain'])).toBe('');
+  });
+  it('keeps .build/ while anything else is in it', () => {
+    const { root, env } = readyToApply(BOTH);
+    // A file of the user's: a second build folder would count as a build still running, and stop the apply.
+    put(root, { '.build/README.md': '# Builds\n' });
+    git(root, ['add', '.build/README.md'], { env });
+    git(root, ['commit', '-q', '-m', 'a note on builds'], { env });
+    apply(root, env);
+    expect(existsSync(join(root, '.build', '.gitattributes'))).toBe(true);
+    expect(existsSync(join(root, '.build', 'README.md'))).toBe(true);
+    expect(git(root, ['ls-files', '.build/.gitattributes'])).toBe('.build/.gitattributes');
+  });
+});
+
 describe('applyDecommission under Codex and Antigravity', () => {
   const codexBlock = readFileSync(join(STANDARD, 'codex-block.md'), 'utf8');
   it("commits Antigravity's generated rule files with the record, and nothing under .claude/", () => {

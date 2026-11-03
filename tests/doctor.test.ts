@@ -39,7 +39,7 @@ function fakeHome(skip: Anchor | null = null, version = '6.4.1'): { home: string
 const VERSIONED: [string, string][] = [
   ['(User preferences for spec location override this default)', "Your human partner's preferences override both."],
   ['Offer the visual companion just-in-time', '**Offer it just-in-time.**'],
-  ['**Spec Self-Review:**', 'builder-check-prompt.md'],
+  ['**Spec Self-Review:**', '**Builder check:**'],
 ];
 
 describe('both Superpowers versions', () => {
@@ -70,14 +70,35 @@ describe('both Superpowers versions', () => {
     mkdirSync(join(dir, 'x'), { recursive: true });
     appendFileSync(join(dir, 'b.md'), 'x');
     expect(checkAnchors(dir, [a])[0]?.matched).toEqual({ version: '2.0.0', text: 'x', file: 'b.md' });
-    expect(() => anchorsFrom(doc.replace('"file": "b.md"', '"file": 3'))).toThrow(/each wording needs version and text/);
+    expect(() => anchorsFrom(doc.replace('"file": "b.md"', '"file": 3'))).toThrow(/wording 2 needs version and text/);
+  });
+  const block = (json: string) => `<!-- anchors:start -->\n\`\`\`json\n${json}\n\`\`\`\n<!-- anchors:end -->`;
+  it('names the anchor when a wording is null', () => {
+    expect(() => anchorsFrom(block('[{ "file": "skills/x/SKILL.md", "text": [null], "breaks": "b" }]'))).toThrow(/Anchor in skills\/x\/SKILL\.md: wording 1 must be an object/);
+  });
+  it('names the anchor when an anchor is null', () => {
+    expect(() => anchorsFrom(block('[null]'))).toThrow(/anchor 1 must be an object/);
+  });
+  it('refuses an empty wording', () => {
+    expect(() => anchorsFrom(block('[{ "file": "a.md", "text": [{ "version": "7.0.0", "text": "" }], "breaks": "b" }]'))).toThrow(/wording 1 needs version and text/);
+  });
+  it('refuses an empty version', () => {
+    expect(() => anchorsFrom(block('[{ "file": "a.md", "text": [{ "version": "", "text": "x" }], "breaks": "b" }]'))).toThrow(/wording 1 needs version and text/);
+  });
+  it('refuses a wording of only whitespace, and an empty file', () => {
+    expect(() => anchorsFrom(block('[{ "file": "a.md", "text": [{ "version": "7.0.0", "text": "   " }], "breaks": "b" }]'))).toThrow(/wording 1 needs version and text/);
+    expect(() => anchorsFrom(block('[{ "file": "a.md", "text": [{ "version": "7.0.0", "text": "x", "file": "" }], "breaks": "b" }]'))).toThrow(/wording 1 needs version and text/);
+    expect(() => anchorsFrom(block('[{ "file": "a.md", "text": " ", "breaks": "b" }]'))).toThrow(/Each anchor needs file, text and breaks/);
+  });
+  it('refuses an empty plain text', () => {
+    expect(() => anchorsFrom(block('[{ "file": "a.md", "text": "", "breaks": "b" }]'))).toThrow(/Each anchor needs file, text and breaks/);
   });
   it('doctor superpowers passes on 6.4.1, 7.0.0 and 7.0.1 installs', async () => {
     for (const version of ['6.4.1', '7.0.0', '7.0.1']) {
       const out: string[] = [];
       expect(await main(['doctor', 'superpowers', '--path', fakeHome(null, version).dir], cliIO(out, []))).toBe(0);
       expect(out.at(-1)).toBe('All 18 anchors found.');
-      if (version === '7.0.0') expect(out).toContain(`ok    skills/brainstorming/SKILL.md: "builder-check-prompt.md" (7.0.0)`);
+      if (version === '7.0.0') expect(out).toContain(`ok    skills/brainstorming/SKILL.md: "**Builder check:**" (7.0.0)`);
     }
   });
   it('a missing alternatives anchor lists every wording it looked for', async () => {

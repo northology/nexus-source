@@ -20,7 +20,8 @@ import { pipeFd } from './fd-stream.ts';
 import { subfolderCache, watchBuilds, watchRepo, watchSubfolders } from './events.ts';
 
 /** `assets` is the asset listener's base URL, which `/api/builds` names; startServer sets it. */
-export interface ServerOptions { root: string; cockpitDir: string; now?: () => string; watch?: boolean; token?: string; assets?: string; inventory?: InventoryEnv }
+/** `subfolderStaleMs`: how long the server reuses its walk below the repo before walking again (5 s by default). */
+export interface ServerOptions { root: string; cockpitDir: string; now?: () => string; watch?: boolean; token?: string; assets?: string; inventory?: InventoryEnv; subfolderStaleMs?: number }
 /** `assets` is the base URL concept pages are served from, ending in `/`. */
 export interface RunningServer { url: string; port: number; assets: string; token: string; close(): Promise<void> }
 
@@ -258,7 +259,7 @@ export function createNexusServer(opts: ServerOptions) {
     for (const c of clients) c.write(`event: change\ndata: ${JSON.stringify({ repo: true })}\n\n`);
   };
   const stopRepo = opts.watch === false ? () => {} : watchRepo(opts.root, env, repoChanged);
-  const subfolders = subfolderCache(opts.root, env, { onChange: repoChanged });
+  const subfolders = subfolderCache(opts.root, env, { onChange: repoChanged, ...(opts.subfolderStaleMs === undefined ? {} : { staleMs: opts.subfolderStaleMs }) });
   const stopSubfolders = opts.watch === false ? () => {} : watchSubfolders(subfolders, repoChanged);
   const heartbeat = setInterval(() => {
     for (const c of clients) c.write(': keep-alive\n\n');
@@ -304,7 +305,7 @@ export function createNexusServer(opts: ServerOptions) {
         assertReadableName(name, 'review name');
         assertFromCockpit(req, token);
         const body = await readBody(req);
-        return sendJson(res, 201, { ok: true, answers: submitReviewAnswers(opts.root, name, body, now(), env) });
+        return sendJson(res, 201, { ok: true, answers: submitReviewAnswers(opts.root, name, body, now(), env, subfolders.get()) });
       }
       throw new NexusError('Not found', 404);
     }

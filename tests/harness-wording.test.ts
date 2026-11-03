@@ -3,12 +3,22 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse } from 'yaml';
 import { skillCommand } from '../core/harness.ts';
-import { RESOLVE_LINE, rewriteSkill } from '../scripts/harness-wording.ts';
+import { RESOLVE_LINE, rewriteSkill, userOnly } from '../scripts/harness-wording.ts';
 import { ARTIFACTS } from './helpers.ts';
 
 const PLAN = readFileSync(join(ARTIFACTS, 'skills', 'plan', 'SKILL.md'), 'utf8');
 
 describe('rewriteSkill', () => {
+  it('userOnly reads LF and CRLF frontmatter', () => {
+    const lf = PLAN.replace(/\r\n/g, '\n');
+    expect(userOnly(lf)).toBe(true);
+    expect(userOnly(lf.replace(/\n/g, '\r\n'))).toBe(true);
+    expect(userOnly('---\nname: x\n---\n')).toBe(false);
+  });
+  it('rewriteSkill reads CRLF frontmatter', () => {
+    const lf = PLAN.replace(/\r\n/g, '\n');
+    expect(rewriteSkill(lf.replace(/\n/g, '\r\n'), 'codex')).toBe(rewriteSkill(lf, 'codex'));
+  });
   it('leaves a Claude Code skill as it is', () => {
     expect(rewriteSkill(PLAN, 'claude-code')).toBe(PLAN);
   });

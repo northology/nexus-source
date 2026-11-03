@@ -6,6 +6,7 @@ import type { Client } from '../api/client.ts';
 import { Empty } from '../components/Empty.tsx';
 import { ReviewMarks } from '../components/ReviewMarks.tsx';
 import { useReviewDraft } from '../hooks/useReviewDraft.ts';
+import { useReviewSubmit } from '../hooks/useReviewSubmit.ts';
 import { useReviews } from '../hooks/useReviews.ts';
 import type { Navigate } from '../hooks/useRoute.ts';
 import { currentReview, reviewPhase, rowFor } from '../lib/reviews.ts';
@@ -14,7 +15,7 @@ import type { Theme } from '../lib/prefs.ts';
 import { ALL_RECORDS, filterItems, groupByScope, itemsFor, recordCounts, sectionOf, SECTION_TITLES, selectItem, settingNote, splitByFolder, type RepoSection } from '../lib/repo.ts';
 import { formatHash, keepBuild, withParams, type Route } from '../lib/route.ts';
 import { RepoReader } from './RepoReader.tsx';
-import { ReviewBanner } from './ReviewBanner.tsx';
+import { ReviewBanner, ReviewSubmitBar } from './ReviewBanner.tsx';
 import { ViewsPanel } from './ViewsPanel.tsx';
 
 interface RepoViewProps { repo: RepoSnapshot; route: Route; navigate: Navigate; client: Client; zone: string; theme: Theme }
@@ -117,6 +118,17 @@ export function RepoView({ repo, route, navigate, client, zone, theme }: RepoVie
   const [sendingName, setSendingName] = useState<string | null>(null);
   const locked = review !== null && (reviewPhase(review) !== 'open' || sentName === review.request.name);
   const sending = review !== null && sendingName === review.request.name;
+  const submit = useReviewSubmit(review, draft, client, {
+    onSending: (on) => setSendingName(on && review ? review.request.name : null),
+    onSent: () => {
+      if (review) setSentName(review.request.name);
+      setRefused(null);
+    },
+    onConflict: () => {
+      if (review) setRefused({ name: review.request.name, title: review.request.title });
+    },
+    refresh: refreshReviews,
+  });
   const marksFor = (i: InventoryItem) => {
     const row = rowFor(review, i.id);
     return row && review ? <ReviewMarks row={row} draft={draft} readOnly={locked || sending} saved={review.answers} /> : null;
@@ -176,23 +188,7 @@ export function RepoView({ repo, route, navigate, client, zone, theme }: RepoVie
         )}
         {/* Keyed by name, so one review's error never shows on the next. */}
         {review && (
-          <ReviewBanner
-            key={review.request.name}
-            review={review}
-            items={repo.inventory.items}
-            draft={draft}
-            client={client}
-            readOnly={locked}
-            sending={sending}
-            onSending={(on) => setSendingName(on ? review.request.name : null)}
-            onSent={() => {
-              setSentName(review.request.name);
-              setRefused(null);
-            }}
-            onConflict={() => setRefused({ name: review.request.name, title: review.request.title })}
-            refresh={refreshReviews}
-            zone={zone}
-          />
+          <ReviewBanner key={review.request.name} review={review} items={repo.inventory.items} draft={draft} readOnly={locked} sending={sending} submit={submit} zone={zone} />
         )}
         {section === 'overview' && (
           <div className="repo-cards">
@@ -286,6 +282,8 @@ export function RepoView({ repo, route, navigate, client, zone, theme }: RepoVie
             )}
           </div>
         )}
+        {/* Beside the cards the review marks, so Submit is in reach without scrolling back to the banner. */}
+        {review && !locked && <ReviewSubmitBar review={review} draft={draft} sending={sending} submit={submit} />}
         {section === 'overview' && (
           <>
             {repo.inventory.setting && <p className="repo-foot repo-setting">{settingNote(repo.inventory.setting)}</p>}

@@ -73,6 +73,8 @@
 
 /* Conflict notes: red while the gate needs you, quiet once answered */
 .stmt .conflicts { display: block; margin-top: 4px; font-size: var(--f-label); color: var(--g2); }
+/* A retire row says so before its text: accepting it retires the guardrail. */
+.stmt .retire-tag { display: inline-block; margin-right: 8px; padding: 0 5px; font-size: var(--f-label); color: var(--signal-text); border: 1px solid currentColor; }
 .gate[data-state="open"] .stmt .conflicts { color: var(--signal-text); }
 
 /* A permit names the protected file an approval opens */

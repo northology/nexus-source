@@ -10,6 +10,7 @@ import { buildPath, listBuilds } from './paths.ts';
 import { currentPhase } from './phases.ts';
 import { indexPlan, planIndexed, type IndexResult } from './plan.ts';
 import { validate } from './schemas.ts';
+import { readSnapshot } from './snapshot.ts';
 import { readJson, writeJson } from './store.ts';
 import type { Build, GateAnswers, GateRequest, GateType, LogEntry, Problem, StampedPermit } from './types.ts';
 
@@ -20,6 +21,9 @@ export interface ApplySummary {
   accepted: string[];
   research: string[];
   declined: string[];
+  /** Retire rows: accepted ones retired their guardrail; declined or research ones kept it. */
+  retired?: string[];
+  kept?: string[];
   /** Open questions that accepted or declined rows of the same name closed. */
   closed: string[];
   /** Decisions that research rows of the same name reopened as questions. */
@@ -88,6 +92,14 @@ export function openGate(root: string, build: string, input: GateInput, now: str
   }
   const dups = duplicateNames([...(request.items ?? []), ...(request.options ?? [])]);
   if (dups.length) throw new NexusError(`Gate rows must have unique names; repeated: ${dups.join(', ')}`);
+  const retiring = (request.items ?? []).filter((i) => i.retire);
+  if (retiring.length && request.log !== 'guardrails') throw new NexusError(`Row "${retiring[0]?.name ?? ''}": a retire row belongs on a guardrails gate ("log": "guardrails")`);
+  if (retiring.length) {
+    const accepted = new Set(readSnapshot(root, build, { progress: false }).guardrails.filter((g) => g.state === 'accepted').map((g) => g.entry.name));
+    for (const item of retiring) {
+      if (!accepted.has(item.name)) throw new NexusError(`Row "${item.name}" retires a guardrail, but "${item.name}" is not an accepted guardrail`);
+    }
+  }
   if (request.log === 'guardrails') {
     const proposed = new Map(readLog(root, build, 'guardrails').entries.filter((e) => e.status === 'proposed').map((e) => [e.name, e.text]));
     for (const item of request.items ?? []) {
@@ -192,6 +204,12 @@ export function applyAnswers(root: string, build: string, gate: string, now: str
     for (const item of request.items ?? []) {
       const mark = answers.marks?.[item.name];
       if (!mark) continue;
+      // A retire row's accept retires the guardrail: reporting it as "Accepted" would read as kept.
+      if (guardrailGate && item.retire) {
+        const key = mark === 'accepted' ? 'retired' : 'kept';
+        summary[key] = [...(summary[key] ?? []), item.name];
+        continue;
+      }
       summary[mark].push(item.name);
       // A guardrail gate's answers file is the record; guardrails.json never stores acceptance. A decommission gate's
       // rows are guardrail names too, so they never touch a decision or question that shares one.

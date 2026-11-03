@@ -15,7 +15,8 @@ describe('hook', () => {
   it('says nothing outside a build checkout, quickly', () => {
     const started = performance.now();
     expect(runHook({ cwd: tempDir() }, { cli: CLI })).toBe('');
-    expect(performance.now() - started).toBeLessThan(200);
+    // Catches the hook scanning for builds where there's no checkout, not a slow machine: 1 s leaves room for load.
+    expect(performance.now() - started).toBeLessThan(1000);
   });
   it('says nothing without a usable cwd', () => {
     expect(runHook({}, { cli: CLI })).toBe('');

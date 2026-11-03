@@ -4,5 +4,7 @@
 - Standing rules live in `docs/governance/rules/` and are generated into `.agents/rules/nexus-*.md`: change the note
   and run `nexus docs generate`, never the generated file.
 - `docs/dev/context/` holds generated hubs, one per component: start there.
+- Past decisions, open issues and finished builds are in `docs/governance/decisions.json`, `issues.json` and
+  `docs/governance/builds/`: read them before re-deciding.
 - `.scratch/` is untracked scratch space.
 <!-- nexus:end -->

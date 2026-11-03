@@ -1,6 +1,6 @@
 import { build } from 'esbuild';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { rewriteSkill } from './scripts/harness-wording.ts';
+import { rewriteSkill, userOnly } from './scripts/harness-wording.ts';
 
 // The plugin must ship the real cockpit. Check before touching dist/, so a failed build leaves the last one alone.
 if (!existsSync('cockpit/dist/index.html')) {
@@ -59,7 +59,7 @@ for (const { harness, out } of PACKAGES) {
     const text = readFileSync(file, 'utf8');
     writeFileSync(file, rewriteSkill(text, harness));
     // Codex reads user-only from agents/openai.yaml; Antigravity keeps Claude Code's disable-model-invocation.
-    if (harness === 'codex' && /^disable-model-invocation: true$/m.test(text)) {
+    if (harness === 'codex' && userOnly(text)) {
       mkdirSync(`${out}/skills/${skill}/agents`, { recursive: true });
       cpSync('harness/codex/openai.yaml', `${out}/skills/${skill}/agents/openai.yaml`);
     }
@@ -72,7 +72,9 @@ for (const { harness, out } of PACKAGES) {
   } else {
     // Antigravity rejects keys its schema doesn't list, and runs hooks from the plugin's folder.
     mkdirSync(`${out}/.antigravity-plugin`, { recursive: true });
-    json(`${out}/.antigravity-plugin/plugin.json`, { name: source.name, displayName: source.name, version: source.version, description: source.description });
+    json(`${out}/.antigravity-plugin/plugin.json`, { name: source.name, displayName: source.name, version: source.version, description: source.description, logo: 'assets/logo.svg' });
+    mkdirSync(`${out}/assets`, { recursive: true });
+    cpSync('harness/antigravity/logo.svg', `${out}/assets/logo.svg`);
     cpSync('harness/antigravity/hooks.json', `${out}/hooks.json`);
   }
 }

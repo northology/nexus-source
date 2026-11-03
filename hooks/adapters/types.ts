@@ -13,6 +13,12 @@ export interface HarnessAdapter {
   toGuardInputs(raw: unknown): GuardInput[];
   /** The guard's verdict in the harness's form, from the guard's Claude Code-shaped output ("" when nothing is refused). */
   toGuardOutput(guardOutput: string): string;
+  /**
+   * When the hook input isn't JSON: the folders its raw text names, or null when the adapter can't place the call, so
+   * the loader refuses it. Without this, the loader judges the process folder, which is the repo where the harness
+   * runs hooks there.
+   */
+  foldersFromText?(raw: string): string[] | null;
   /** What the loader returns when the guard can't run during a build. */
   refusal(message: string): LoaderResult;
   /** The prompt hook's input ({ cwd }), or null when this call shouldn't speak (e.g. not a prompt's first). */

@@ -1,5 +1,5 @@
 import { spawn, type ChildProcess } from 'node:child_process';
-import { cpSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,18 +17,29 @@ function serve(root: string): Promise<ChildProcess> {
     let err = '';
     child.stderr?.on('data', (d: Buffer) => (err += d.toString()));
     child.stdout?.on('data', (d: Buffer) => {
-      if (d.toString().includes('nexus e2e one:')) done(child);
+      const ready = /nexus e2e one: \S+ home=(.+)/.exec(d.toString());
+      if (ready?.[1]) {
+        homes.set(child, ready[1].trim());
+        done(child);
+      }
     });
     child.on('exit', (code) => fail(new Error(`serve-one exited (${String(code)}): ${err}`)));
   });
 }
 
-function stop(child: ChildProcess): Promise<void> {
-  if (child.exitCode !== null) return Promise.resolve();
-  return new Promise((done) => {
-    child.once('exit', () => done());
-    child.kill();
-  });
+/** Each child's temporary home, removed once it has stopped (a killed process can't remove its own). */
+const homes = new Map<ChildProcess, string>();
+
+async function stop(child: ChildProcess): Promise<void> {
+  if (child.exitCode === null) {
+    await new Promise<void>((done) => {
+      child.once('exit', () => done());
+      child.kill();
+    });
+  }
+  const home = homes.get(child);
+  if (home) rmSync(home, { recursive: true, force: true, maxRetries: 3, retryDelay: 50 });
+  homes.delete(child);
 }
 
 test('answers still go through after the server restarts on the same port, and nothing typed is lost', async ({ page }) => {
@@ -74,6 +85,7 @@ test('answers still go through after the server restarts on the same port, and n
     expect(answers).toMatchObject({ marks: { 'keep-marks': 'accepted', 'keep-note': 'declined' }, note: 'Typed before the restart.' });
   } finally {
     await stop(server);
+    rmSync(root, { recursive: true, force: true, maxRetries: 3, retryDelay: 50 });
   }
 });
 
@@ -98,5 +110,6 @@ test('concept frames follow the asset origin to its new port after the server re
     expect(res.status()).toBe(200);
   } finally {
     await stop(server);
+    rmSync(root, { recursive: true, force: true, maxRetries: 3, retryDelay: 50 });
   }
 });

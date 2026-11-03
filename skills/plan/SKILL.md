@@ -72,7 +72,9 @@ Nothing changes git before step 4, except a resume's checkout.
    A guardrail taken from the user's words is `--raised-by user --quote "<their words>"`, even when you write the
    sentence.
 4. Open `guardrails-<phase>`: a mark-list gate with `"step": "guardrails"` and `"log": "guardrails"`, whose rows
-   are those guardrails, name and text exactly as proposed. Stop until the user answers, then `nexus gate apply`.
+   are those guardrails, name and text exactly as proposed. To retire an accepted guardrail on the same gate, give it a
+   retire row: `"retire": true`, its name and text exactly as accepted; accepting that row retires it. Never ask for a
+   decline to retire one. Stop until the user answers, then `nexus gate apply`.
 
 ## 3. Brainstorm (G2, G3)
 Invoke `superpowers:brainstorming` with these arguments, then the user's request:
@@ -98,12 +100,14 @@ Invoke `superpowers:brainstorming` with these arguments, then the user's request
 >   (`{ "phases": [{ "name": "<phase>", "description": "<what it delivers>" }] }`), and update it whenever a
 >   gate adds, splits, reorders or drops one. It is the one place the list is kept.
 > - Before writing the spec, open the scope gate (G2, `scope-<phase>`) and wait for it.
-> - Write the spec to `.build/<build>/documents/specs/<phase>/`, then open the spec gate (G3, `spec-<phase>`) with
->   the spec attached.
+> - If the user skips the questions, or brainstorming sizes the work as small, the scope and spec gates still open:
+>   open the scope gate from what the request and the build's notes give, and write the spec as usual.
 > - If brainstorming runs a builder check, ask the user's questions in chat as it says, and log each answer with
 >   `nexus log add decisions`. List those answers and your own calls in a "Decisions to confirm" section of the spec,
 >   log each of your calls as a decision with `--note "agent's call"`, and open the spec gate with the spec attached:
 >   approving it confirms the section. The check runs once per spec, before the first spec gate.
+> - Write the spec to `.build/<build>/documents/specs/<phase>/`, then open the spec gate (G3, `spec-<phase>`) with
+>   the spec attached.
 
 **G2, the scope gate** (`scope-<phase>`, `"step": "scope"`): a mark-list of the major pieces of the design;
 applying it logs them. Before opening it, check the pieces against each other, the accepted guardrails,
