@@ -36,9 +36,9 @@ describe('checkVault', () => {
     ]);
   });
   it('blocks two notes describing the same source', () => {
-    const r = checkVault(vaultRepo({ 'docs/data/datasets/calls-copy.md': note({ class: 'dataset', component: 'shared', source: 'v_gold_events' }) }, 'clean'));
+    const r = checkVault(vaultRepo({ 'docs/data/datasets/copy-of-events.md': note({ class: 'dataset', component: 'shared', source: 'v_gold_events' }) }, 'clean'));
     expect(golden(r)).toEqual([
-      { rule: 'source-duplicate', level: 'block', file: 'docs/data/datasets/calls-copy.md', line: 4 },
+      { rule: 'source-duplicate', level: 'block', file: 'docs/data/datasets/copy-of-events.md', line: 4 },
       { rule: 'source-duplicate', level: 'block', file: 'docs/data/datasets/event-log.md', line: 4 },
     ]);
   });
@@ -90,9 +90,9 @@ describe('checkVault', () => {
     expect(r.findings).toEqual([]);
   });
   it('with file, reports only that note but judges it against the whole vault', () => {
-    const root = vaultRepo({ 'docs/data/datasets/calls-copy.md': note({ class: 'dataset', component: 'shared', source: 'v_gold_events' }) }, 'clean');
-    const r = checkVault(root, { file: join(root, 'docs', 'data', 'datasets', 'calls-copy.md') });
-    expect(golden(r)).toEqual([{ rule: 'source-duplicate', level: 'block', file: 'docs/data/datasets/calls-copy.md', line: 4 }]);
-    expect(checkVault(root, { file: 'docs/data/datasets/calls-copy.md' }).findings).toHaveLength(1);
+    const root = vaultRepo({ 'docs/data/datasets/copy-of-events.md': note({ class: 'dataset', component: 'shared', source: 'v_gold_events' }) }, 'clean');
+    const r = checkVault(root, { file: join(root, 'docs', 'data', 'datasets', 'copy-of-events.md') });
+    expect(golden(r)).toEqual([{ rule: 'source-duplicate', level: 'block', file: 'docs/data/datasets/copy-of-events.md', line: 4 }]);
+    expect(checkVault(root, { file: 'docs/data/datasets/copy-of-events.md' }).findings).toHaveLength(1);
   });
 });

@@ -10,6 +10,9 @@ How a build runs, every command and a glossary are in the cockpit's **Guidance**
 
 ## Requirements
 
+[INSTALL.md](INSTALL.md) is the full install and dependency guide: versions, Superpowers in each harness, building
+from source, checking the install, updating and troubleshooting. In short:
+
 | Need | Why |
 |---|---|
 | Claude Code 2.1.288 or later, or Codex or Antigravity (see [Harnesses](#harnesses)) | the plugin's hooks and skills; the wall was verified on Claude Code 2.1.288 |
@@ -214,7 +217,7 @@ Run these in this folder:
 | `pnpm test` | unit tests |
 | `pnpm e2e` | builds the cockpit, then the end-to-end and visual tests |
 | `pnpm typecheck` | the root, cockpit and end-to-end TypeScript projects |
-| `pnpm build` | the cockpit and the plugin, into `dist/nexus/` |
+| `pnpm build` | the cockpit and the three packages, into `dist/nexus/`, `dist/nexus-codex/` and `dist/nexus-antigravity/` |
 | `pnpm guide` | regenerates the Guidance commands page from `scripts/commands.ts` |
 | `pnpm contracts` | regenerates `reference/contracts.md` from the schemas |
 

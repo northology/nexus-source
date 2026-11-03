@@ -344,9 +344,9 @@ for (const theme of ['light', 'dark'] as const) {
     }, theme);
     await serveSnapshot(page, (s) => {
       s.phases = [
-        { name: 'replay', description: 'Replay calls from the archive, at the speed they arrived or faster.' },
-        { name: 'replay-board', description: 'A board of the replayed calls, grouped by source, with the lag each one shows.' },
-        { name: 'archive-search', description: 'Search the archive by caller and time.' },
+        { name: 'replay', description: 'Replay events from the archive, at the speed they arrived or faster.' },
+        { name: 'replay-board', description: 'A board of the replayed events, grouped by source, with the lag each one shows.' },
+        { name: 'archive-search', description: 'Search the archive by sender and time.' },
       ];
     });
     await page.goto(urlFor('visual', '#/phases'));

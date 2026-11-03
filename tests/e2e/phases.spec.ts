@@ -88,9 +88,9 @@ test('documents with nothing in any phase keep their plain empty state', async (
 });
 
 const PLANNED = [
-  { name: 'replay', description: 'Replay calls from the archive.' },
+  { name: 'replay', description: 'Replay events from the archive.' },
   { name: 'dashboard', description: 'A dashboard of replay lag per source.' },
-  { name: 'archive-search', description: 'Search the archive by caller and time.' },
+  { name: 'archive-search', description: 'Search the archive by sender and time.' },
 ];
 
 test('the Phases tab says how phases get there when the build has none', async ({ page }) => {
@@ -107,8 +107,8 @@ test('the Phases tab lists the planned phases, numbered by their place', async (
   await page.goto(urlFor('planning', '#/phases'));
   const rows = page.locator('.phases-table tbody tr');
   await expect(rows).toHaveCount(3);
-  await expect(rows.nth(0)).toHaveText(/^1\s*replay\s*Replay calls from the archive\.$/);
-  await expect(rows.nth(2)).toHaveText(/^3\s*archive-search\s*Search the archive by caller and time\.$/);
+  await expect(rows.nth(0)).toHaveText(/^1\s*replay\s*Replay events from the archive\.$/);
+  await expect(rows.nth(2)).toHaveText(/^3\s*archive-search\s*Search the archive by sender and time\.$/);
   await expect(page.getByRole('columnheader')).toHaveText(['Phase', 'Name', 'Description']);
   await expect(page.getByRole('navigation', { name: 'Sections' }).getByRole('link', { name: /Phases/ })).toContainText('3');
 });

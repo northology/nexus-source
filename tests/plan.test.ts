@@ -71,7 +71,7 @@ describe('parsePlanTasks', () => {
     expect(parsePlanTasks(md).tasks).toEqual([{ number: 1, title: 'Before', steps: 1 }, { number: 2, title: 'After', steps: 2 }]);
   });
   it('reads every task of the remediation plan, which holds such a line', () => {
-    const md = readFileSync(join(ARTIFACTS, 'design', '2026-10-05-nexus-plan-section-remediation-plan.md'), 'utf8');
+    const md = readFileSync(join(ARTIFACTS, 'tests', 'fixtures', 'plans', 'plan-section-remediation-plan.md'), 'utf8');
     expect(parsePlanTasks(md).tasks.map((t) => t.steps)).toEqual([10, 7, 7, 7]);
   });
   it('closes a fence only on a matching fence', () => {

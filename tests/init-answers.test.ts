@@ -5,7 +5,7 @@ import { answersText, EMPTY_ANSWERS, parseAnswers, readAnswers } from '../core/i
 import { validate } from '../core/schemas.ts';
 import { tempDir } from './helpers.ts';
 
-const good = { answers: 1, components: ['api', 'web'], tags: ['billing', 'topic/sub'], seeding: [{ what: 'the calls dataset', where: 'BigQuery ops.calls' }] };
+const good = { answers: 1, components: ['api', 'web'], tags: ['billing', 'topic/sub'], seeding: [{ what: 'the events dataset', where: 'BigQuery ops.calls' }] };
 
 describe('the answers file', () => {
   it('accepts a full answers file and round-trips it', () => {

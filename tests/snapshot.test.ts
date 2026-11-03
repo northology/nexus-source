@@ -22,8 +22,8 @@ describe('the build roadmap, phases.json', () => {
   it('reads the planned phases in their order', () => {
     const root = exampleRepo();
     const phases = [
-      { name: 'replay', description: 'Replay calls from the archive.' },
-      { name: 'replay-board', description: 'A board of the replayed calls.' },
+      { name: 'replay', description: 'Replay events from the archive.' },
+      { name: 'replay-board', description: 'A board of the replayed events.' },
     ];
     write(root, { phases });
     const s = readSnapshot(root, B, { progress: false });
