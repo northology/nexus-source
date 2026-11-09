@@ -171,6 +171,30 @@ test('narrow windows slim the rail, drop stage labels to numbers and fold the so
   expect(et && ew && ew.y >= et.y + et.height - 4 && Math.abs(ew.x - et.x) < 2, 'From sits under the decision').toBe(true);
 });
 
+test('gate documents fill the gate: contents on the right edge from 1200px, the text taking the rest', async ({ page }) => {
+  // The gate's spec, served with enough headings for a contents list.
+  const spec = '# Relay rebuild: design\n\n## Goal\n\nReplay the queue.\n\n## Design\n\nOne store.\n\n### Limits\n\nNone yet.\n\n## Open items\n\n- caps\n';
+  await page.route('**/files/documents/specs/relay-rebuild-spec.md', (r) => r.fulfill({ status: 200, contentType: 'text/markdown', body: spec }));
+  const box = async (sel: string) => (await page.locator(sel).first().boundingBox()) ?? { x: 0, y: 0, width: 0, height: 0 };
+  for (const width of [1280, 1600, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(urlFor('visual', '#/gate/spec-review'));
+    await expect(page.getByRole('navigation', { name: 'Contents' })).toBeVisible();
+    const [doc, md, toc] = [await box('.gate-doc'), await box('.gate-doc .md'), await box('.gate-doc .toc')];
+    expect(toc.x, `contents to the right of the text at ${width}`).toBeGreaterThanOrEqual(md.x + md.width);
+    expect(Math.abs(toc.x + toc.width - (doc.x + doc.width)), `contents on the gate's right edge at ${width}, no empty band`).toBeLessThanOrEqual(2);
+    expect(toc.x - (md.x + md.width), `the text runs up to the contents at ${width}`).toBeLessThanOrEqual(64);
+    expect(await page.locator('.gate-doc .toc').evaluate((el) => getComputedStyle(el).position)).toBe('sticky');
+  }
+  // Narrow, the contents sit above the text, and the document still spans the gate.
+  await page.setViewportSize({ width: 1100, height: 900 });
+  await page.goto(urlFor('visual', '#/gate/spec-review'));
+  await expect(page.getByRole('navigation', { name: 'Contents' })).toBeVisible();
+  const [doc, md, toc] = [await box('.gate-doc'), await box('.gate-doc .md'), await box('.gate-doc .toc')];
+  expect(toc.y + toc.height, 'contents above the text').toBeLessThanOrEqual(md.y + 1);
+  expect(Math.abs(md.x + md.width - (doc.x + doc.width)), 'the text spans the gate').toBeLessThanOrEqual(2);
+});
+
 test('documents: contents beside the text when wide, list and contents above the text when narrow', async ({ page }) => {
   writeFileSync(join(buildDir('live'), 'notes', 'wide-contents.md'), '# Contents check\n\n## First part\n\nSome text.\n\n## Second part\n\nMore text.\n\n### A detail\n\nEnd.\n');
   const hash = '#/documents/notes?doc=notes/wide-contents.md';

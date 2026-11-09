@@ -24,6 +24,12 @@ const STATE_LABEL: Record<GateState, string> = { open: 'open', answered: 'sent',
 const KEY_TO_MARK: Record<string, MarkValue> = { a: 'accepted', r: 'research', d: 'declined' };
 const MARK_LABEL: Record<MarkValue, string> = { accepted: 'Accept', research: 'Needs research', declined: 'Decline' };
 const MARK_KEY: Record<MarkValue, string> = { accepted: 'A', research: 'R', declined: 'D' };
+// A retire row asks a different question, so it has its own words and keys: accepting it retires the guardrail and
+// declining keeps it. A and D are dead there, so a habit of "A means agree" can't retire one by accident.
+const RETIRE_KEY_TO_MARK: Record<string, MarkValue> = { x: 'accepted', r: 'research', k: 'declined' };
+const RETIRE_LABEL: Record<MarkValue, string> = { accepted: 'Retire', research: 'Needs research', declined: 'Keep' };
+const RETIRE_KEY: Record<MarkValue, string> = { accepted: 'X', research: 'R', declined: 'K' };
+const RETIRE_STATE: Record<MarkValue, string> = { accepted: 'retire', research: 'research', declined: 'keep' };
 
 export function GateView(props: ViewProps) {
   const { snapshot, route, navigate, zone } = props;
@@ -337,16 +343,18 @@ interface RowNoteProps {
 
 function MarkList({ items, marks, readOnly, onMark, notes, saved, noteOpen, onNote, onOpenNote }: { items: GateItem[]; marks: Record<string, MarkValue>; readOnly: boolean; onMark: (name: string, m: MarkValue) => void } & RowNoteProps) {
   const [openRow, setOpenRow] = useState<string | null>(null);
+  // Retire and Keep are words, so a gate with a retire row widens its mark column on every row to keep them aligned.
+  const retiring = items.some((i) => i.retire);
   return (
     <>
-      <div className="cols" aria-hidden="true">
+      <div className={retiring ? 'cols retiring' : 'cols'} aria-hidden="true">
         <span />
         <span>Row</span>
         <span>Statement</span>
         <span>Source</span>
         <span>Your mark</span>
       </div>
-      <ol className="rows">
+      <ol className={retiring ? 'rows retiring' : 'rows'}>
         {items.map((item, i) => {
           const mark = marks[item.name];
           const isOpen = openRow === item.name;
@@ -355,11 +363,12 @@ function MarkList({ items, marks, readOnly, onMark, notes, saved, noteOpen, onNo
               key={item.name}
               className={`row${isOpen ? ' open' : ''}`}
               data-state={mark ?? 'unmarked'}
+              data-retire={item.retire ? '' : undefined}
               tabIndex={readOnly ? -1 : 0}
-              aria-label={`${item.text}, ${mark ? `marked ${mark}` : 'not marked'}`}
+              aria-label={`${item.text}, ${mark ? `marked ${item.retire ? RETIRE_STATE[mark] : mark}` : 'not marked'}`}
               onKeyDown={(e) => {
                 if (readOnly || e.target !== e.currentTarget || e.ctrlKey || e.metaKey || e.altKey) return;
-                const m = KEY_TO_MARK[e.key.toLowerCase()];
+                const m = (item.retire ? RETIRE_KEY_TO_MARK : KEY_TO_MARK)[e.key.toLowerCase()];
                 if (m) {
                   e.preventDefault();
                   onMark(item.name, m);
@@ -399,11 +408,13 @@ function MarkList({ items, marks, readOnly, onMark, notes, saved, noteOpen, onNo
               <span className="src mono">{item.source ?? ''}</span>
               <span className="acts" role="group" aria-label={`Mark: ${item.text}`}>
                 {GATE_MARKS.map((m) => {
-                  // On a retire row, accepting retires the guardrail: the button says so, not "Accept".
-                  const label = item.retire && m === 'accepted' ? 'Retire it' : MARK_LABEL[m];
+                  // A retire row spells out Retire and Keep; research keeps its icon.
+                  const label = item.retire ? RETIRE_LABEL[m] : MARK_LABEL[m];
+                  const key = item.retire ? RETIRE_KEY[m] : MARK_KEY[m];
+                  const worded = item.retire && m !== 'research';
                   return (
-                    <button key={m} type="button" className="act" aria-pressed={mark === m} aria-label={label} title={`${label} (${MARK_KEY[m]})`} disabled={readOnly} onClick={() => onMark(item.name, m)}>
-                      <MarkIcon kind={m} />
+                    <button key={m} type="button" className={worded ? 'act word' : 'act'} aria-pressed={mark === m} aria-label={label} title={`${label} (${key})`} disabled={readOnly} onClick={() => onMark(item.name, m)}>
+                      {worded ? label : <MarkIcon kind={m} />}
                     </button>
                   );
                 })}

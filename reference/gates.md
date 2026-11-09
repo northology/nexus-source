@@ -98,7 +98,9 @@ submission the server stamps `log: "guardrails"` and each row's text into the an
 the guardrail's text still matches its stamp, so rewording an accepted guardrail returns it to proposed.
 
 To retire an accepted guardrail, give it a row of its own with `"retire": true`, its name and text exactly as accepted.
-The cockpit labels the row as a retirement, and accepting it retires the guardrail (state `retired`, out of
+The cockpit tags the row "Retire" and asks in words: **Retire** (key X), **Keep** (key K) or research (key R), with
+the A and D keys off on that row; the tally counts Retire and Keep apart from Accepted and Declined. In the answers,
+Retire is `accepted` and Keep is `declined`. Accepting it retires the guardrail (state `retired`, out of
 `nexus guardrail list --accepted` and the governance list); declining it, or marking it research, leaves the guardrail
 accepted. A retire row belongs only on a guardrails gate and only names an accepted guardrail; the gate is refused
 otherwise. A later row that accepts the guardrail again brings it back, since the latest answer wins. Never ask for a

@@ -75,6 +75,19 @@
 .stmt .conflicts { display: block; margin-top: 4px; font-size: var(--f-label); color: var(--g2); }
 /* A retire row says so before its text: accepting it retires the guardrail. */
 .stmt .retire-tag { display: inline-block; margin-right: 8px; padding: 0 5px; font-size: var(--f-label); color: var(--signal-text); border: 1px solid currentColor; }
+/* Its marks are words (Retire, Keep), so the mark column is wider on every row of that gate. */
+.cols.retiring, .rows.retiring .row { grid-template-columns: calc(28 * var(--px)) calc(36 * var(--px)) minmax(0, 1fr) calc(132 * var(--px)) calc(156 * var(--px)); }
+@media (max-width: 1200px) { .cols.retiring, .rows.retiring .row { grid-template-columns: 28px 36px minmax(0, 1fr) 156px; } }
+.act.word { width: auto; padding: 0 10px; font-size: var(--f-label); }
+/* Its look follows the guardrail, not the mark: Retire greys and strikes the text, Keep leaves it standing. */
+.row[data-retire][data-state="declined"] .stmt .t { color: inherit; }
+.row[data-retire][data-state="declined"] .stmt .t::after { transform: scaleX(0); }
+.row[data-retire][data-state="declined"] .mark .solid { transform: scaleY(1); }
+.row[data-retire][data-state="declined"] .mark .dash { opacity: 0; }
+.row[data-retire][data-state="accepted"] .stmt .t { color: var(--g3); }
+.row[data-retire][data-state="accepted"] .stmt .t::after { transform: scaleX(1); background: var(--g2); }
+.row[data-retire][data-state="accepted"] .mark .solid { transform: scaleY(0); }
+.row[data-retire][data-state="accepted"] .mark .dash { opacity: .35; }
 .gate[data-state="open"] .stmt .conflicts { color: var(--signal-text); }
 
 /* A permit names the protected file an approval opens */

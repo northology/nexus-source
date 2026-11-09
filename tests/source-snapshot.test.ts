@@ -23,6 +23,7 @@ function repo(extra: Record<string, string> = {}): string {
     'src/a.ts': 'export const a = 1;\n',
     '.build/b/build.json': '{}\n',
     'design/x.md': '# private design\n',
+    'docs/governance/builds/b.md': '# private record\n',
     'plugins/nexus/p.txt': 'built\n',
     'CLAUDE.md': '# private instructions\n',
     '.claude/settings.json': '{}\n',
@@ -37,7 +38,7 @@ function repo(extra: Record<string, string> = {}): string {
 }
 
 describe('the source snapshot', () => {
-  it('takes the tracked files, leaving out builds, design, releases and the private config', () => {
+  it('takes the tracked files, leaving out builds, design, the docs vault, releases and the private config', () => {
     expect(snapshotFiles(repo())).toEqual(['README.md', 'src/a.ts']);
   });
   it('reads the private list, one case-insensitive pattern per line, and has none without the file', () => {

@@ -1,5 +1,5 @@
 // The public source snapshot (README "Releasing"): the files of one commit, without the build records, the design
-// history, the built releases and this repo's private config, scanned against a private list of internal names before
+// history, the docs vault, the built releases and this repo's private config, scanned against a private list of internal names before
 // anything is copied. The list lives in .publish/internal-names, which the snapshot itself never contains.
 import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
@@ -8,7 +8,7 @@ import { dirname, join } from 'node:path';
 export const NAMES_FILE = '.publish/internal-names';
 
 /** Paths that stay private: a folder (ending in /) or one file, repo-relative. */
-export const PRIVATE = ['.build/', 'design/', 'plugins/', '.claude/', '.nexus/', '.impeccable/', '.publish/', '.superpowers/', 'CLAUDE.md'];
+export const PRIVATE = ['.build/', 'design/', 'docs/', 'plugins/', '.claude/', '.nexus/', '.impeccable/', '.publish/', '.superpowers/', 'CLAUDE.md'];
 
 const git = (cwd: string, args: string[]): string => execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 

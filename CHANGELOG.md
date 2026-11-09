@@ -2,6 +2,18 @@
 
 nexus follows semantic versioning. In the source repo, the design behind each change is in `design/`, by date.
 
+## 1.4.2 (2026-11-09)
+
+Two cockpit fixes. Gates, answers and records are unchanged.
+
+- **Retire rows ask in words:** a retire row's buttons read **Retire** and **Keep** (with research still `?`), and
+  its keys are X, K and R. A and D do nothing there, so the habit "A means agree" can't retire a guardrail. The tally
+  counts Retire and Keep on their own. Keep leaves the guardrail's text standing; Retire strikes it through. In the
+  answers, Retire is still `accepted` and Keep `declined`.
+- **Gate documents span the gate:** a spec, plan or report attached to a gate used the Documents tab's 72ch reader
+  without its side column, which left an empty band on the right at landscape widths. It now spans the gate: tables,
+  code and diagrams take the width, prose keeps its measure, and from 1200px the contents list sits on the right edge.
+
 ## 1.4.1 (2026-11-03)
 
 A remediation pass: fixes for the issues still open after 1.4.0, and a gate row for retiring a guardrail. Records

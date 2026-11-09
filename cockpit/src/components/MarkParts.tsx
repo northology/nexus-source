@@ -6,23 +6,30 @@ export const TALLY_LABELS: Record<Mark, string> = { accepted: 'Accepted', resear
 /** Counts per mark, then the unmarked rows. A gate keeps its words; a review passes Keep, Adjust and Remove. */
 export function Tally({ items, marks, labels = TALLY_LABELS }: { items: GateItem[]; marks: Record<string, Mark>; labels?: Record<Mark, string> }) {
   const c: Record<Mark, number> = { accepted: 0, research: 0, declined: 0 };
-  // An accepted retire row retires its guardrail: it counts as a retirement, not as accepted.
+  // A retire row counts in its own words: accepted retires the guardrail, declined keeps it.
   let retired = 0;
+  let kept = 0;
   for (const item of items) {
     const m = marks[item.name];
     if (m === 'accepted' && item.retire) retired += 1;
+    else if (m === 'declined' && item.retire) kept += 1;
     else if (m) c[m] += 1;
   }
-  const unmarked = items.length - c.accepted - c.research - c.declined - retired;
+  const unmarked = items.length - c.accepted - c.research - c.declined - retired - kept;
   return (
     <div className="tally">
       <span>
         {labels.accepted} <b className="mono">{c.accepted}</b>
       </span>
       {items.some((i) => i.retire) && (
-        <span>
-          Retire <b className="mono">{retired}</b>
-        </span>
+        <>
+          <span>
+            Retire <b className="mono">{retired}</b>
+          </span>
+          <span>
+            Keep <b className="mono">{kept}</b>
+          </span>
+        </>
       )}
       <span>
         {labels.research} <b className="mono">{c.research}</b>

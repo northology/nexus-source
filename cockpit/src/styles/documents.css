@@ -26,6 +26,15 @@
   .docs .reader > .toc { grid-column: 2; grid-row: 1 / span 2; align-self: start; position: sticky; top: calc(72 * var(--px)); margin-top: 0; flex-direction: column; flex-wrap: nowrap; gap: 8px; padding-left: 16px; border-left: 1px solid var(--rule); }
   .docs .reader > .toc a { padding: 2px 0; }
 }
+/* A gate's document (spec, plan, report) has no list beside it, so it spans the gate: tables, code and diagrams take
+   the width while prose keeps its measure, and from 1200px the contents list sits on the right edge. */
+.gate-doc .reader { max-width: none; }
+@media (min-width: 1200px) {
+  .gate-doc .reader:has(> .toc) { display: grid; grid-template-columns: minmax(0, 1fr) calc(220 * var(--px)); column-gap: 48px; }
+  .gate-doc .reader:has(> .toc) > * { grid-column: 1; }
+  .gate-doc .reader > .toc { grid-column: 2; grid-row: 1 / span 2; align-self: start; position: sticky; top: calc(72 * var(--px)); margin-top: 0; flex-direction: column; flex-wrap: nowrap; gap: 8px; padding-left: 16px; border-left: 1px solid var(--rule); }
+  .gate-doc .reader > .toc a { padding: 2px 0; }
+}
 /* Narrow windows: the document list stacks above the reader at full width. */
 @media (max-width: 1200px) {
   .docs { grid-template-columns: minmax(0, 1fr); row-gap: 28px; }

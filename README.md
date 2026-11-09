@@ -243,7 +243,8 @@ when the CLI handles a command the table lacks. Visual baselines are updated in 
    releases finds the last release's folder, or none.
 6. Publish the public source to `northology/nexus-source`, in a clone of it beside this repo: `pnpm snapshot
    ../nexus-source` replaces the clone's files with this commit's, leaving out the build records (`.build/`), the
-   design history (`design/`), the built releases (`plugins/`) and this repo's own config. It refuses on uncommitted
+   design history (`design/`), this repo's docs vault (`docs/`), the built releases (`plugins/`) and this repo's own
+   config. It refuses on uncommitted
    changes, and on any line that matches a name in the private `.publish/internal-names`; `pnpm snapshot --check` runs
    just that scan. Then commit `nexus <version>` there, tag `nexus--v<version>`, and push the branch and the tag.
 7. Users update from `/plugin`; the new version number is what makes the update visible.

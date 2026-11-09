@@ -510,7 +510,7 @@ test('shows the server message and re-enables the button when sending fails', as
   await expect(page.getByRole('button', { name: 'Submit marks' })).toBeEnabled();
 });
 
-test('a retire row says it retires, and accepting it says so', async ({ page }) => {
+test('a retire row asks Retire or Keep in words, and counts each as such', async ({ page }) => {
   // The fixture's guardrails gate, served with its row as a retire row: the cockpit labels it from the field alone.
   await page.route(
     /\/api\/builds\/relay-rebuild$/,
@@ -524,11 +524,40 @@ test('a retire row says it retires, and accepting it says so', async ({ page }) 
   await page.goto(urlFor('gates', '#/gate/guardrails-dashboard'));
   const row = page.locator('li.row', { hasText: 'Replay never writes to the source systems' });
   await expect(row.locator('.retire-tag')).toHaveText('Retire');
-  await expect(row.getByRole('button', { name: 'Retire it' })).toBeVisible();
-  await expect(row.getByRole('button', { name: 'Accept' })).toHaveCount(0);
-  // Marked, the tally counts it as a retirement, not as accepted.
-  await row.getByRole('button', { name: 'Retire it' }).click();
+  // The choice is spelled out on the buttons: no accept or decline to read as agree or disagree.
+  const retire = row.getByRole('button', { name: 'Retire', exact: true });
+  const keep = row.getByRole('button', { name: 'Keep', exact: true });
+  await expect(retire).toHaveText('Retire');
+  await expect(keep).toHaveText('Keep');
+  await expect(row.getByRole('button', { name: 'Needs research' })).toBeVisible();
+  await expect(row.getByRole('button', { name: /^(Accept|Decline|Retire it)$/ })).toHaveCount(0);
   const tally = page.locator('.submit .tally');
+  const text = row.locator('.stmt .t');
+  const standing = await text.evaluate((e) => getComputedStyle(e).color);
+
+  // Keep leaves the guardrail standing: its text isn't greyed or struck, and the tally says Keep, not Declined.
+  await keep.click();
+  await expect(row).toHaveAttribute('aria-label', /marked keep$/);
+  await expect(text).toHaveCSS('color', standing);
+  await expect(tally).toContainText('Keep 1');
+  await expect(tally).toContainText('Declined 0');
+
+  // Retire greys it out and counts as a retirement.
+  await retire.click();
+  await expect(row).toHaveAttribute('aria-label', /marked retire$/);
+  await expect(text).not.toHaveCSS('color', standing);
   await expect(tally).toContainText('Retire 1');
+  await expect(tally).toContainText('Keep 0');
   await expect(tally).toContainText('Accepted 0');
+
+  // The keys follow the words: A and D do nothing on a retire row, K keeps and X retires.
+  await row.focus();
+  await page.keyboard.press('d');
+  await expect(row).toHaveAttribute('aria-label', /marked retire$/);
+  await page.keyboard.press('k');
+  await expect(row).toHaveAttribute('aria-label', /marked keep$/);
+  await page.keyboard.press('a');
+  await expect(row).toHaveAttribute('aria-label', /marked keep$/);
+  await page.keyboard.press('x');
+  await expect(row).toHaveAttribute('aria-label', /marked retire$/);
 });
