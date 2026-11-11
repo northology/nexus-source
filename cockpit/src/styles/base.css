@@ -11,6 +11,8 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--rule); border: 3px solid var(--ground); border-radius: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 button, input, select, textarea { font: inherit; color: inherit; }
+/* A native dropdown list is painted from these colours: a transparent select opens a white list in the dark theme. */
+option { background-color: var(--ground); color: var(--ink); }
 button { background: none; border: 0; cursor: pointer; }
 button:disabled { cursor: not-allowed; }
 a { color: inherit; }

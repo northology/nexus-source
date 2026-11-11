@@ -136,3 +136,34 @@ test('the Phases tab names a phases.json it could not read', async ({ page }) =>
   await expect(page.locator('.empty')).toContainText('phases.json could not be read');
   await expect(page.locator('.empty')).toContainText('must have required property description');
 });
+
+test('in the dark theme, a dropdown list draws on the dark ground, not on white', async ({ page }) => {
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem('nexus.theme', 'dark');
+    } catch {
+      /* storage blocked */
+    }
+  });
+  await page.goto(urlFor('planning'));
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  const select = page.getByLabel('Phase');
+  await expect(select).toBeVisible();
+  // The open list is native: Chrome paints it from the select's and the options' own colours, so a transparent
+  // select shows a white list under the theme's light text.
+  const colours = await select.evaluate((el) => {
+    const ground = getComputedStyle(document.body).backgroundColor;
+    const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+    const opt = el.querySelector('option') as HTMLOptionElement;
+    return {
+      ground,
+      ink,
+      select: getComputedStyle(el).backgroundColor,
+      option: getComputedStyle(opt).backgroundColor,
+      optionText: getComputedStyle(opt).color,
+    };
+  });
+  expect(colours.select).toBe(colours.ground);
+  expect(colours.option).toBe(colours.ground);
+  expect(colours.optionText).toBe('rgb(237, 237, 234)');
+});

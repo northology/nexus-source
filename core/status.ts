@@ -97,7 +97,7 @@ function applyLine(g: PhaseGate, build: string, now: Date): string {
 function nextStep(build: string, phase: string, stage: Stage, gates: PhaseGate[], rows: StepRow[], now: Date): string {
   const plan = skillCommand('plan');
   if (stage === 'close-out') {
-    return `Phase "${phase}" is closed. If main doesn't contain this branch's tip, finish the merge from ${plan} step 5, item 2; otherwise start the next phase with ${plan} ${build} <next phase>.`;
+    return `Phase "${phase}" is closed and stays on its branch. Start the next phase with ${plan} ${build} <next phase>, or decommission the build with ${skillCommand('decommission')} ${build}.`;
   }
   const answered = gates
     .filter((g) => g.state === 'answered')
@@ -106,7 +106,7 @@ function nextStep(build: string, phase: string, stage: Stage, gates: PhaseGate[]
   const open = gates.filter((g) => g.state === 'open').map((g) => g.request.name);
   if (open.length) return `${open.join(', ')} ${open.length === 1 ? 'is' : 'are'} waiting in the cockpit. Tell the user, and stop until they answer.`;
   const row = (step: GateStep): StepRow | undefined => rows.find((r) => r.step === step);
-  if (row('finish')?.result === 'approved') return `nexus stage close-out --build ${build}, commit the build folder, then merge from ${plan} step 5, item 2.`;
+  if (row('finish')?.result === 'approved') return `nexus stage close-out --build ${build}, then commit the build folder on its branch (${plan} step 5).`;
   const sent = rows.find((r) => r.result === 'sent back');
   if (sent?.gate) return `${sent.gate} was sent back. Revise per its note, then reopen it as ${reopenName(sent.gate, sent.step, phase)}.`;
   // A later phase may add no guardrails and so open no guardrails gate; once scope is applied, don't send it back.

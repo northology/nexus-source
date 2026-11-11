@@ -36,14 +36,14 @@ Nothing changes git before step 4, except a resume's checkout.
      again until its `Next:` line points into a step. Before re-entering brainstorming, read
      `.build/<build>/logs/decisions.json` and `questions.json` and tell brainstorming what is already settled, so the
      user isn't asked again.
-   - If a new phase is named: when the current phase is closed, finish any merge its `Next:` line names, then
-     continue with step 3 (skipping step 7: the cockpit is running); when it isn't closed, ask the user.
+   - If a new phase is named: when the current phase is closed, continue with step 3 (skipping step 7: the cockpit
+     is running); when it isn't closed, ask the user.
 3. Run the command step 6 will run with `--check` added: `nexus new <build> [--phase <phase>] --check`, or
    `nexus phase start <phase> --check`. If it fails, tell the user what it says and stop.
 4. Create the branch from the current `HEAD`, without switching to `main` first:
    - a new build: `git checkout -b build/<build>`;
-   - the next phase: `git checkout -b build/<build>-<phase>`. The finished phase was fast-forwarded into `main`,
-     so its tip is `main`'s tip.
+   - the next phase: `git checkout -b build/<build>-<phase>`, from the closed phase's tip. Phases chain on their
+     own branches; nothing reaches `main` until `/nexus:decommission`.
 5. If the repo has no `.nexus/config.json`, ask the user once which standing rule files to show in the cockpit
    (offer `CLAUDE.md` and any `.claude/rules/*`). If they name some, write `{ "staticRules": ["<files>"] }` now:
    the config is walled once the phase is active.
@@ -135,21 +135,19 @@ With the full suite green on the build branch, open the finish gate:
 
 ```json
 { "name": "finish-<phase>", "step": "finish", "type": "approve", "title": "Finish <phase>",
-  "why": "Approving merges <build branch> into main by fast-forward, then closes out the phase. Send back to keep working." }
+  "why": "Approving closes out the phase on <build branch>, where it stays: nothing merges into main until the build is decommissioned. Send back to keep working." }
 ```
 
 Tell the user it's waiting in the cockpit, and stop until they answer.
 
 When the user approves:
 1. `nexus gate apply finish-<phase>`, `nexus stage close-out`, and commit the build folder, all on the build branch.
-2. `git fetch . HEAD:main`: a fast-forward that never switches branches, so `.build/` stays in place.
-3. If it's refused because it isn't a fast-forward (`main` has moved): `git merge main`, run the full suite, then
-   step 2 again. If the merge conflicts, or step 2 is refused a second time, stop and tell the user in chat: the
-   approval covered a clean merge, and the phase is closed but not yet merged. If it's refused for any other reason,
-   stop and tell the user what git said.
-4. Keep the build branch: deleting a merged phase branch is the user's call.
+2. Don't merge, push or check out `main`: the phase stays on its branch, and the next phase branches from its tip.
+   With parallel worktrees, a phase moving `main` changes the files under every other checkout of it; holding the
+   work until `/nexus:decommission`, which lands the whole build on `main`, keeps them apart.
+3. Keep the build branch: deleting a phase branch is the user's call.
 
-When the user sends it back, don't merge: their note says what happens next. Once the work is done, open
+When the user sends it back, the phase stays open: their note says what happens next. Once the work is done, open
 `finish-<phase>-2` (then `-3`) the same way. A pull request, or any push, needs the user's go.
 
 Close-out is one-way: only `nexus phase start` leaves it. The build folder stays for the next phase, or for

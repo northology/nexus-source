@@ -71,7 +71,7 @@ describe('phaseStatus', () => {
     ]);
   });
 
-  it('rule 1: a closed phase finishes its merge or starts the next phase', () => {
+  it('rule 1: a closed phase stays on its branch, then starts the next phase or is decommissioned', () => {
     const root = fresh();
     planned(root);
     changeStage(root, B, 'build', at(13));
@@ -79,7 +79,7 @@ describe('phaseStatus', () => {
     changeStage(root, B, 'close-out', at(14, 15));
     applyAnswers(root, B, `finish-${P}`, at(14, 20));
     expect(phaseStatus(root, B).next).toBe(
-      `Phase "${P}" is closed. If main doesn't contain this branch's tip, finish the merge from /nexus:plan step 5, item 2; otherwise start the next phase with /nexus:plan ${B} <next phase>.`,
+      `Phase "${P}" is closed and stays on its branch. Start the next phase with /nexus:plan ${B} <next phase>, or decommission the build with /nexus:decommission ${B}.`,
     );
   });
 
@@ -103,12 +103,12 @@ describe('phaseStatus', () => {
     expect(phaseStatus(root, B).next).toBe(`look, scope-${P} are waiting in the cockpit. Tell the user, and stop until they answer.`);
   });
 
-  it('rule 4: an approved finish gate before close-out closes out, then merges', () => {
+  it('rule 4: an approved finish gate before close-out closes out on the branch', () => {
     const root = fresh();
     planned(root);
     changeStage(root, B, 'build', at(13));
     finish(root, 14, true);
-    expect(phaseStatus(root, B).next).toBe('nexus stage close-out --build card, commit the build folder, then merge from /nexus:plan step 5, item 2.');
+    expect(phaseStatus(root, B).next).toBe('nexus stage close-out --build card, then commit the build folder on its branch (/nexus:plan step 5).');
   });
 
   it('rule 5: a sent-back gate is revised and reopened under the next number', () => {

@@ -3,7 +3,7 @@
 Five maps of how a build moves in development, each followed by the same story in words. You, the agent and nexus each
 have a part: you decide, the agent does the work, nexus keeps the record and the wall.
 
-## A phase, start to merge
+## A phase, start to close-out
 
 ```mermaid
 flowchart TD
@@ -22,7 +22,7 @@ flowchart TD
     ledger --> g5{{"You: finish gate"}}
   end
   subgraph closeout ["Close-out"]
-    close["nexus: records it; the branch merges into main"]
+    close["nexus: records it; the work stays on the branch"]
   end
   setup --> g1
   g2 --> spec
@@ -44,8 +44,9 @@ conflicts marked on the row they affect; once you've marked them, the phase move
 the spec and asks you to approve it at the **spec gate**, then writes the implementation plan for the **plan gate**.
 
 After the plan is approved the phase moves to the build stage, and the agent executes the plan. The run's rulings and
-deferred findings are imported into the logs before it ends. At the **finish gate** you approve the merge: nexus moves
-the phase to close-out and the branch fast-forwards into `main`. Sending a gate back, with a note, returns the work to
+deferred findings are imported into the logs before it ends. At the **finish gate** you approve the phase's end: nexus
+moves it to close-out and the work stays on its branch. The next phase branches from there, and the build reaches
+`main` only when it's decommissioned. Sending a gate back, with a note, returns the work to
 the step before it, and the agent reopens the gate as `-2`, then `-3`, when it's ready again.
 
 ## A gate's round trip

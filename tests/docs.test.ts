@@ -161,7 +161,11 @@ describe('planning skills', () => {
     expect(read(join(ARTIFACTS, 'skills', 'grill-me', 'LICENSE'))).toMatch(/MIT License/);
   });
   it('plan checks before branching and finishes through the gate, never through a checkout', () => {
-    for (const s of ['nexus builds', '--check', 'git fetch . HEAD:main', '"step": "finish"', 'phase-2', 'Keep the build branch']) expect(plan, s).toContain(s);
+    for (const s of ['nexus builds', '--check', '"step": "finish"', 'phase-2', 'Keep the build branch']) expect(plan, s).toContain(s);
+    // A finished phase stays on its branch: parallel worktrees never see main move under them.
+    expect(plan).not.toContain('HEAD:main');
+    expect(plan).not.toContain('git merge main');
+    expect(plan.replace(/\s+/g, ' ')).toContain("Don't merge, push or check out `main`");
     expect(plan).toMatch(/don't invoke it: run the full test suite and return to `\/nexus:plan` step 5/);
   });
   it('plan resumes an existing build through nexus phase status', () => {
@@ -176,7 +180,7 @@ describe('planning skills', () => {
     expect(text).not.toContain('`nexus phase status`');
     expect(text).toContain('`.build/<build>/logs/decisions.json` and `questions.json`');
     expect(text).toContain('tell brainstorming what is already settled');
-    expect(text).toContain('when the current phase is closed, finish any merge its `Next:` line names, then continue with step 3');
+    expect(text).toContain('when the current phase is closed, continue with step 3');
     expect(text).toContain("when it isn't closed, ask the user.");
   });
   it('plan lists builds, then checks, then branches, and never checks out the trunk', () => {
@@ -187,10 +191,22 @@ describe('planning skills', () => {
   });
   it('plan words the git promises and refusals precisely', () => {
     const flat = plan.replace(/\s+/g, ' ');
-    expect(flat).toContain("If it's refused because it isn't a fast-forward (`main` has moved)");
-    expect(flat).toContain("If it's refused for any other reason, stop and tell the user what git said.");
     expect(flat).toContain('Names start with a letter');
     expect(flat).toContain('names start with a letter');
+  });
+  it('decommission lands the build on main by fast-forward, never changing another checkout', () => {
+    const decom = read(join(ARTIFACTS, 'skills', 'decommission', 'SKILL.md'));
+    const flat = decom.replace(/\s+/g, ' ');
+    for (const s of ['git merge-base --is-ancestor main HEAD', 'git merge main', 'git fetch . HEAD:main', 'git worktree list --porcelain', 'git merge --ff-only <branch>']) expect(flat, s).toContain(s);
+    expect(flat).toContain('never change the files of another checkout');
+    expect(flat).toContain("If it's refused for any other reason, stop and tell the user what git said.");
+    expect(decom.indexOf('git merge-base --is-ancestor')).toBeLessThan(decom.indexOf('nexus decommission check'));
+    expect(decom.indexOf('nexus decommission apply <build>')).toBeLessThan(decom.indexOf('git fetch . HEAD:main'));
+  });
+  it('the nexus skill ends a phase on its branch and lands builds at decommission', () => {
+    const flat = read(join(ARTIFACTS, 'skills', 'nexus', 'SKILL.md')).replace(/\s+/g, ' ');
+    expect(flat).not.toContain('fast-forward into `main`');
+    expect(flat).toContain('nothing merges into `main` until `/nexus:decommission`');
   });
   it('plan step 5 stops at the finish gate until the user answers', () => {
     const step5 = plan.slice(plan.indexOf('## 5. Finish'), plan.indexOf('## While the phase is active'));
@@ -245,7 +261,7 @@ describe('the decommission skill', () => {
   });
   it('forbids answering a gate, deleting the build, writing what apply writes, and touching branches', () => {
     expect(skill).toMatch(/Never answer a gate yourself by any means.*only the user answers, in the/s);
-    for (const s of ['Never delete `.build/<build>/` yourself', 'Never push, merge or delete a branch']) expect(flat, s).toContain(s);
+    for (const s of ['Never delete `.build/<build>/` yourself', 'Never push or delete a branch, and never change the files of another checkout']) expect(flat, s).toContain(s);
     expect(flat).toContain('Decommission only the build the user named');
   });
   it('meets what an agent will hit: several builds, no cockpit, a stopped apply, the record commit', () => {
@@ -430,7 +446,7 @@ describe('the Guidance pages', () => {
   });
   it('flow has the five maps, each a diagram with a walkthrough', () => {
     const doc = guide('flow.md');
-    const maps = ['## A phase, start to merge', "## A gate's round trip", '## Concept rounds', '## The wall', '## Picking a phase back up'];
+    const maps = ['## A phase, start to close-out', "## A gate's round trip", '## Concept rounds', '## The wall', '## Picking a phase back up'];
     for (const h of maps) expect(doc).toContain(`\n${h}\n`);
     expect(mermaidBlocks(doc)).toHaveLength(5);
     for (const section of doc.split('\n## ').slice(1)) {

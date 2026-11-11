@@ -133,10 +133,10 @@ row marked Adjust or Remove is a permit too (see Review gates).
 
 ## Finish gates
 
-Each phase ends with an approve gate named `finish-<phase>` (`"step": "finish"`), opened before the merge: approving
-it authorizes merging the build branch into `main` by fast-forward (`git fetch . HEAD:main`, which never switches
-branches) and closing out the phase. `nexus stage close-out` is refused until the user approves it, which is what
-lowers the wall. A sent-back finish gate is reopened as `finish-<phase>-2`, then `-3`, and close-out needs an
+Each phase ends with an approve gate named `finish-<phase>` (`"step": "finish"`): approving it authorizes closing out
+the phase. The phase stays on its branch and the next phase branches from its tip; nothing merges into `main` until
+the build is decommissioned (see Decommission gates), so parallel worktrees never see `main` move under them.
+`nexus stage close-out` is refused until the user approves it, which is what lowers the wall. A sent-back finish gate is reopened as `finish-<phase>-2`, then `-3`, and close-out needs an
 approved answer on any of the phase's finish gates. The wall reads the stage and that answer together, so a stage set
 to close-out any other way leaves it up. The pairing is enforced when the gate is answered as well as when it is
 opened, because request files aren't walled: a gate under the phase's finish name that lacks `"step": "finish"` can't
@@ -165,6 +165,11 @@ Decisions and issues have no rows: the decisions of note the report lists, and t
 at apply (see vault.md). Applying the gate writes one entry, named after the gate, to the build's decision log, listing
 each row's mark, so a row never touches a decision that shares its name; the answers file is what
 `nexus decommission apply` reads, and the writes happen there.
+
+After apply, `/nexus:decommission` lands the build on `main` by fast-forward (`git fetch . HEAD:main`, which never
+switches branches), having first merged `main` into the build branch if another build landed meanwhile. When `main`
+is checked out in another worktree, the agent leaves that checkout's files alone and gives the user the
+`git merge --ff-only` to run there.
 
 Only the user answers the gate, in the cockpit. A mark-list, once open or answered, can't be reopened or replaced.
 

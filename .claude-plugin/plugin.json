@@ -1,6 +1,6 @@
 {
   "name": "nexus",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "A cockpit for planned builds with an AI agent: guardrails, review gates, logs, concept rounds and documents, kept in .build/<name>/ beside the work, with a wall that keeps the agent from changing your standing rules or the record.",
   "author": { "name": "Brent Colman" }
 }

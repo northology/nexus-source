@@ -12,8 +12,8 @@ that scrolls away. The agent does the work; you decide at the gates; nexus keeps
 record and your standing rules from being changed behind your back.
 
 A build runs in phases. Each phase goes from planning to a plan, then to building, and ends in close-out, once you
-approve its finish; then its branch is merged. The same build can carry on with another phase, keeping everything
-recorded so far.
+approve its finish; its work stays on its branch until the build is decommissioned. The same build can carry on with
+another phase, branching from the last one and keeping everything recorded so far.
 
 ## The parts
 
@@ -23,7 +23,7 @@ pages. It's committed with the work, so the record travels with the branch.
 
 **Phases and stages.** A phase is one stretch of work with its own branch. Within a phase the stage says where the work
 is: planning (guardrails, brainstorming and scope), plan (the spec and the implementation plan), build (execution) and
-close-out (finished: you approved it at the finish gate, and its branch is merged next).
+close-out (finished: you approved it at the finish gate; its branch holds the work until decommission).
 
 **Gates.** A gate is a decision the agent needs from you. The agent opens it, the cockpit shows it, and you answer it
 once. There are four kinds: approve (approve or send back, with a note), mark-list (mark each row: accept, decline,
@@ -102,7 +102,7 @@ front of every write, and the docs check (PostToolUse) checks each note the agen
 - **Agent:** the AI model working in your session, which writes the build's files and asks you at gates.
 - **Harness:** the tool the agent runs in, which loads nexus's skills and runs its hooks; Claude Code today.
 - **Build:** a piece of work nexus keeps the record of, in `.build/<build>/`, with its own branch per phase.
-- **Phase:** one stretch of a build's work, from planning to merge. A build can have several, one after another;
+- **Phase:** one stretch of a build's work, from planning to close-out. A build can have several, one after another;
   the Phases tab lists the ones planned, numbered in order, and renumbers them when one is split or dropped.
 - **Stage:** where a phase is: planning, plan, build or close-out.
 - **Gate:** a decision the agent needs from you, answered once in the cockpit: approve, mark-list, concept-pick or
@@ -117,8 +117,9 @@ front of every write, and the docs check (PostToolUse) checks each note the agen
 - **Ledger:** the progress file an execution run keeps; `nexus ledger import` copies its rulings and findings into the
   logs and keeps its task record.
 - **Close-out:** the last stage of a phase, reached once you approve the finish gate; the wall comes down (all but your
-  gate answers) and the branch is merged. Only `nexus phase start` leaves it.
-- **Decommission:** moving a finished build's record into the repo's `docs/` vault, in one commit. You answer one gate
+  gate answers) and the work stays on its branch. Only `nexus phase start` leaves it.
+- **Decommission:** moving a finished build's record into the repo's `docs/` vault, in one commit, then landing the
+  build on `main`. You answer one gate
   on the final report: mark which guardrails become repo rules, or approve the report when there are none. The
   decisions it names, the open issues and the build's documents move with it.
 - **Review:** a gate on the Repo view's items (memory, rules, instruction files): keep, adjust or remove each one.

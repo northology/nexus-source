@@ -2,6 +2,21 @@
 
 nexus follows semantic versioning. In the source repo, the design behind each change is in `design/`, by date.
 
+## 1.4.3 (2026-11-10)
+
+Phases stay on their branches until decommission, and dropdowns read in the dark theme. Gates, answers and records
+are unchanged.
+
+- **Phases don't merge on their own:** approving a finish gate closes the phase out and nothing more; the work stays
+  on its branch, and the next phase branches from its tip. Before, each finish fast-forwarded `main`, which, with
+  builds running in parallel worktrees, changed the files under every other checkout of `main`. `nexus phase status`
+  now points a closed phase at the next phase or at `/nexus:decommission`.
+- **Decommission lands the build:** if another build reached `main` meanwhile, it merges `main` into the build branch
+  and runs the suite first; after apply it fast-forwards `main` to the decommission commit. When `main` is checked
+  out in another worktree, it leaves that checkout alone and gives you the `git merge --ff-only` to run there.
+- **Dark-theme dropdowns:** the phase and rail dropdowns opened as a white list with the theme's light text; the
+  list now takes the dark ground.
+
 ## 1.4.2 (2026-11-09)
 
 Two cockpit fixes. Gates, answers and records are unchanged.

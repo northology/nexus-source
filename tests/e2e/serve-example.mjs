@@ -328,7 +328,7 @@ roots.reviews = reviews.root;
 // decommission gate. Claude drafts the report by hand, so it is written here; the gate's name and where the report
 // sits come from the decommission's own path rules.
 const F = plainCopy();
-openGate(F, B, { name: 'finish-replay', step: 'finish', type: 'approve', title: 'Finish replay', why: 'Approving merges build/relay-rebuild into main by fast-forward, then closes out the phase.' }, '2026-10-09T20:00:00Z');
+openGate(F, B, { name: 'finish-replay', step: 'finish', type: 'approve', title: 'Finish replay', why: 'Approving closes out the phase on build/relay-rebuild, where it stays until the build is decommissioned.' }, '2026-10-09T20:00:00Z');
 submitAnswers(F, B, 'finish-replay', { decision: 'approve' }, '2026-10-09T20:05:00Z');
 applyAnswers(F, B, 'finish-replay', '2026-10-09T20:06:00Z');
 setStage(F, B, 'close-out');

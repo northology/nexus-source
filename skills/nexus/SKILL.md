@@ -65,8 +65,8 @@ cockpit. Read `notes/` at every gate.
 - Reviews of the Repo view's items (`nexus review open`, in `.nexus/reviews/`) are gates too; see `gates.md`.
 
 ## Finishing a phase
-- Open the approve gate `finish-<phase>` (`"step": "finish"`) before merging; approving it authorizes the fast-forward
-  into `main` and close-out (`/nexus:plan` step 5). `nexus stage close-out` ends the phase; close-out is one-way.
+- Approving the gate `finish-<phase>` authorizes close-out (`/nexus:plan` step 5), which is one-way. The phase stays
+  on its branch: nothing merges into `main` until `/nexus:decommission`.
 - The next phase starts with `/nexus:plan <build> <phase>`, in the same build.
 - `/nexus:decommission <build>` writes a closed build into `docs/`; never delete `.build/<name>/` yourself.
 

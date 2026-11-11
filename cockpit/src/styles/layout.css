@@ -56,7 +56,7 @@
 .rail .picker, .rail .zone { display: grid; gap: 6px; font-size: var(--f-label); color: var(--g3); }
 .rail .picker { padding: 0 var(--edge) 16px; }
 .rail .foot { margin-top: auto; padding: 16px var(--edge) 0; border-top: 1px solid var(--rule-soft); }
-.rail select { font-family: var(--mono); font-size: var(--f-label); color: var(--g1); background: transparent; border: 1px solid var(--rule); border-radius: 2px; padding: 5px 8px; width: 100%; }
+.rail select { font-family: var(--mono); font-size: var(--f-label); color: var(--g1); background: var(--ground); border: 1px solid var(--rule); border-radius: 2px; padding: 5px 8px; width: 100%; }
 
 /* main field */
 main { overflow: auto; min-width: 0; position: relative; }
@@ -113,5 +113,5 @@ main { overflow: auto; min-width: 0; position: relative; }
 
 /* Phase filter: a plain select in the view bar's line */
 .phase-select { display: inline-flex; align-items: center; gap: 8px; font-size: var(--f-label); color: var(--g2); margin-right: 12px; }
-.phase-select select { font: inherit; font-family: var(--mono); color: var(--ink); background: transparent; border: 1px solid var(--rule); border-radius: 2px; padding: 4px 8px; }
+.phase-select select { font: inherit; font-family: var(--mono); color: var(--ink); background: var(--ground); border: 1px solid var(--rule); border-radius: 2px; padding: 4px 8px; }
 .docbar { padding: 12px 0; border-bottom: 1px solid var(--rule-soft); margin-bottom: 12px; }

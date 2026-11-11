@@ -1,6 +1,6 @@
 ---
 name: decommission
-description: Move a finished nexus build's record into the repo's permanent record, archive its documents and keep its final report as the build's record, in one commit. The user starts it as /nexus:decommission <build>.
+description: Move a finished nexus build's record into the repo's permanent record, archive its documents and keep its final report as the build's record, in one commit, then land the build on main. The user starts it as /nexus:decommission <build>.
 disable-model-invocation: true
 argument-hint: <build>, a build whose last phase is closed (its finish gate approved), e.g. relay-rebuild
 allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/bin/nexus.mjs" *)
@@ -30,11 +30,14 @@ Decommission only the build the user named in this command. Formats are in
 
 ## 1. Check
 1. Say which build you read from the arguments. With none, run `nexus builds` and ask which one.
-2. Run `nexus decommission check <build>`. It refuses unless the build's last phase is closed with its finish
+2. Run `git merge-base --is-ancestor main HEAD`. If it fails, `main` has moved since this build branched (another
+   build landed): run `git merge main` on this branch, then the full test suite. If the merge conflicts or the suite
+   fails, stop and tell the user: nothing is decommissioned yet. This touches only this checkout.
+3. Run `nexus decommission check <build>`. It refuses unless the build's last phase is closed with its finish
    approved, no other build is active, every gate is applied, the repo has a `docs/` vault this nexus supports, it
    runs from the root of a git repository, the tree is clean outside `.build/<build>/`, git ignores no file inside
    it, and git doesn't ignore `.claude/rules/nexus/`. If it names a problem, tell the user what it says and stop.
-3. It prints the build's `base` and `final` commits. `git diff --stat <base> <final>` is what the build changed.
+4. It prints the build's `base` and `final` commits. `git diff --stat <base> <final>` is what the build changed.
 
 ## 2. Draft the final report
 Write `.build/<build>/documents/reports/<build> final report.md`, from the build's logs, gates, plan and documents.
@@ -126,9 +129,25 @@ Report the commit to the user, and anything it printed. If it says the build fol
 decommission is committed: tell the user, who removes it with `git clean -fd .build/<build>/` once nothing uses it
 (never delete it yourself).
 
+## 6. Land on main
+Phases never merge on their own (`/nexus:plan` step 5), so this is where the build's work reaches `main`: by
+fast-forward to the decommission commit. Never change the files of another checkout: with parallel worktrees, each
+belongs to whoever works there.
+
+1. Run `git worktree list --porcelain` and look for a worktree whose `branch` is `refs/heads/main`.
+2. With none: `git fetch . HEAD:main`, a fast-forward that never switches branches.
+3. With one: leave it alone. Tell the user the build is decommissioned on `<branch>`, and that `main` moves when they
+   run `git merge --ff-only <branch>` in that checkout (name its path).
+4. If the fast-forward is refused because it isn't one (`main` moved during the decommission), stop and tell the
+   user: the decommission is committed on `<branch>`, not yet on `main`. If it's refused for any other reason, stop
+   and tell the user what git said.
+
+Keep the build's branches: deleting them is the user's call.
+
 ## Rules
 - Never answer a gate yourself by any means (an answers file, a request to the server): only the user answers, in the
   cockpit.
 - Never delete `.build/<build>/` yourself, and never write `.claude/rules/nexus/`, the archive, the build's record or
   this build's entries in the two logs: apply does all five. Earlier builds' entries change only as step 4 says.
-- Never push, merge or delete a branch: decommission leaves branches as they are.
+- Never push or delete a branch, and never change the files of another checkout: decommission merges only as steps
+  1 and 6 say, in this checkout.
