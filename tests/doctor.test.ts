@@ -35,22 +35,22 @@ function fakeHome(skip: Anchor | null = null, version = '6.4.1'): { home: string
   return { home, dir };
 }
 
-/** The three brainstorming anchors whose wording differs between 6.4.1 and 7.0.0. */
-const VERSIONED: [string, string][] = [
+/** The three brainstorming anchors whose wording differs between 6.4.1 and 7.0.0; 7.0.2 reworded the builder check. */
+const VERSIONED: string[][] = [
   ['(User preferences for spec location override this default)', "Your human partner's preferences override both."],
   ['Offer the visual companion just-in-time', '**Offer it just-in-time.**'],
-  ['**Spec Self-Review:**', '**Builder check:**'],
+  ['**Spec Self-Review:**', '**Builder check:**', '**Builder check** (for a project)'],
 ];
 
 describe('both Superpowers versions', () => {
   const cliIO = (out: string[], err: string[]): CliIO => ({ cwd: tempDir(), out: (l) => out.push(l), err: (l) => err.push(l), now: () => NOW, readStdin: async () => '', env: {} });
 
-  it('the reference lists 18 anchors: three brainstorming ones for 6.4.1 and 7.0.0, three fix-loop ones that moved in 7.0.1', () => {
+  it('the reference lists 18 anchors: three brainstorming ones for 6.4.1 and 7.0.0 (the builder check also 7.0.2), three fix-loop ones that moved in 7.0.1', () => {
     expect(ANCHORS).toHaveLength(18);
     const listed = ANCHORS.filter((a) => typeof a.text !== 'string');
     const brainstorming = listed.filter((a) => a.file === 'skills/brainstorming/SKILL.md');
     expect(brainstorming).toHaveLength(3);
-    for (const a of brainstorming) expect(anchorTexts(a).map((t) => t.version)).toEqual(['6.4.1', '7.0.0']);
+    expect(brainstorming.map((a) => anchorTexts(a).map((t) => t.version))).toEqual([['6.4.1', '7.0.0'], ['6.4.1', '7.0.0'], ['6.4.1', '7.0.0', '7.0.2']]);
     const moved = listed.filter((a) => a.file === 'skills/subagent-driven-development/SKILL.md');
     expect(moved.map((a) => anchorTexts(a)[0]?.text)).toEqual(['minor (deferred)', 'Task <N>: fix round <R>/5 (', 'Task <N>: parked —']);
     for (const a of moved) {
@@ -62,6 +62,14 @@ describe('both Superpowers versions', () => {
   it('each brainstorming alternative is the exact wording of its version', () => {
     const listed = ANCHORS.filter((a) => a.file === 'skills/brainstorming/SKILL.md' && typeof a.text !== 'string').map((a) => anchorTexts(a).map((t) => t.text));
     expect(listed).toEqual(VERSIONED);
+  });
+  it('a wording the install wraps across lines still matches', () => {
+    // Superpowers 7.0.2 rewrapped the spec-location sentence without changing a word of it.
+    const dir = tempDir();
+    mkdirSync(join(dir, 'skills', 'brainstorming'), { recursive: true });
+    appendFileSync(join(dir, 'skills', 'brainstorming', 'SKILL.md'), "Otherwise, pick a sensible place and say where. Your human partner's\r\n  preferences override both.\n");
+    const spec = ANCHORS[0] as Anchor;
+    expect(checkAnchors(dir, [spec])[0]?.matched?.version).toBe('7.0.0');
   });
   it('an alternative may name its own file, and is looked for there', () => {
     const doc = '<!-- anchors:start -->\n```json\n[{ "file": "a.md", "text": [{ "version": "1.0.0", "text": "x" }, { "version": "2.0.0", "text": "x", "file": "b.md" }], "breaks": "b" }]\n```\n<!-- anchors:end -->';
@@ -93,12 +101,13 @@ describe('both Superpowers versions', () => {
   it('refuses an empty plain text', () => {
     expect(() => anchorsFrom(block('[{ "file": "a.md", "text": "", "breaks": "b" }]'))).toThrow(/Each anchor needs file, text and breaks/);
   });
-  it('doctor superpowers passes on 6.4.1, 7.0.0 and 7.0.1 installs', async () => {
-    for (const version of ['6.4.1', '7.0.0', '7.0.1']) {
+  it('doctor superpowers passes on 6.4.1, 7.0.0, 7.0.1 and 7.0.2 installs', async () => {
+    for (const version of ['6.4.1', '7.0.0', '7.0.1', '7.0.2']) {
       const out: string[] = [];
       expect(await main(['doctor', 'superpowers', '--path', fakeHome(null, version).dir], cliIO(out, []))).toBe(0);
       expect(out.at(-1)).toBe('All 18 anchors found.');
       if (version === '7.0.0') expect(out).toContain(`ok    skills/brainstorming/SKILL.md: "**Builder check:**" (7.0.0)`);
+      if (version === '7.0.2') expect(out).toContain(`ok    skills/brainstorming/SKILL.md: "**Builder check** (for a project)" (7.0.2)`);
     }
   });
   it('a missing alternatives anchor lists every wording it looked for', async () => {

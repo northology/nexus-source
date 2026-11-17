@@ -113,6 +113,19 @@ test('a replaced plan shows the newest, and links to the earlier one', async ({ 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Replay Queue Implementation Plan');
 });
 
+test('a newer document with no tasks, approved at a plan-step gate, leaves the plan with tasks current', async ({ page }) => {
+  await serveSnapshot(page, (s) => {
+    const plan = s.plan?.plans?.[0];
+    if (s.plan && plan) s.plan.plans = [plan, { ...plan, id: 'p-0000aaaa', gate: 'run-terms', document: 'documents/run-terms.md', title: 'Run terms', tasks: [], record: null }];
+  });
+  await page.goto(urlFor('plan', '#/plan'));
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Replay Queue Implementation Plan');
+  await expect(page.locator('.plan-summary')).toContainText('of 5 done');
+  await expect(page.getByText('A newer plan replaced this one.')).toHaveCount(0);
+  await expect(page.getByText('run-terms.md, approved at run-terms after this plan, has no tasks')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'run-terms.md' })).toBeVisible();
+});
+
 test('every earlier plan is reachable, one step back at a time', async ({ page }) => {
   await serveSnapshot(page, (s) => {
     const plan = s.plan?.plans?.[0];

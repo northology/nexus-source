@@ -2,6 +2,21 @@
 
 nexus follows semantic versioning. In the source repo, the design behind each change is in `design/`, by date.
 
+## 1.4.4 (2026-11-17)
+
+A document with no tasks, approved at a plan-step gate, no longer hides the phase's plan, and Superpowers 7.0.2 is
+supported. Gates, answers and records are unchanged.
+
+- **The plan with tasks stays current:** approving a document with no tasks (a run's terms, say) at a gate with
+  `"step": "plan"` made it the phase's current plan, so the Plan view and the rail showed an empty plan, and the
+  revised plan's tasks lost their progress. The current plan is now the phase's newest entry with tasks; a
+  task-less entry leads only while the phase has none. The Plan view names any such document under the current plan.
+- **Plan step, documented:** `reference/gates.md` says the `plan` step is for the phase's implementation plan, and
+  that any other document approved mid-phase needs no step.
+- **Superpowers 7.0.2:** `nexus doctor superpowers` failed 2 of its 18 anchors on 7.0.2, which rewrapped the
+  spec-location sentence and reworded the builder check ("**Builder check** (for a project)"); nothing nexus relies on
+  changed. The doctor now ignores how a passage is wrapped, and the builder-check anchor lists 7.0.2's wording.
+
 ## 1.4.3 (2026-11-10)
 
 Phases stay on their branches until decommission, and dropdowns read in the dark theme. Gates, answers and records

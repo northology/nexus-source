@@ -18,9 +18,17 @@ export function plansOf(file: PlanFile | null, phase: string | null): PlanEntry[
   return (file?.plans ?? []).filter((p) => p.phase === phase);
 }
 
-/** A phase's current plan: its newest entry. */
+/**
+ * The current plan among a phase's entries (oldest first): the newest with tasks. A document with no tasks approved at
+ * a plan-step gate (a run's terms, say) leads only while the phase has no plan with tasks, so it never hides one.
+ */
+export function currentOf(plans: PlanEntry[]): PlanEntry | null {
+  return [...plans].reverse().find((p) => p.tasks.length > 0) ?? plans.at(-1) ?? null;
+}
+
+/** A phase's current plan (see currentOf). */
 export function currentPlanFor(file: PlanFile | null, phase: string | null): PlanEntry | null {
-  return plansOf(file, phase).at(-1) ?? null;
+  return currentOf(plansOf(file, phase));
 }
 
 /** A task's state as people read it: "done · 1 parked", "fix round 2 · 1 open". */

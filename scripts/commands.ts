@@ -241,7 +241,7 @@ export const COMMANDS: readonly CommandSpec[] = [
     usage: 'doctor superpowers [--path <dir>]',
     summary: 'check the Superpowers anchors nexus relies on',
     group: 'Diagnostics',
-    detail: 'Checks that the installed Superpowers skills still contain each line nexus depends on, and names any that moved and what that breaks. Supported: 6.4.1, 7.0.0 and 7.0.1. With several installed, only the newest is checked, since that is the one the harness loads. --path points at a Superpowers folder other than the installed one.',
+    detail: 'Checks that the installed Superpowers skills still contain each line nexus depends on, and names any that moved and what that breaks. Supported: 6.4.1, 7.0.0, 7.0.1 and 7.0.2. With several installed, only the newest is checked, since that is the one the harness loads. --path points at a Superpowers folder other than the installed one.',
     when: 'After every Superpowers update.',
     example: 'nexus doctor superpowers',
   },

@@ -18,7 +18,7 @@ from source, checking the install, updating and troubleshooting. In short:
 | Claude Code 2.1.288 or later, or Codex or Antigravity (see [Harnesses](#harnesses)) | the plugin's hooks and skills; the wall was verified on Claude Code 2.1.288 |
 | Node.js 20 or later, as `node` on the PATH | the hooks and the CLI run with it |
 | git | builds work on their own branches, and the record is committed |
-| The Superpowers plugin, 6.4.1, 7.0.0 and 7.0.1 | `/nexus:plan` runs planning through its brainstorming, plan-writing and execution skills; `nexus doctor superpowers` checks only the newest installed |
+| The Superpowers plugin, 6.4.1, 7.0.0, 7.0.1 and 7.0.2 | `/nexus:plan` runs planning through its brainstorming, plan-writing and execution skills; `nexus doctor superpowers` checks only the newest installed |
 
 nexus is developed on Windows; macOS and Linux paths are handled too.
 

@@ -849,7 +849,7 @@ describe('the supported Superpowers versions', () => {
     const guide = COMMANDS.find((c) => c.usage.startsWith('doctor superpowers'))?.detail ?? '';
     for (const [where, text] of [['README.md', read(join(ARTIFACTS, 'README.md'))], ['INSTALL.md', read(join(ARTIFACTS, 'INSTALL.md'))], ['the guide', guide]] as const) {
       const flat = text.replace(/\s+/g, ' ');
-      expect(flat, where).toContain('6.4.1, 7.0.0 and 7.0.1');
+      expect(flat, where).toContain('6.4.1, 7.0.0, 7.0.1 and 7.0.2');
       expect(flat, where).toContain('only the newest');
     }
   });

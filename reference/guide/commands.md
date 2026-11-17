@@ -484,7 +484,7 @@ nexus doctor guard
 nexus doctor superpowers [--path <dir>]
 ```
 
-Checks that the installed Superpowers skills still contain each line nexus depends on, and names any that moved and what that breaks. Supported: 6.4.1, 7.0.0 and 7.0.1. With several installed, only the newest is checked, since that is the one the harness loads. --path points at a Superpowers folder other than the installed one.
+Checks that the installed Superpowers skills still contain each line nexus depends on, and names any that moved and what that breaks. Supported: 6.4.1, 7.0.0, 7.0.1 and 7.0.2. With several installed, only the newest is checked, since that is the one the harness loads. --path points at a Superpowers folder other than the installed one.
 
 **When:** After every Superpowers update.
 

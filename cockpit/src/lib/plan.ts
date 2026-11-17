@@ -1,4 +1,4 @@
-import { currentPlanFor } from '../../../core/plan-text.ts';
+import { currentOf, currentPlanFor } from '../../../core/plan-text.ts';
 import type { PlanEntry, PlanProgress, Snapshot, TaskProgress, TaskState } from '../../../core/types.ts';
 
 export type PlanMode = 'list' | 'board';
@@ -19,9 +19,9 @@ export function planMode(v: string | undefined): PlanMode {
   return v === 'board' ? 'board' : 'list';
 }
 
-/** The plan asked for by ID among a phase's plans (oldest first), else the last: the phase's current plan. */
+/** The plan asked for by ID among a phase's plans (oldest first), else the phase's current plan. */
 export function pickPlan(plans: PlanEntry[], id: string | undefined): PlanEntry | null {
-  return plans.find((p) => p.id === id) ?? plans.at(-1) ?? null;
+  return plans.find((p) => p.id === id) ?? currentOf(plans);
 }
 
 export function taskProgress(progress: PlanProgress | undefined, id: string): TaskProgress {

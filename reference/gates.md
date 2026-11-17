@@ -40,6 +40,11 @@ with a `document`; `decommission` is a mark-list or an approve gate, with a `doc
 under the tab its step names. A gate without a step goes to Permits if it carries a `permit`, to Guardrails if it
 carries `"log": "guardrails"`, and to Other otherwise. Names are never read for this.
 
+The `plan` step is for the phase's implementation plan (`plan-<phase>`, reopened as `-2`): approving it indexes the
+plan's tasks for the Plan section. Approve any other document mid-phase, such as a run's terms, without a step. A
+document with no tasks approved at a plan-step gate is still indexed, but never replaces a plan that has tasks as the
+phase's current plan.
+
 The `decommission` step belongs to a build rather than a phase: `decommission-<build>` has the draft final report,
 `documents/reports/<build> final report.md`, as its `document`, and opens once the build's last phase is closed. Its
 tab, Decommission, shows only when the build has one.

@@ -1,4 +1,4 @@
-import { plansOf, stateText, summarize } from '../../../core/plan-text.ts';
+import { currentOf, plansOf, stateText, summarize } from '../../../core/plan-text.ts';
 import type { PlanEntry, PlanProgress, TaskProgress } from '../../../core/types.ts';
 import { useEffect, useRef } from 'react';
 import { CopyView } from '../components/CopyView.tsx';
@@ -46,8 +46,11 @@ export function PlanView({ snapshot, route, navigate, zone }: ViewProps) {
   }
 
   const progress = snapshot.planProgress[plan.id];
-  const newest = plans.at(-1);
-  const summary = summarize(plan, progress, { replaced: plan !== newest });
+  const current = currentOf(plans);
+  const replaced = current !== null && plans.indexOf(plan) < plans.indexOf(current);
+  // Documents with no tasks approved at a plan-step gate after the current plan: named, never taking it over.
+  const taskless = plan === current ? plans.slice(plans.indexOf(plan) + 1) : [];
+  const summary = summarize(plan, progress, { replaced });
   const older = plans[plans.indexOf(plan) - 1];
   const planLink = (id?: string) => formatHash({ category: 'plan', sub: null, params: { ...keep, ...keepPhase, ...(route.params['mode'] ? { mode: route.params['mode'] } : {}), ...(id ? { plan: id } : {}) } });
   const mode = planMode(route.params['mode']);
@@ -62,7 +65,14 @@ export function PlanView({ snapshot, route, navigate, zone }: ViewProps) {
           <p className="plan-meta">
             Approved at <a href={formatHash({ category: 'gate', sub: plan.gate, params: keep })}>{plan.gate}</a> · <a href={docHref(plan.document)}>{fileName(plan.document)}</a>
           </p>
-          {plan !== newest && (
+          {taskless.map((d) => (
+            <p className="plan-meta" key={d.id}>
+              <a href={docHref(d.document)}>{fileName(d.document)}</a>, approved at{' '}
+              <a href={formatHash({ category: 'gate', sub: d.gate, params: keep })}>{d.gate}</a> after this plan, has no
+              tasks, so this plan stays current.
+            </p>
+          ))}
+          {replaced && (
             <p className="plan-meta">
               A newer plan replaced this one. <a href={planLink()}>Show the current plan</a>
             </p>

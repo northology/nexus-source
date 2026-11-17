@@ -7,6 +7,7 @@ import { importLedger, parseLedger } from './ledger.ts';
 import { BUILD_DIR } from './paths.ts';
 import { currentPhase } from './phases.ts';
 import { readPlanFile, writePlanFile } from './plan.ts';
+import { currentOf } from './plan-text.ts';
 import { isoNow } from './time.ts';
 import type { Build, LogEntry, PlanEntry, PlanFile, PlanProgress, PlanRecord, TaskProgress, TaskRecord, TaskState } from './types.ts';
 
@@ -196,7 +197,7 @@ export function planProgress(root: string, name: string, build: Build | null, fi
   for (const [i, plan] of plans.entries()) {
     // A plan gate reopened on the same document: only the newest entry reads the live ledger; older ones keep their record.
     const superseded = plans.slice(i + 1).some((p) => p.document.toLowerCase() === plan.document.toLowerCase());
-    const newest = plans.filter((p) => p.phase === plan.phase).at(-1) === plan;
+    const newest = currentOf(plans.filter((p) => p.phase === plan.phase)) === plan;
     const ledger = superseded ? null : ledgerFor(ledgers, name, plan, indexed);
     if (ledger) {
       out[plan.id] = { source: 'ledger', read: isoNow(new Date(ledger.modified)), ledger: ledger.path, ...readLedgerProgress(ledger.text, plan) };

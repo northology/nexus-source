@@ -105,14 +105,18 @@ export function findSuperpowers(home: string, harness: Harness = currentHarness(
   return found[0]?.dir ?? null;
 }
 
-/** Each anchor, whether it's in the installed Superpowers, and which wording matched (null when none did). */
+/**
+ * Each anchor, whether it's in the installed Superpowers, and which wording matched (null when none did). Runs of
+ * whitespace count as one space on both sides, so a sentence Superpowers only rewraps still matches.
+ */
 export function checkAnchors(dir: string, anchors: Anchor[]): { anchor: Anchor; ok: boolean; matched: AnchorText | null }[] {
+  const flat = (s: string): string => s.replace(/\s+/g, ' ');
   const read = (rel: string): string | null => {
     const file = join(dir, rel);
-    return existsSync(file) ? readFileSync(file, 'utf8').replace(/\r\n/g, '\n') : null;
+    return existsSync(file) ? flat(readFileSync(file, 'utf8')) : null;
   };
   return anchors.map((anchor) => {
-    const matched = anchorTexts(anchor).find((t) => read(t.file ?? anchor.file)?.includes(t.text)) ?? null;
+    const matched = anchorTexts(anchor).find((t) => read(t.file ?? anchor.file)?.includes(flat(t.text))) ?? null;
     return { anchor, ok: matched !== null, matched };
   });
 }

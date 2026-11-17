@@ -20,7 +20,7 @@ works. Once it's installed, the [README](README.md) covers setting up a repo and
 | Node.js, as `node` on the PATH | 20 or later | nexus's hooks, CLI and cockpit server are Node programs | `node --version` |
 | git | any recent | each phase of a build works on its own branch, and the record is committed with the work | `git --version` |
 | A harness | Claude Code 2.1.288 or later, Codex CLI (proven on 0.162.0) or Antigravity (proven on agy 1.4.12) | nexus is a plugin for one of them | `claude --version`, `codex --version`, `agy --version` |
-| Superpowers | 6.4.1, 7.0.0 or 7.0.1 (newer versions are checked by `nexus doctor superpowers`) | nexus's planning runs through its brainstorming, plan-writing and execution skills | `nexus doctor superpowers`, once nexus is installed |
+| Superpowers | 6.4.1, 7.0.0, 7.0.1 or 7.0.2 (newer versions are checked by `nexus doctor superpowers`) | nexus's planning runs through its brainstorming, plan-writing and execution skills | `nexus doctor superpowers`, once nexus is installed |
 | A web browser | any current one | the cockpit is a local page, served from your machine | |
 | Obsidian | optional | `nexus init` sets up a `docs/` vault that Obsidian opens well; nexus doesn't need it | |
 
@@ -50,7 +50,8 @@ multi_agent = true
 
 nexus relies on particular passages of Superpowers' skills. After installing or updating Superpowers, run
 `nexus doctor superpowers`: it says whether each passage is there, and what breaks if one has moved. nexus supports
-6.4.1, 7.0.0 and 7.0.1; with several installed, only the newest is checked, since that is the one the harness loads.
+6.4.1, 7.0.0, 7.0.1 and 7.0.2; with several installed, only the newest is checked, since that is the one the harness
+loads.
 
 ## Get nexus
 

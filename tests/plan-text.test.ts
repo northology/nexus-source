@@ -76,4 +76,11 @@ describe('currentPlanFor', () => {
     expect(currentPlanFor({}, 'replay')).toBeNull();
     expect(currentPlanFor(null, 'replay')).toBeNull();
   });
+  it('passes over a newer entry with no tasks while the phase has a plan with tasks', () => {
+    // A document approved at a plan-step gate that isn't a task plan (run terms, say) mustn't take the phase over.
+    const terms: PlanEntry = { ...PLAN, id: 'p-00000002', gate: 'run-terms', document: 'documents/run-terms.md', title: 'Run terms', tasks: [] };
+    expect(currentPlanFor({ plans: [PLAN, terms] }, 'replay')?.id).toBe('p-00000001');
+    expect(currentPlanFor({ plans: [terms] }, 'replay')?.id).toBe('p-00000002');
+    expect(currentPlanFor({ plans: [{ ...terms, id: 'p-00000003' }, terms] }, 'replay')?.id).toBe('p-00000002');
+  });
 });

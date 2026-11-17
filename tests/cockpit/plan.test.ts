@@ -27,6 +27,8 @@ describe('plan helpers', () => {
     expect(pickPlan(plansOf(file, 'replay'), 'p-99999999')?.id).toBe('p-00000001');
     expect(pickPlan(plansOf(file, 'replay'), 'p-00000002')?.id).toBe('p-00000001');
     expect(pickPlan(plansOf(file, 'other'), undefined)).toBeNull();
+    const tasked = { ...entry('p-00000003', 'replay'), tasks: [{ id: 't-00000001', number: 1, title: 'One', steps: 1 }] };
+    expect(pickPlan([tasked, entry('p-00000004', 'replay')], undefined)?.id).toBe('p-00000003');
     expect(pickPlan(plansOf(null, 'replay'), undefined)).toBeNull();
   });
   it('a task with no progress reads as pending', () => {

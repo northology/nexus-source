@@ -245,6 +245,13 @@ describe('planProgress', () => {
     expect(all[newer.id]).toMatchObject({ source: 'ledger', ledger: '.superpowers/sdd/splash-plan/progress.md' });
     expect(byTitle(newer, all[newer.id]?.tasks ?? {}, 'Timeline')?.state).toBe('fix-round');
   });
+  it('a newer entry with no tasks leaves the plan with tasks pending while the phase runs', () => {
+    const root = planRepo();
+    const file = readPlanFile(root, B);
+    const plan = thePlan(root);
+    writePlanFile(root, B, { ...file, plans: [plan, { ...plan, id: 'p-0000aaaa', gate: 'run-terms', document: 'documents/run-terms.md', title: 'Run terms', tasks: [], record: null }] });
+    expect(Object.values(progressOf(root)?.tasks ?? {}).map((t) => t.state)).toEqual(Array(7).fill('pending'));
+  });
   it('without a ledger or a record: pending while the phase runs, unknown once it closes', () => {
     const root = planRepo();
     expect(progressOf(root)).toMatchObject({ source: 'none', read: null, ledger: null });
