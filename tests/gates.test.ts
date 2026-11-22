@@ -61,6 +61,16 @@ describe('openGate', () => {
     };
     expect(() => openGate(exampleRepo(), B, gate, NOW)).toThrow(/concepts\/ghost-page.html does not exist/);
   });
+  it('refuses a new concept round while an earlier round on its topic waits for the user', () => {
+    const root = exampleRepo();
+    const look = readJsonFile(gatePath(root, B, 'look')) as { options: { name: string; label: string; page: string }[] };
+    const next = { name: 'look-2', type: 'concept-pick' as const, title: 'Pick again', why: 'Round two.', topic: 'look', options: look.options };
+    expect(() => openGate(root, B, next, NOW)).toThrow(
+      'Round "look" on topic "look" is still waiting for the user: ask them to answer it in the cockpit first ("None of these" with a note steers the next round). Every round stays in the record, and decommission needs each one applied.',
+    );
+    submitAnswers(root, B, 'look', { none: true, note: 'warmer' }, NOW);
+    expect(openGate(root, B, next, NOW).name).toBe('look-2');
+  });
   it('refuses an invalid request with the schema reason', () => {
     expect(() => openGate(exampleRepo(), B, { ...pauseGate, type: 'vote' as never }, NOW)).toThrow(/Gate request is invalid/);
   });

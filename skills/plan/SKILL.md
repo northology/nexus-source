@@ -92,7 +92,8 @@ Invoke `superpowers:brainstorming` with these arguments, then the user's request
 >   images, fonts, scripts and data it loads sit beside it; a new round gets new ones, never edits to an opened
 >   round's), and open a concept-pick gate whose fields follow
 >   `${CLAUDE_PLUGIN_ROOT}/reference/gates.md` ("Rounds and topics"), with the `topic` and each option's
->   `"source": "superpowers"`. Stop until it's answered, then run `nexus gate apply` and
+>   `"source": "superpowers"`. Stop until it's answered in the cockpit (when the user steers in chat instead, ask
+>   them to answer it there, with "None of these" and a note), then run `nexus gate apply` and
 >   follow the `Next:` line it prints. Treat brainstorming's companion offer as already made and declined, wherever
 >   it would come up (a playback chunk, a moment showing would help), and don't mention it: open a concept-pick
 >   round only for a real choice of two or more designs, one round per topic, and describe a single design in text.

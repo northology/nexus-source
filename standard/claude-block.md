@@ -7,4 +7,6 @@
 - Past decisions, open issues and finished builds are in `docs/governance/decisions.json`, `issues.json` and
   `docs/governance/builds/`: read them before re-deciding.
 - `.scratch/` is untracked scratch space.
+- `nexus <command>` means `node "$HOME/.claude/plugins/marketplaces/nexus/plugins/nexus/bin/nexus.mjs" <command>`:
+  the release marketplace's clone, at the same path in every version.
 <!-- nexus:end -->

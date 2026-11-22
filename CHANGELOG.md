@@ -2,6 +2,35 @@
 
 nexus follows semantic versioning. In the source repo, the design behind each change is in `design/`, by date.
 
+## 1.4.5 (2026-11-21)
+
+Fixes from an Antigravity pilot, most of them for Antigravity and Codex, and a vault layout from the first commit.
+Gates, answers and records are unchanged.
+
+- **init lays out the vault:** `nexus init` writes an empty `.gitkeep` in each class's `folder:`, so the agent sees
+  where every kind of note goes from the start instead of making folders up as it writes. Checks read only `.md`
+  files, so the placeholders never count as notes.
+- **Antigravity hears the prompt hook as a system message:** the status nexus adds before each prompt reached
+  Antigravity in Claude Code's wrapping. It is now unwrapped and sent as a system message, the form Antigravity's
+  hook docs give for context the agent should read (read 2026-11-21).
+- **`nexus doctor docs` per harness:** on Antigravity, which has no docs hook, it says so and to run
+  `nexus docs check` after writing notes, instead of failing. On Codex it no longer fails on a hook entry written as
+  a command string.
+- **Workspace plugins are walled:** `.agents/plugins.json` and `.agents/plugins/` join the files the wall protects
+  during a build.
+- **Superpowers in the workspace:** on Antigravity, `nexus doctor superpowers` looks in `.agents/plugins/superpowers/`
+  first. `INSTALL.md` covers installing nexus and Superpowers into one workspace, for a GUI that runs Antigravity
+  without your global plugins (T3 Code does).
+- **One concept round per topic at a time:** `nexus gate open` refuses a concept round while an earlier round on the
+  same topic is still waiting, and asks for that one to be answered in the cockpit first ("None of these" with a note
+  steers the next round). Every round stays in the record.
+- **Skill wording per harness:** the Antigravity and Codex skills no longer name Claude-only files and tools
+  (`CLAUDE.md`, `.claude/`, `/context`, the Workflow tool); they name `AGENTS.md`, `.agents/rules/` and their own
+  walled files. The `nexus` skill says what to do when a typed `/nexus:<skill>` arrives as plain text, and
+  decommission notes that a repo's main branch may have another name.
+- **Claude Code setup:** `nexus init` also names the release marketplace (`northology/nexus`) in
+  `.claude/settings.json`, add-only, and the `CLAUDE.md` block says where the nexus CLI lives.
+
 ## 1.4.4 (2026-11-17)
 
 A document with no tasks, approved at a plan-step gate, no longer hides the phase's plan, and Superpowers 7.0.2 is

@@ -37,7 +37,8 @@ the agent's writes and refuses changes to protected files while a build is activ
 `CLAUDE.md`, `CLAUDE.local.md`, `AGENTS.md`, `.claude/settings*.json`, `.claude/rules/`, memory, `.nexus/config.json`,
 the docs vault registry `docs/_meta/`, and the rule files Codex and Antigravity load (`AGENTS.override.md`,
 `GEMINI.md`, `.agents/rules/`, `.agents/rules.json`, the older rule folders `.agent/rules/`, `_agents/rules/` and
-`_agent/rules/`, `.agents/hooks.json`, `.codex/config.toml` and their global copies). So is the build's
+`_agent/rules/`, `.agents/hooks.json`, the workspace plugins `.agents/plugins.json` and `.agents/plugins/`,
+`.codex/config.toml` and their global copies). So is the build's
 own record: your gate answers,
 `build.json`, `plan.json` and concept pages already shown to you; and `docs/superpowers/`, so specs and plans land in
 the build instead. So are a review's answers and the repo's permanent record (`docs/governance/decisions.json`,

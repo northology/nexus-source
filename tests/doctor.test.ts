@@ -187,10 +187,18 @@ describe('the doctor in each harness', () => {
     mkdirSync(join(home, '.gemini', 'config', 'plugins', 'superpowers', 'skills'), { recursive: true });
     expect(findSuperpowers(home, 'antigravity')).toBe(join(home, '.gemini', 'config', 'plugins', 'superpowers'));
   });
+  it("prefers the workspace's own copy in .agents/plugins/ on Antigravity", () => {
+    const home = tempDir('nexus-home-');
+    const root = tempDir('nexus-repo-');
+    mkdirSync(join(home, '.gemini', 'config', 'plugins', 'superpowers'), { recursive: true });
+    expect(findSuperpowers(home, 'antigravity', { root })).toBe(join(home, '.gemini', 'config', 'plugins', 'superpowers'));
+    mkdirSync(join(root, '.agents', 'plugins', 'superpowers'), { recursive: true });
+    expect(findSuperpowers(home, 'antigravity', { root })).toBe(join(root, '.agents', 'plugins', 'superpowers'));
+  });
   it('says where it looked in each harness', () => {
     expect(superpowersWhere('claude-code')).toBe('~/.claude/plugins/cache/*/superpowers/');
     expect(superpowersWhere('codex')).toBe('$CODEX_HOME/plugins/cache/*/superpowers/ (~/.codex by default)');
-    expect(superpowersWhere('antigravity')).toBe('~/.gemini/config/plugins/superpowers/');
+    expect(superpowersWhere('antigravity')).toBe('.agents/plugins/superpowers/ in the workspace or ~/.gemini/config/plugins/superpowers/');
   });
   it('names the harness and states how strong its wall is', () => {
     expect(wallStrength('claude-code')).toMatch(/^Harness: Claude Code\. .*refuses the write/);

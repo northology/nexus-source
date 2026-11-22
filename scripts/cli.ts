@@ -399,7 +399,8 @@ async function run(p: string[], o: Opts, io: CliIO): Promise<number> {
       const root = findVaultRoot(io.cwd) ?? findRepoRoot(io.cwd);
       const results = doctorDocs(root, {
         bundle: fileURLToPath(new URL('./docs-check.mjs', import.meta.url)),
-        hooks: fileURLToPath(new URL('../hooks/hooks.json', import.meta.url)),
+        // Antigravity's PostToolUse can't hand a docs check back to the agent, so its package has no docs hook.
+        hooks: currentHarness() === 'antigravity' ? null : fileURLToPath(new URL('../hooks/hooks.json', import.meta.url)),
       });
       for (const r of results) {
         if (r.ok) io.out(`ok    ${r.text}`);
@@ -431,7 +432,7 @@ async function run(p: string[], o: Opts, io: CliIO): Promise<number> {
     if (rest[0] !== 'superpowers') throw new NexusError('Use `doctor guard`, `doctor docs` or `doctor superpowers [--path <version folder>]`');
     const harness = currentHarness();
     const codexHome = io.env['CODEX_HOME'];
-    const dir = o.path ? resolve(io.cwd, o.path) : findSuperpowers(homedir(), harness, codexHome ? { codexHome: resolve(codexHome) } : {});
+    const dir = o.path ? resolve(io.cwd, o.path) : findSuperpowers(homedir(), harness, { root: findRepoRoot(io.cwd), ...(codexHome ? { codexHome: resolve(codexHome) } : {}) });
     if (!dir) throw new NexusError(`Could not find Superpowers under ${superpowersWhere(harness)}. Pass --path <version folder>.`, 404);
     const anchors = readAnchors(fileURLToPath(new URL('../reference/superpowers.md', import.meta.url)));
     const results = checkAnchors(dir, anchors);

@@ -41,12 +41,14 @@ describe('the Antigravity adapter', () => {
     expect(r.code).toBe(0);
     expect(JSON.parse(r.stdout)).toEqual({ decision: 'deny', reason: 'the wall could not run' });
   });
-  it("speaks once per prompt, as a user message, and otherwise answers with an empty object", () => {
+  it("speaks once per prompt, as a system message, and otherwise answers with an empty object", () => {
     expect(firstOfPrompt(fixture('pre-invocation-first'))).toBe(true);
     expect(firstOfPrompt(fixture('pre-invocation-later'))).toBe(false);
     expect(agy.toHookInput(fixture('pre-invocation-first'))).toEqual({ cwd: 'C:/work/repo' });
     expect(agy.toHookInput(fixture('pre-invocation-later'))).toBeNull();
-    expect(JSON.parse(agy.toHookOutput('nexus: build x'))).toEqual({ injectSteps: [{ userMessage: 'nexus: build x' }] });
+    const claudeShaped = JSON.stringify({ hookSpecificOutput: { hookEventName: 'UserPromptSubmit', additionalContext: 'nexus: build x' } });
+    expect(JSON.parse(agy.toHookOutput(claudeShaped))).toEqual({ injectSteps: [{ systemMessage: { systemMessage: 'nexus: build x' } }] });
+    expect(JSON.parse(agy.toHookOutput('nexus: plain'))).toEqual({ injectSteps: [{ systemMessage: { systemMessage: 'nexus: plain' } }] });
     expect(agy.toHookOutput('')).toBe('{}');
   });
   it('has no docs check', () => {

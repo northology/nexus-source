@@ -23,6 +23,9 @@ export const DEFAULT_TARGETS: Target[] = [
   { pattern: '.agents/hooks.json', kind: 'rules', base: 'anywhere' },
   // rules.json pulls in rule files from anywhere; .agent/ is the legacy rules folder, _agents/ and _agent/ older still.
   { pattern: '.agents/rules.json', kind: 'rules', base: 'anywhere' },
+  // Workspace plugins (and the file that points at more) bring their own hooks and skills.
+  { pattern: '.agents/plugins.json', kind: 'rules', base: 'anywhere' },
+  { pattern: '.agents/plugins/**', kind: 'rules', base: 'anywhere' },
   { pattern: '.agent/rules/**', kind: 'rules', base: 'anywhere' },
   { pattern: '_agents/rules/**', kind: 'rules', base: 'anywhere' },
   { pattern: '_agent/rules/**', kind: 'rules', base: 'anywhere' },

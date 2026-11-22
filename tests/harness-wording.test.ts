@@ -54,6 +54,29 @@ describe('rewriteSkill', () => {
       expect(out).toContain('run `nexus init` with no questions');
     }
   });
+  // The 2026-11-21 Antigravity pilot (AGY-004, AGY-009): Claude Code's files and tools left in another harness's skills.
+  const SKILLS = readdirSync(join(ARTIFACTS, 'skills')).map((s) => [s, readFileSync(join(ARTIFACTS, 'skills', s, 'SKILL.md'), 'utf8')] as const);
+  for (const h of ['codex', 'antigravity'] as const) {
+    it(`under ${h} names no Claude Code file, command or tool`, () => {
+      for (const [s, text] of SKILLS) {
+        const body = rewriteSkill(text, h).replace(/^---\n[\s\S]*?\n---\n/, '');
+        expect(body, s).not.toMatch(/CLAUDE(\.local)?\.md|\.claude\/|`\/context`|--raised-by claude|Workflow tool/);
+      }
+      expect(rewriteSkill(PLAN, h)).toContain('--raised-by agent');
+    });
+  }
+  it('under Antigravity names Superpowers skills as Antigravity lists them, unprefixed', () => {
+    const out = rewriteSkill(PLAN, 'antigravity');
+    expect(out).not.toContain('superpowers:');
+    expect(out).toContain("Invoke Superpowers' `brainstorming` with");
+    expect(rewriteSkill(PLAN, 'codex')).toContain('`superpowers:brainstorming`');
+  });
+  it("lists each harness's own rule files as walled", () => {
+    const NEXUS = readFileSync(join(ARTIFACTS, 'skills', 'nexus', 'SKILL.md'), 'utf8');
+    expect(rewriteSkill(NEXUS, 'antigravity')).toContain('`.agents/rules/`, `.agents/hooks.json`, `.agents/plugins/`');
+    expect(rewriteSkill(PLAN, 'antigravity')).toContain('`.agents/rules/`, `.agents/hooks.json`, `.agents/plugins/`');
+    expect(rewriteSkill(NEXUS, 'codex')).toContain('(AGENTS.md, AGENTS.override.md, `.codex/config.toml`');
+  });
   it('adds no line to a skill with no relative path', () => {
     const text = '---\nname: x\n---\n# X\n';
     expect(rewriteSkill(text, 'codex')).toBe(text);

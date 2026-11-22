@@ -106,6 +106,9 @@ build, and had the wall refuse a write to the record.
 
 - Install the package folder: `agy plugin install <a clone of northology/nexus>/plugins/nexus-antigravity`, and
   Superpowers with `agy plugin install https://github.com/obra/superpowers`.
+- Where agy runs without your global plugins (a GUI with its own config home, such as T3 Code), copy both into the
+  workspace instead: `.agents/plugins/nexus/` and `.agents/plugins/superpowers/`, real folders (agy skips links),
+  git-ignored. [INSTALL.md](INSTALL.md#install-in-antigravity) has the details.
 - Its hooks run `node ./bin/…` from the plugin's folder, so `node` must be on the PATH Antigravity starts with.
 - A one-shot `agy -p` run ends its background tasks when it finishes, the cockpit included; start the cockpit
   yourself (below) when you work that way.

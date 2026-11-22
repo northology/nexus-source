@@ -160,6 +160,15 @@ Antigravity copies the plugin into its own folder (`~/.gemini/config/plugins/nex
 afterwards; to update, pull or rebuild, and install the folder again. Start nexus's skills as `/nexus:init`,
 `/nexus:plan` and `/nexus:decommission`.
 
+**For one workspace:** Antigravity also loads a plugin from the workspace's `.agents/plugins/<name>/`. Use this when
+agy runs without your global plugins, as under a GUI that gives agy its own config home: T3 Code does (seen on disk
+2026-11-21), and there `agy plugin install` never reaches the session. Copy the package folder to
+`.agents/plugins/nexus/` and Superpowers to `.agents/plugins/superpowers/`, and add `.agents/plugins/` to `.gitignore`.
+Each must be a real copy: plugin discovery skipped a directory junction and a symbolic link in its place, and a
+`.agents/plugins.json` pointing at folders elsewhere loaded no skills (agy under T3 Code, 2026-11-21). To update,
+copy again between phases, never during one: while a build is active the wall refuses writes to `.agents/plugins/`.
+`nexus doctor superpowers` looks in the workspace copy first.
+
 Antigravity has no docs check after a write; run `nexus docs check` yourself when you change notes in the vault. A
 one-shot `agy -p` run ends its background tasks when it finishes, the cockpit included: start the cockpit yourself
 (below) when you work that way.

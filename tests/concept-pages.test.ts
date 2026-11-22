@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildTopics, openedPages } from '../core/concept-pages.ts';
-import { openGate } from '../core/gates.ts';
+import { openGate, submitAnswers } from '../core/gates.ts';
 import { exampleRepo, NOW } from './helpers.ts';
 
 const B = 'relay-rebuild';
@@ -35,6 +35,7 @@ describe('buildTopics', () => {
     mkdirSync(join(root, '.build', B, 'concepts', 'status-look'), { recursive: true });
     for (const f of ['round-1-a', 'round-1-b', 'round-2-a', 'round-2-b']) writeFileSync(join(root, '.build', B, 'concepts', 'status-look', f + '.html'), '<p>x</p>');
     openGate(root, B, pick('round-1'), NOW);
+    submitAnswers(root, B, 'round-1', { none: true, note: 'bolder' }, NOW);
     openGate(root, B, pick('round-2'), NOW);
     expect(buildTopics(root, B)).toEqual(['look', 'status-look']);
   });

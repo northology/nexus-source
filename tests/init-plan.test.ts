@@ -20,17 +20,23 @@ describe('planInit on a fresh repo', () => {
     expect(readFileSync(join(root, 'docs/_meta/components.md'), 'utf8')).toMatch(/^---\ncomponents: \["api", "web"\]\n---/);
     expect(readFileSync(join(root, 'docs/_meta/tags.md'), 'utf8')).toMatch(/^---\nvocabulary: \["billing"\]\n---/);
     expect(readFileSync(join(root, '.nexus/init-answers.json'), 'utf8')).toBe(answersText(ANSWERS));
-    expect(JSON.parse(readFileSync(join(root, '.claude/settings.json'), 'utf8'))).toEqual({ enabledPlugins: { 'nexus@nexus': true } });
+    expect(JSON.parse(readFileSync(join(root, '.claude/settings.json'), 'utf8'))).toEqual({
+      extraKnownMarketplaces: { nexus: { source: { source: 'github', repo: 'northology/nexus' } } },
+      enabledPlugins: { 'nexus@nexus': true },
+    });
     expect(readFileSync(join(root, 'CLAUDE.md'), 'utf8')).toBe(readFileSync(join(STANDARD, 'claude-block.md'), 'utf8'));
     expect(readFileSync(join(root, '.gitignore'), 'utf8')).toBe('.scratch/\ndocs/.obsidian/workspace*.json\n');
     expect(readFileSync(join(root, '.ignore'), 'utf8')).toBe('docs/governance/archive/\ndocs/superpowers/archive/\n');
     expect(JSON.parse(readFileSync(join(root, 'docs/.obsidian/plugins/hearth/data.json'), 'utf8'))).toMatchObject({ title: 'acme-app' });
     expect(checkVault(root)).toMatchObject({ vault: true, notes: 0, findings: [] });
   });
-  it('writes no notes and no division folders', () => {
+  it('writes no notes, and lays out every class folder with a .gitkeep so the agent sees where notes go', () => {
     const root = tempDir('nexus-init-');
     applyPlan(root, planInit(root, opts()));
-    for (const d of ['dev', 'data', 'governance', 'documentation', 'design', 'superpowers']) expect(existsSync(join(root, 'docs', d)), d).toBe(false);
+    for (const f of ['dev/systems', 'dev/context', 'governance/rules', 'governance/change', 'data/datasets', 'documentation/technical/runbooks', 'design']) {
+      expect(readFileSync(join(root, 'docs', f, '.gitkeep'), 'utf8'), f).toBe('');
+    }
+    expect(checkVault(root)).toMatchObject({ vault: true, notes: 0, findings: [] });
   });
   it('adds to shared files that exist and leaves identical entries alone', () => {
     const root = tempDir('nexus-init-');

@@ -82,7 +82,19 @@ export const antigravityAdapter: HarnessAdapter = {
   // Antigravity may ignore a non-zero exit, so a refusal is always a deny on stdout with exit 0.
   refusal: (message) => ({ code: 0, stdout: denial(message.trim()), stderr: '' }),
   toHookInput: (raw) => (firstOfPrompt(raw) ? { cwd: workspace(record(raw)) } : null),
-  toHookOutput: (text) => (text ? JSON.stringify({ injectSteps: [{ userMessage: text }] }) : '{}'),
+  // The hook speaks Claude Code's UserPromptSubmit JSON: unwrap its additionalContext into a system message, the step
+  // agy keeps in the conversation without showing it as the user's words (agy-customizations hooks.md, read 2026-11-21).
+  toHookOutput(text) {
+    if (!text) return '{}';
+    let message = text;
+    try {
+      const c = record(record(JSON.parse(text))['hookSpecificOutput'])['additionalContext'];
+      if (typeof c === 'string') message = c;
+    } catch {
+      // plain text: inject it as it is
+    }
+    return JSON.stringify({ injectSteps: [{ systemMessage: { systemMessage: message } }] });
+  },
   // PostToolUse returns only {}, so nothing a docs check says could reach the agent.
   toDocsInputs: () => [],
 };

@@ -75,7 +75,9 @@ number of tasks, or why none were indexed. For a plan gate approved before nexus
 A concept-pick gate is one round. Its `topic` names the question being settled and defaults to the gate name. When a
 round doesn't settle the topic (a combine, or none of these), open the next round as a new gate on the same
 `topic`, with new pages: a page never changes after its round opens. `source` records where an option came from
-(`impeccable`, `superpowers` or `self`).
+(`impeccable`, `superpowers` or `self`). `nexus gate open` refuses a round while an earlier round on its topic is
+still waiting: only the user closes a round, and decommission needs each one applied. When the user steers in chat
+instead, ask them to answer the waiting round in the cockpit ("None of these" with a note) before the next opens.
 
 To preview a page as the cockpit will show it, open `<concept pages URL><build>/concepts/<topic>/<option>.html`,
 where the concept pages URL is the second line `nexus serve` prints. It changes each time the cockpit starts.

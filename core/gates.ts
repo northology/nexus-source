@@ -119,6 +119,17 @@ export function openGate(root: string, build: string, input: GateInput, now: str
     throw new NexusError(`Gate "${request.name}" was already answered. Open a new gate with a new name.`, 409);
   }
   if (existsSync(gatePath(root, build, request.name))) throw new NexusError(`A gate named "${request.name}" is already open in this build`, 409);
+  // A round left unanswered would wait forever, and decommission needs every gate applied: only the user closes one.
+  if (request.type === 'concept-pick') {
+    const topic = topicOf(request);
+    for (const name of Object.keys(b.gates)) {
+      if (existsSync(gatePath(root, build, name, true)) || !existsSync(gatePath(root, build, name))) continue;
+      const earlier = readJson(gatePath(root, build, name)) as GateRequest;
+      if (earlier.type === 'concept-pick' && topicOf(earlier) === topic) {
+        throw new NexusError(`Round "${name}" on topic "${topic}" is still waiting for the user: ask them to answer it in the cockpit first ("None of these" with a note steers the next round). Every round stays in the record, and decommission needs each one applied.`, 409);
+      }
+    }
+  }
   writeJson(gatePath(root, build, request.name), request);
   b.gates[request.name] = { opened: request.opened, read: null };
   writeBuild(root, b);

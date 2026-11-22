@@ -12,10 +12,46 @@ const OFFER = '(offer `CLAUDE.md` and any `.claude/rules/*`)';
 const SET_UP = 'If `docs/_meta/` exists, the repo is already set up:\n   say so and stop.';
 const ADD_HARNESS = 'If `docs/_meta/` exists, the repo is already set up,\n   perhaps from another harness: run `nexus init` with no questions, which adds only this harness\'s `AGENTS.md` block,\n   then report what it wrote (or that it was already there) and stop.';
 
+/** The wall's list of permanent rules, in the nexus skill and in /nexus:plan, as each harness's own files. */
+const WALL_NEXUS = '(CLAUDE.md, CLAUDE.local.md, AGENTS.md,\n`.claude/settings*`, `.claude/rules/`, memory, `.nexus/config.json`, `docs/_meta/`)';
+const WALL_PLAN = '(CLAUDE.md, CLAUDE.local.md, AGENTS.md, `.claude/settings*`, `.claude/rules/`, memory,\n  `.nexus/config.json`, `docs/_meta/`)';
+const wall = (files: string, indent: string): string => `(${files},\n${indent}\`.nexus/config.json\`, \`docs/_meta/\`, and other harnesses' rule files)`;
+const AGY_WALL = 'AGENTS.md, GEMINI.md, `.agents/rules/`, `.agents/hooks.json`, `.agents/plugins/`, `~/.gemini/config/`';
+const CODEX_WALL = 'AGENTS.md, AGENTS.override.md, `.codex/config.toml`';
+
+/** What every harness but Claude Code rewrites the same way: Claude Code's own files, commands and tools. */
+const SHARED: [string, string][] = [
+  ['${CLAUDE_PLUGIN_ROOT}/', '../../'],
+  [OFFER, ''],
+  [SET_UP, ADD_HARNESS],
+  ['`CLAUDE.md`, `.claude/settings.json`,\n   `.gitignore`', '`AGENTS.md`,\n   `.gitignore`'],
+  ['(not output styles or\n   hook context; `/context` shows what this session loaded)', '(not hook context)'],
+  ['(a memory, or a CLAUDE.md or rules file', '(a memory, or an AGENTS.md or rules file'],
+  ['--raised-by claude`', '--raised-by agent`'],
+  ['> - When offering execution approaches, also offer a Workflow (the Workflow tool), used only if the user asks for it.\n', ''],
+];
+const own = (offer: string, extra: [string, string][]): [string, string][] => SHARED.map(([from, to]): [string, string] => [from, from === OFFER ? offer : to]).concat(extra);
+
 export const WORDING: Record<Harness, [string, string][]> = {
   'claude-code': [],
-  codex: [['${CLAUDE_PLUGIN_ROOT}/', '../../'], ['/nexus:', '$nexus:'], [OFFER, '(offer `AGENTS.md`)'], [SET_UP, ADD_HARNESS]],
-  antigravity: [['${CLAUDE_PLUGIN_ROOT}/', '../../'], [OFFER, '(offer `AGENTS.md` and any `.agents/rules/*.md`)'], [SET_UP, ADD_HARNESS]],
+  codex: own('(offer `AGENTS.md`)', [
+    ['/nexus:', '$nexus:'],
+    ['memory, CLAUDE.md or settings', 'memory, AGENTS.md or config'],
+    [WALL_NEXUS, wall(CODEX_WALL, '')],
+    [WALL_PLAN, wall(CODEX_WALL, '  ')],
+    // Codex gets no generated rule files (core/vault/generate.ts ruleTarget).
+    ["it, and git doesn't ignore `.claude/rules/nexus/`.", 'it.'],
+    ["never write `.claude/rules/nexus/`, the archive, the build's record or\n  this build's entries in the two logs: apply does all five.", "never write the archive, the build's record or\n  this build's entries in the two logs: apply does all four."],
+  ]),
+  antigravity: own('(offer `AGENTS.md` and any `.agents/rules/*.md`)', [
+    ['memory, CLAUDE.md or settings', 'memory, AGENTS.md or `.agents/rules/`'],
+    [WALL_NEXUS, wall(AGY_WALL, '')],
+    [WALL_PLAN, wall(AGY_WALL, '  ')],
+    ["git doesn't ignore `.claude/rules/nexus/`.", "git doesn't ignore `.agents/rules/`."],
+    ['never write `.claude/rules/nexus/`,', 'never write `.agents/rules/nexus-*.md`,'],
+    // Antigravity lists a plugin's skills without the plugin's name (seen in the 2026-11-21 pilot, AGY-009).
+    ['`superpowers:', "Superpowers' `"],
+  ]),
 };
 
 /** Whether a skill is for the user to start only (disable-model-invocation), in an LF or CRLF checkout. */

@@ -172,12 +172,13 @@ describe('nexus command', () => {
       { name: 'quiet-board', label: 'Quiet board', page: 'concepts/quiet-board.html' },
       { name: 'split-view', label: 'Split view', page: 'concepts/split-view.html' },
     ] });
-    for (const name of ['look-2', 'look-3']) {
+    // Each round is answered before the next opens: gate open refuses a second round while one waits.
+    const answers = { 'look-2': { choices: ['quiet-board', 'split-view'] }, 'look-3': { none: true, note: 'too cold' } };
+    for (const [name, answer] of Object.entries(answers)) {
       writeFileSync(join(root, `${name}.json`), gate(name));
       await main(['gate', 'open', `${name}.json`], io(root).value);
+      submitAnswers(root, 'relay-rebuild', name, answer, NOW);
     }
-    submitAnswers(root, 'relay-rebuild', 'look-2', { choices: ['quiet-board', 'split-view'] }, NOW);
-    submitAnswers(root, 'relay-rebuild', 'look-3', { none: true, note: 'too cold' }, NOW);
     const combined = io(root);
     expect(await main(['gate', 'apply', 'look-2'], combined.value)).toBe(0);
     expect(combined.out[0]).toContain('Combine: quiet-board, split-view');

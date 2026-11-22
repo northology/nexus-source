@@ -26,35 +26,55 @@ export function addLines(current: string | null, lines: string[]): SharedResult 
   return { status: 'add', text: `${withEnd(current, eol)}${missing.join(eol)}${eol}` };
 }
 
-/** enabledPlugins["nexus@nexus"]: true in .claude/settings.json, keeping every other key, the indentation and a BOM. */
+/** The release marketplace: the repo's settings name where nexus is pulled from, so a fresh clone can install it. */
+const MARKETPLACE_SOURCE = '{ "source": { "source": "github", "repo": "northology/nexus" } }';
+
+/**
+ * extraKnownMarketplaces.nexus (the release marketplace) and enabledPlugins["nexus@nexus"]: true in
+ * .claude/settings.json, keeping every other key, the indentation and a BOM. An existing nexus marketplace entry is
+ * left as it is, whatever its source (a development folder, say).
+ */
 export function addSettings(current: string | null): SharedResult {
-  if (current === null) return { status: 'create', text: `${JSON.stringify({ enabledPlugins: { 'nexus@nexus': true } }, null, 2)}\n` };
+  if (current === null) {
+    return { status: 'create', text: `{\n  "extraKnownMarketplaces": {\n    "nexus": ${MARKETPLACE_SOURCE}\n  },\n  "enabledPlugins": {\n    "nexus@nexus": true\n  }\n}\n` };
+  }
   const bom = current.startsWith('﻿') ? '﻿' : '';
   const raw = current.slice(bom.length);
   let data: unknown;
   try {
     data = JSON.parse(raw);
   } catch {
-    return { status: 'conflict', reason: "isn't valid JSON (comments aren't allowed), so init won't rewrite it; add \"enabledPlugins\": { \"nexus@nexus\": true } by hand" };
+    return { status: 'conflict', reason: `isn't valid JSON (comments aren't allowed), so init won't rewrite it; add "extraKnownMarketplaces": { "nexus": ${MARKETPLACE_SOURCE} } and "enabledPlugins": { "nexus@nexus": true } by hand` };
   }
   if (typeof data !== 'object' || data === null || Array.isArray(data)) return { status: 'conflict', reason: "isn't a JSON object" };
   const settings = data as Record<string, unknown>;
   const enabled = settings['enabledPlugins'] ?? {};
   if (typeof enabled !== 'object' || enabled === null || Array.isArray(enabled)) return { status: 'conflict', reason: "enabledPlugins isn't an object" };
+  const markets = settings['extraKnownMarketplaces'] ?? {};
+  if (typeof markets !== 'object' || markets === null || Array.isArray(markets)) return { status: 'conflict', reason: "extraKnownMarketplaces isn't an object" };
   const plugins = enabled as Record<string, unknown>;
-  if (plugins['nexus@nexus'] === true) return { status: 'present' };
-  if (plugins['nexus@nexus'] !== undefined) {
+  if (plugins['nexus@nexus'] !== undefined && plugins['nexus@nexus'] !== true) {
     return { status: 'conflict', reason: `enabledPlugins["nexus@nexus"] is set to ${JSON.stringify(plugins['nexus@nexus'])}; init won't change it` };
   }
-  const at = openings(raw);
-  const text = settings['enabledPlugins'] === undefined
-    ? insertMember(raw, at.root, '"enabledPlugins": { "nexus@nexus": true }')
-    : insertMember(raw, at.enabled, '"nexus@nexus": true');
+  const needPlugin = plugins['nexus@nexus'] === undefined;
+  const needMarket = (markets as Record<string, unknown>)['nexus'] === undefined;
+  if (!needPlugin && !needMarket) return { status: 'present' };
+  let text = raw;
+  if (needPlugin) {
+    const at = openings(text, 'enabledPlugins');
+    text = at.key === -1 ? insertMember(text, at.root, '"enabledPlugins": { "nexus@nexus": true }') : insertMember(text, at.key, '"nexus@nexus": true');
+  }
+  if (needMarket) {
+    const at = openings(text, 'extraKnownMarketplaces');
+    text = at.key === -1
+      ? insertMember(text, at.root, `"extraKnownMarketplaces": { "nexus": ${MARKETPLACE_SOURCE} }`)
+      : insertMember(text, at.key, `"nexus": ${MARKETPLACE_SOURCE}`);
+  }
   return { status: 'add', text: `${bom}${text}` };
 }
 
-/** Just after the root object's `{`, and after the `{` of the top-level enabledPlugins (-1 when absent). raw is a JSON object. */
-function openings(raw: string): { root: number; enabled: number } {
+/** Just after the root object's `{`, and after the `{` of the named top-level object (-1 when absent). raw is a JSON object. */
+function openings(raw: string, name: string): { root: number; key: number } {
   let depth = 0;
   let root = -1;
   let enabled = -1;
@@ -82,10 +102,10 @@ function openings(raw: string): { root: number; enabled: number } {
     else if (c === '{' || c === '[') {
       depth += 1;
       if (depth === 1) root = i + 1;
-      else if (depth === 2 && c === '{' && key === 'enabledPlugins') enabled = i + 1;
+      else if (depth === 2 && c === '{' && key === name) enabled = i + 1;
     } else if (c === '}' || c === ']') depth -= 1;
   }
-  return { root, enabled };
+  return { root, key: enabled };
 }
 
 /**

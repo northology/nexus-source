@@ -29,7 +29,8 @@ Decommission only the build the user named in this command. Formats are in
 ("Decommission gates").
 
 ## 1. Check
-1. Say which build you read from the arguments. With none, run `nexus builds` and ask which one.
+1. Say which build you read from the arguments. With none, run `nexus builds` and ask which one. These steps call
+   the repo's main branch `main`: where it has another name (`master`, say), use that name throughout.
 2. Run `git merge-base --is-ancestor main HEAD`. If it fails, `main` has moved since this build branched (another
    build landed): run `git merge main` on this branch, then the full test suite. If the merge conflicts or the suite
    fails, stop and tell the user: nothing is decommissioned yet. This touches only this checkout.

@@ -51,8 +51,9 @@ No JavaScript query blocks (`dataviewjs`, `datacorejs`) and no Dataview inline f
 ## Setting a repo up
 
 - `nexus init [root] [--answers <file>] [--no-plugins] [--check]`, or `/nexus:init`, which asks the questions first.
-  Once per repo: it writes `docs/_meta/` (with the answers' components and tags), `docs/.obsidian/` with the pinned
-  plugins and theme, and `.nexus/init-answers.json`, and only adds to `.claude/settings.json` (nexus enabled),
+  Once per repo: it writes `docs/_meta/` (with the answers' components and tags), an empty `.gitkeep` in each class's
+  `folder:` (so the layout is there from the first commit; checks read only `.md` files), `docs/.obsidian/` with the
+  pinned plugins and theme, and `.nexus/init-answers.json`, and only adds to `.claude/settings.json` (nexus enabled),
   `CLAUDE.md` (a marked block), `.gitignore` (`.scratch/`, Obsidian's workspace files) and `.ignore` (the archives).
   Everything is checked first; a conflict, an existing `docs/_meta/` or a failed download leaves the repo unchanged.
 - `nexus obsidian install [root] [--check]` downloads the pinned plugin and theme files a vault is missing, each

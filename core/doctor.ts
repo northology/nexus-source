@@ -76,19 +76,20 @@ export function compareVersions(a: string, b: string): number {
 /** Where each harness keeps an installed Superpowers, as `doctor superpowers` names it when it finds none. */
 export function superpowersWhere(harness: Harness): string {
   if (harness === 'codex') return '$CODEX_HOME/plugins/cache/*/superpowers/ (~/.codex by default)';
-  if (harness === 'antigravity') return '~/.gemini/config/plugins/superpowers/';
+  if (harness === 'antigravity') return '.agents/plugins/superpowers/ in the workspace or ~/.gemini/config/plugins/superpowers/';
   return '~/.claude/plugins/cache/*/superpowers/';
 }
 
 /**
  * The installed Superpowers the harness loads. Claude Code and Codex keep each version in a plugin cache, by
  * marketplace: the newest wins. Antigravity installs a plugin into one folder, with no version in its path (spiked on
- * agy 1.4.12: ~/.gemini/config/plugins/<name>/).
+ * agy 1.4.12: ~/.gemini/config/plugins/<name>/), and also loads a workspace's own copy in .agents/plugins/<name>/,
+ * which comes first (seen in a 2026-11-21 pilot, where only the workspace copy loaded).
  */
-export function findSuperpowers(home: string, harness: Harness = currentHarness(), env: { codexHome?: string } = {}): string | null {
+export function findSuperpowers(home: string, harness: Harness = currentHarness(), env: { codexHome?: string; root?: string } = {}): string | null {
   if (harness === 'antigravity') {
-    const dir = join(home, '.gemini', 'config', 'plugins', 'superpowers');
-    return existsSync(dir) ? dir : null;
+    const dirs = [...(env.root ? [join(env.root, '.agents', 'plugins', 'superpowers')] : []), join(home, '.gemini', 'config', 'plugins', 'superpowers')];
+    return dirs.find((d) => existsSync(d)) ?? null;
   }
   const cache = harness === 'codex' ? join(env.codexHome ?? join(home, '.codex'), 'plugins', 'cache') : join(home, '.claude', 'plugins', 'cache');
   if (!existsSync(cache)) return null;

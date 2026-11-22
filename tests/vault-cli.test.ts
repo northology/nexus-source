@@ -47,6 +47,17 @@ describe('doctorDocs', () => {
       { ok: true, text: 'the registry reads: 24 classes, contract 3' },
     ]);
   });
+  it("passes Codex's hook entry, a single command string", () => {
+    const hooks = join(tempDir(), 'hooks.json');
+    writeFileSync(hooks, JSON.stringify({ hooks: { PostToolUse: [{ hooks: [{ type: 'command', command: 'node "${PLUGIN_ROOT}/bin/docs-check.mjs" --hook' }] }] } }));
+    expect(doctorDocs(vaultRepo({}, 'clean'), { bundle: join(tempDir(), 'missing.mjs'), hooks })[1]).toEqual({ ok: true, text: 'the PostToolUse hook runs docs-check.mjs --hook' });
+  });
+  it('says so, without failing, on a harness with no docs hook', () => {
+    expect(doctorDocs(vaultRepo({}, 'clean'), { bundle: join(tempDir(), 'missing.mjs'), hooks: null })[1]).toEqual({
+      ok: true,
+      text: 'this harness has no docs hook (nothing a hook says after a write reaches the agent): run nexus docs check after writing notes',
+    });
+  });
   it('fails a broken registry or a missing hook entry, and passes outside a vault', () => {
     const broken = vaultRepo({ 'docs/_meta/classes/x.md': '---\nname: [x\n---\n' }, 'clean');
     const hooks = join(tempDir(), 'hooks.json');

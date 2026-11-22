@@ -15,7 +15,8 @@ Add `--build <name>` when a checkout holds more than one build.
 
 ## Planning
 The user starts planning with `/nexus:plan <build> [phase]`, which runs Superpowers' brainstorming and planning
-inside the build. Follow that skill. Never edit a Superpowers file.
+inside the build: follow that skill, and never edit a Superpowers file. When a typed `/nexus:<skill>` reaches you as
+plain text, read and follow `${CLAUDE_PLUGIN_ROOT}/skills/<skill>/SKILL.md` (init, plan, decommission or grill-me).
 
 ## While a phase is active
 - Record items as they come up: `nexus log add questions <name> --text "<one sentence>" --status exploring --source "chat 11:20"`.
@@ -71,8 +72,7 @@ cockpit. Read `notes/` at every gate.
 - `/nexus:decommission <build>` writes a closed build into `docs/`; never delete `.build/<name>/` yourself.
 
 ## Reference
-- `${CLAUDE_PLUGIN_ROOT}/reference/contracts.md`: every file and field.
-- `${CLAUDE_PLUGIN_ROOT}/reference/gates.md`: gate types, guardrail gates, permits, finish gates.
+- `${CLAUDE_PLUGIN_ROOT}/reference/contracts.md`: every file and field; `gates.md`: gates, guardrails, permits.
 - `${CLAUDE_PLUGIN_ROOT}/reference/cockpit.md`: the server API, navigation and view links.
 - `${CLAUDE_PLUGIN_ROOT}/reference/writing.md`: how to write documents for the cockpit.
 - `${CLAUDE_PLUGIN_ROOT}/reference/extending.md`: adding tools for a repo; `vault.md`: the vault, init, generate.

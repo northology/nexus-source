@@ -433,6 +433,9 @@ describe("the wall during a build: other harnesses' rule files", () => {
     // Antigravity's legacy rules folder, its rules.json, and the older folder names (research note, recheck 2026-11-03).
     ['a legacy .agent rule', join(root, '.agent', 'rules', 'x.md')],
     ['an Antigravity rules.json', join(root, '.agents', 'rules.json')],
+    // Workspace plugins carry their own hooks and skills: changing one mid-build changes the agent's rules.
+    ['an Antigravity plugins.json', join(root, '.agents', 'plugins.json')],
+    ['a workspace plugin file', join(root, '.agents', 'plugins', 'nexus', 'hooks.json')],
     ['an _agents rule', join(root, '_agents', 'rules', 'x.md')],
     ['an _agent rule', join(root, '_agent', 'rules', 'x.md')],
     ['a project Codex config', join(root, '.codex', 'config.toml')],

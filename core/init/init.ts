@@ -44,6 +44,19 @@ function registryFiles(standard: string, a: InitAnswers): Map<string, string> {
   return out;
 }
 
+/**
+ * An empty .gitkeep in each class's folder, read from the registry init writes, so the vault's layout is there to
+ * see from the first commit (git keeps no empty folder). Check and generate read only .md files, so these never count.
+ */
+function folderKeeps(registry: Map<string, string>): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const [rel, text] of registry) {
+    const folder = rel.startsWith('docs/_meta/classes/') ? /^folder:[ \t]*(\S+)[ \t]*$/m.exec(text)?.[1] : undefined;
+    if (folder) out.set(`docs/${folder.replace(/^\/+|\/+$/g, '')}/.gitkeep`, '');
+  }
+  return out;
+}
+
 /** docs/.obsidian/ settings from standard/obsidian/vault/, with the repo's name where the settings ask for it. */
 function obsidianFiles(standard: string, repoName: string): Map<string, string> {
   const dir = join(standard, 'obsidian', 'vault');
@@ -135,7 +148,8 @@ export function planInit(root: string, opts: PlanInitOptions): InitPlan {
   }
   const actions: InitAction[] = [];
   const problems: string[] = [];
-  const creates = new Map<string, string | Uint8Array>([...registryFiles(opts.standard, opts.answers), ...obsidianFiles(opts.standard, opts.repoName), ...(opts.downloads ?? [])]);
+  const registry = registryFiles(opts.standard, opts.answers);
+  const creates = new Map<string, string | Uint8Array>([...registry, ...folderKeeps(registry), ...obsidianFiles(opts.standard, opts.repoName), ...(opts.downloads ?? [])]);
   for (const [path, data] of creates) {
     if (existsSync(join(root, path))) problems.push(`${path} already exists`);
     else actions.push({ path, kind: 'create', data });
