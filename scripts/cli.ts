@@ -39,6 +39,7 @@ import { exitCode, formatReport } from '../core/vault/format.ts';
 import { applyGenerate, planGenerate } from '../core/vault/generate.ts';
 import { applyUpgrade, planUpgrade, upgradeRefusal } from '../core/vault/upgrade.ts';
 import { formatTouched, touchedNotes } from '../core/vault/touched.ts';
+import { auditVault, formatAudit } from '../core/vault/audit.ts';
 import { CONTRACT_VERSION } from '../core/vault/types.ts';
 import { inventoryEnv } from '../core/governance/env.ts';
 import { formatInventory, formatSetting, outsideOnly } from '../core/governance/format.ts';
@@ -398,7 +399,14 @@ async function run(p: string[], o: Opts, io: CliIO): Promise<number> {
       else for (const line of formatTouched(report)) io.out(line);
       return 0;
     }
-    if (rest[0] !== 'check') throw new NexusError('Use `docs check [root] [--file <path>] [--stale] [--json]`, `docs touched [root] [--since <ref>] [--json]`, `docs generate [root] [--check]` or `docs upgrade [root] [--check]`');
+    if (rest[0] === 'audit') {
+      const root = rest[1] ? resolve(io.cwd, rest[1]) : (findVaultRoot(io.cwd) ?? findRepoRoot(io.cwd));
+      const report = auditVault(root);
+      if (o.json) io.out(JSON.stringify(report, null, 2));
+      else for (const line of formatAudit(report)) io.out(line);
+      return 0;
+    }
+    if (rest[0] !== 'check') throw new NexusError('Use `docs check [root] [--file <path>] [--stale] [--json]`, `docs touched [root] [--since <ref>] [--json]`, `docs audit [root] [--json]`, `docs generate [root] [--check]` or `docs upgrade [root] [--check]`');
     const args = [...(rest[1] ? [rest[1]] : []), ...(o.file ? ['--file', o.file] : []), ...(o.stale ? ['--stale'] : []), ...(o.json ? ['--json'] : [])];
     return runDocsCheck(args, { cwd: io.cwd, out: io.out, err: io.err, readStdin: io.readStdin });
   }

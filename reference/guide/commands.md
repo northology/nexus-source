@@ -15,6 +15,10 @@ Most of the time the agent runs them for you as a build moves along; the ones yo
 - **`/nexus:init`** sets a repo up once: its `docs/` vault, Obsidian, and nexus enabled for Claude Code.
 - **`/nexus:adhoc`** brings the `docs/` vault up to date after work done outside a build: the agent updates the notes
   whose code changed (from `docs touched`) and the month's change entries, then shows you the diff.
+- **`/nexus:audit`** is a routine review of the vault, and changes nothing. From `docs audit`, the agent checks each
+  note against its code, each open issue against what has changed since, and each code-checkable rule against the
+  code, and lists what no note covers. It brings back a report and an action list in `.scratch/audits/`, and waits
+  for you to pick the actions.
 - **The UserPromptSubmit hook** runs before each of your prompts reaches the agent, and adds the active build's state:
   its phase and stage, how many guardrails are accepted, and any gates you've answered. With or without a build, it
   also names each review you've answered that the agent hasn't applied. It never blocks a prompt.
@@ -33,7 +37,7 @@ The plugin registers all three hooks; you don't run them yourself.
 - **Logs and guardrails:** [log add](#/guidance/commands?h=log-add) · [log status](#/guidance/commands?h=log-status) · [guardrail propose](#/guidance/commands?h=guardrail-propose) · [guardrail withdraw](#/guidance/commands?h=guardrail-withdraw) · [guardrail list](#/guidance/commands?h=guardrail-list)
 - **Gates:** [gate open](#/guidance/commands?h=gate-open) · [gate apply](#/guidance/commands?h=gate-apply) · [review open](#/guidance/commands?h=review-open) · [review apply](#/guidance/commands?h=review-apply) · [review list](#/guidance/commands?h=review-list)
 - **Plans and ledgers:** [ledger import](#/guidance/commands?h=ledger-import) · [plan](#/guidance/commands?h=plan) · [plan index](#/guidance/commands?h=plan-index)
-- **Diagnostics:** [check](#/guidance/commands?h=check) · [doctor guard](#/guidance/commands?h=doctor-guard) · [doctor superpowers](#/guidance/commands?h=doctor-superpowers) · [doctor docs](#/guidance/commands?h=doctor-docs) · [docs check](#/guidance/commands?h=docs-check) · [docs touched](#/guidance/commands?h=docs-touched)
+- **Diagnostics:** [check](#/guidance/commands?h=check) · [doctor guard](#/guidance/commands?h=doctor-guard) · [doctor superpowers](#/guidance/commands?h=doctor-superpowers) · [doctor docs](#/guidance/commands?h=doctor-docs) · [docs check](#/guidance/commands?h=docs-check) · [docs touched](#/guidance/commands?h=docs-touched) · [docs audit](#/guidance/commands?h=docs-audit)
 - **Serving and hooks:** [serve](#/guidance/commands?h=serve) · [hook](#/guidance/commands?h=hook) · [guard](#/guidance/commands?h=guard)
 
 ## Builds and phases
@@ -542,6 +546,22 @@ Compares the repo with a starting commit (committed and uncommitted changes, unt
 
 ```bash
 nexus docs touched --since main~5
+```
+
+### docs audit
+
+```
+nexus docs audit [root] [--json]
+```
+
+Lists each thing note with its source (present, gone, or not a path in the repo), its last commit and the commits to its source since then, and whether the source has uncommitted changes; the files no note covers (tracked and untracked, leaving out docs/ and .build/), a folder none of whose files is covered as one entry; the open issues in docs/governance/issues.json and the issue notes, with the commits since each and the paths its text names; the active rules, and how many files a scoped rule's paths match; unresolved links and generated drift. It reads git and the vault and writes nothing: whether a note still says what its code does, an issue is fixed or the code follows a rule is for the reviewer that reads it.
+
+**When:** As a routine review of the vault; /nexus:audit runs it, then reviews each component and reports.
+
+**Example:**
+
+```bash
+nexus docs audit --json
 ```
 
 ## Serving and hooks

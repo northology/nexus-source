@@ -270,6 +270,14 @@ export const COMMANDS: readonly CommandSpec[] = [
     example: 'nexus docs touched --since main~5',
   },
   {
+    usage: 'docs audit [root] [--json]',
+    summary: 'lay the vault against the repo: drift, coverage, open issues, rules',
+    group: 'Diagnostics',
+    detail: 'Lists each thing note with its source (present, gone, or not a path in the repo), its last commit and the commits to its source since then, and whether the source has uncommitted changes; the files no note covers (tracked and untracked, leaving out docs/ and .build/), a folder none of whose files is covered as one entry; the open issues in docs/governance/issues.json and the issue notes, with the commits since each and the paths its text names; the active rules, and how many files a scoped rule\'s paths match; unresolved links and generated drift. It reads git and the vault and writes nothing: whether a note still says what its code does, an issue is fixed or the code follows a rule is for the reviewer that reads it.',
+    when: 'As a routine review of the vault; /nexus:audit runs it, then reviews each component and reports.',
+    example: 'nexus docs audit --json',
+  },
+  {
     usage: 'serve [--port <n>] [--open] [--cockpit <dir>]',
     summary: 'start the cockpit (127.0.0.1, default port 4410)',
     group: 'Serving and hooks',

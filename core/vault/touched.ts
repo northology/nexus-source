@@ -25,8 +25,22 @@ const CHANGE_STREAM = 'docs/governance/change';
 /** The vault records the work, and a build's folder is its own record: neither is work to record. */
 const LEFT_OUT = ['docs', '.build'];
 
-const under = (path: string, prefix: string): boolean => path === prefix || path.startsWith(`${prefix}/`);
-const cleanSource = (s: string): string => s.trim().replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/+$/, '');
+/** Whether a path is the prefix or sits under it. */
+export const under = (path: string, prefix: string): boolean => path === prefix || path.startsWith(`${prefix}/`);
+/** A note's source as a repo-relative path: forward slashes, no leading ./ or trailing slash. */
+export const cleanSource = (s: string): string => s.trim().replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/+$/, '');
+
+/** Every thing note in the vault that names a source, with the source cleaned. */
+export function thingNotes(docs: string): { note: Note; source: string }[] {
+  const { registry } = readRegistry(docs);
+  const things: { note: Note; source: string }[] = [];
+  for (const rel of walkVault(docs).notes) {
+    const n: Note = { rel, file: `docs/${rel}`, fm: readFrontmatter(readFileSync(join(docs, rel), 'utf8')) };
+    const source = n.fm.data?.['source'];
+    if (noteClass(n, registry)?.thing && typeof source === 'string' && cleanSource(source) !== '') things.push({ note: n, source: cleanSource(source) });
+  }
+  return things;
+}
 
 function baseCommit(root: string, since: string | undefined): Pick<TouchedReport, 'base' | 'from'> {
   if (since !== undefined) {
@@ -70,13 +84,7 @@ export function touchedNotes(root: string, opts: { since?: string } = {}): Touch
   if (!insideGit(root)) throw new NexusError('docs touched needs a git repository');
   const { base, from } = baseCommit(root, opts.since);
   const changed = changedPaths(root, base);
-  const { registry } = readRegistry(docs);
-  const things: { note: Note; source: string }[] = [];
-  for (const rel of walkVault(docs).notes) {
-    const n: Note = { rel, file: `docs/${rel}`, fm: readFrontmatter(readFileSync(join(docs, rel), 'utf8')) };
-    const source = n.fm.data?.['source'];
-    if (noteClass(n, registry)?.thing && typeof source === 'string' && cleanSource(source) !== '') things.push({ note: n, source: cleanSource(source) });
-  }
+  const things = thingNotes(docs);
   const covered = new Set<string>();
   const notes: TouchedNote[] = [];
   for (const { note: n, source } of things) {

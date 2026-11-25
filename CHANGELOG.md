@@ -2,6 +2,31 @@
 
 nexus follows semantic versioning. In the source repo, the design behind each change is in `design/`, by date.
 
+## 1.4.7 (2026-11-25)
+
+A routine review of the docs vault against the code. It reports and changes nothing. Gates, answers and the build
+files are unchanged.
+
+- **`nexus docs audit [root] [--json]`:** the vault laid against the repo, read-only. It lists:
+  - each thing note's source (`present`, `gone` or `not-a-path`), with the note's last commit, the source commits
+    since then, and any uncommitted changes;
+  - the files no note covers, a wholly uncovered folder rolled up to one entry;
+  - the open issues from `issues.json` and the issue notes, with the commits since and the paths their text names;
+  - the active rules, with how many files a scoped rule's paths match;
+  - unresolved links and generated drift.
+- **`/nexus:audit`:** the review the user starts. It runs `docs audit`, then gives each component (and a `shared`
+  slice of issues and rules) the reviewer brief, `skills/audit/reviewer.md`, in parallel subagents where the harness
+  has them and one slice at a time where it doesn't. The brief asks four questions:
+  - Does each note still say what its code does?
+  - Is each open issue still open?
+  - Does the code follow each rule code can show (process rules are sorted out first)?
+  - What is worth a note?
+
+  Every finding cites a file:line or a commit, and "can't tell" is allowed. `contradicted`, `violates` and
+  `likely fixed` get a second look that tries to refute them. The report and its action list go to
+  `.scratch/audits/<date>-audit.md`, and nothing changes until the user picks actions: notes as `/nexus:adhoc` writes
+  them, issues and rules as the user says.
+
 ## 1.4.6 (2026-11-25)
 
 A way to keep the docs vault current outside a build, and decommission keeps the handoffs agents leave in ignored

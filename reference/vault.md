@@ -51,6 +51,18 @@ No JavaScript query blocks (`dataviewjs`, `datacorejs`) and no Dataview inline f
   active, runs `docs touched`, updates or creates those notes and the month's change entries, runs `docs generate`
   and `docs check`, and shows the diff. It writes no rule notes, `_meta/`, log entries or build records, and commits
   only when the user asks. No hook starts it; the `CLAUDE.md` block asks the agent to offer it.
+- `nexus docs audit [root] [--json]`: the vault laid against the repo. It lists each thing note's source (`present`,
+  `gone` or `not-a-path`), the note's last commit and the source commits since, and uncommitted changes. It lists the
+  files no note covers (a wholly uncovered folder of two or more files is one entry), the open issues from
+  `issues.json` and the issue notes with the paths their text names, the active rules with what a scoped rule's paths
+  match, unresolved links and generated drift. Read-only.
+- `/nexus:audit` is the routine review, which the user starts and which changes nothing. It runs `docs audit`, then
+  reviews each component against `skills/audit/reviewer.md` (in parallel subagents where the harness has them). Does
+  each note still say what its code does? Is each open issue still open? Does the code follow each rule code can
+  show? What is worth a note? Every finding cites a file:line or a commit; `contradicted`, `violates` and
+  `likely fixed` get a second look that tries to refute them. The report and its action list go to
+  `.scratch/audits/<date>-audit.md`. Picked actions follow the usual paths: notes as `/nexus:adhoc` writes them,
+  issues and rules as the user says.
 - `nexus doctor docs`: the bundle, the hook and the registry.
 - After each Write or Edit to a vault note, a PostToolUse hook reports findings: fix blocking ones before moving on.
 - `bin/docs-check.mjs` runs the same check with no plugin, for pre-commit and CI.
