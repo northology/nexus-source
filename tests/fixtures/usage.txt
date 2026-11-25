@@ -31,6 +31,7 @@ Usage: node nexus.mjs <command> [options]
   doctor superpowers [--path <dir>]                  check the Superpowers anchors nexus relies on
   doctor docs                                        check the docs vault machinery: bundle, hook, registry
   docs check [root] [--file <p>] [--stale] [--json]  check the docs/ vault against its registry
+  docs touched [root] [--since <ref>] [--json]       list the vault notes whose code changed, and the changes no note covers
   serve [--port <n>] [--open] [--cockpit <dir>]      start the cockpit (127.0.0.1, default port 4410)
   hook                                               UserPromptSubmit hook (reads the hook JSON on stdin)
   guard                                              PreToolUse hook: the wall (reads the hook JSON on stdin)

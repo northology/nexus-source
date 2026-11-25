@@ -73,7 +73,7 @@ export const COMMANDS: readonly CommandSpec[] = [
     usage: 'decommission apply <build>',
     summary: 'move a finished build into the repo\'s record, in one commit',
     group: 'Builds and phases',
-    detail: 'Needs the decommission gate applied: a mark-list with a row for every accepted guardrail or, for a build with none, an approve gate the user approved; a rule note for each row you accepted, and the final report drafted in the build, listing its decisions of note (and, where the repo lists components, the ones it touched). It first commits the build folder as it stands, so the gate\'s answers and the whole record stay in git history. Then, in one commit on the current branch: the build\'s specs, plans, reports and audits go to docs/superpowers/archive/<build>/, its final report to docs/governance/builds/<build>.md as the build\'s record, its decisions of note to docs/governance/decisions.json and its open issues to docs/governance/issues.json, the vault is upgraded if it is older, rule files and hubs are generated, the vault is checked, and .build/<build>/ is removed. If a step fails, the decommission isn\'t committed and the build folder stays. If something holds the build folder open once the commit exists, apply says so and leaves the folder for git clean -fd. It never merges, pushes or deletes a branch. Commits use git\'s identity, or GIT_AUTHOR_* and GIT_COMMITTER_* when set.',
+    detail: 'Needs the decommission gate applied: a mark-list with a row for every accepted guardrail or, for a build with none, an approve gate the user approved; a rule note for each row you accepted, and the final report drafted in the build, listing its decisions of note (and, where the repo lists components, the ones it touched). It first commits the build folder as it stands, so the gate\'s answers and the whole record stay in git history. Then, in one commit on the current branch: the build\'s specs, plans, reports and audits go to docs/superpowers/archive/<build>/, its notes/, .scratch/ and its Superpowers run workspaces are carried to the archive\'s _carried/ folder (the scratch sources are removed after the commit; a file git still ignores there, or one over 5 MB, stays and is named), its final report to docs/governance/builds/<build>.md as the build\'s record, its decisions of note to docs/governance/decisions.json and its open issues to docs/governance/issues.json, the vault is upgraded if it is older, rule files and hubs are generated, the vault is checked, and .build/<build>/ is removed. If a step fails, the decommission isn\'t committed and the build folder stays. If something holds the build folder open once the commit exists, apply says so and leaves the folder for git clean -fd. It never merges, pushes or deletes a branch. Commits use git\'s identity, or GIT_AUTHOR_* and GIT_COMMITTER_* when set.',
     when: 'After the user answers the decommission gate and the agent has written the rule notes. /nexus:decommission runs it.',
     example: 'nexus decommission apply relay-rebuild',
   },
@@ -260,6 +260,14 @@ export const COMMANDS: readonly CommandSpec[] = [
     detail: 'Checks every note in the repo\'s docs/ vault against the class notes in docs/_meta/classes/: where it sits, its status, source, component, tags and links. Blocking findings exit 1; warnings never fail. --file reports one note (judged against the whole vault), --stale compares thing notes with their source\'s git history, and --json prints the report for CI. Outside a vault it checks nothing and exits 0.',
     when: 'Before committing documentation, on main, in CI, or when the hook reports a finding you want to see in full.',
     example: 'nexus docs check --stale',
+  },
+  {
+    usage: 'docs touched [root] [--since <ref>] [--json]',
+    summary: 'list the vault notes whose code changed, and the changes no note covers',
+    group: 'Diagnostics',
+    detail: 'Compares the repo with a starting commit (committed and uncommitted changes, untracked files included, leaving out docs/ and .build/) and lists each thing note whose source covers a changed path, with the paths and how each changed (A, M or D), then the changed paths no note covers. It starts from --since, or else the last commit to the change stream (docs/governance/change/), or else the commit that set the vault up. It reads git and the vault and writes nothing.',
+    when: 'Before recording work done outside a build in the vault; /nexus:adhoc runs it for you.',
+    example: 'nexus docs touched --since main~5',
   },
   {
     usage: 'serve [--port <n>] [--open] [--cockpit <dir>]',

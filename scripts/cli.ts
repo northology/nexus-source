@@ -38,6 +38,7 @@ import { checkVault } from '../core/vault/check.ts';
 import { exitCode, formatReport } from '../core/vault/format.ts';
 import { applyGenerate, planGenerate } from '../core/vault/generate.ts';
 import { applyUpgrade, planUpgrade, upgradeRefusal } from '../core/vault/upgrade.ts';
+import { formatTouched, touchedNotes } from '../core/vault/touched.ts';
 import { CONTRACT_VERSION } from '../core/vault/types.ts';
 import { inventoryEnv } from '../core/governance/env.ts';
 import { formatInventory, formatSetting, outsideOnly } from '../core/governance/format.ts';
@@ -89,6 +90,7 @@ const OPTIONS = {
   cockpit: { type: 'string' },
   file: { type: 'string' },
   stale: { type: 'boolean' },
+  since: { type: 'string' },
   json: { type: 'boolean' },
   answers: { type: 'string' },
   'no-plugins': { type: 'boolean' },
@@ -389,7 +391,14 @@ async function run(p: string[], o: Opts, io: CliIO): Promise<number> {
       for (const w of plan.warnings) io.out(`  warning  ${w}`);
       return 0;
     }
-    if (rest[0] !== 'check') throw new NexusError('Use `docs check [root] [--file <path>] [--stale] [--json]`, `docs generate [root] [--check]` or `docs upgrade [root] [--check]`');
+    if (rest[0] === 'touched') {
+      const root = rest[1] ? resolve(io.cwd, rest[1]) : (findVaultRoot(io.cwd) ?? findRepoRoot(io.cwd));
+      const report = touchedNotes(root, o.since !== undefined ? { since: o.since } : {});
+      if (o.json) io.out(JSON.stringify(report, null, 2));
+      else for (const line of formatTouched(report)) io.out(line);
+      return 0;
+    }
+    if (rest[0] !== 'check') throw new NexusError('Use `docs check [root] [--file <path>] [--stale] [--json]`, `docs touched [root] [--since <ref>] [--json]`, `docs generate [root] [--check]` or `docs upgrade [root] [--check]`');
     const args = [...(rest[1] ? [rest[1]] : []), ...(o.file ? ['--file', o.file] : []), ...(o.stale ? ['--stale'] : []), ...(o.json ? ['--json'] : [])];
     return runDocsCheck(args, { cwd: io.cwd, out: io.out, err: io.err, readStdin: io.readStdin });
   }
@@ -455,8 +464,11 @@ async function run(p: string[], o: Opts, io: CliIO): Promise<number> {
     if (rest[0] === 'apply') {
       const a = applyDecommission(root, build, { standard: standardDir(io), env: io.env });
       const folder = a.left ? `${a.left}/ is still held open: remove it once nothing uses it (\`git clean -fd ${a.left}/\`).` : `.build/${build}/ removed.`;
-      io.out(`Decommissioned "${build}" in one commit (${a.commit.slice(0, 7)}): ${a.archived.length} archived, ${a.decisions} decisions and ${a.issues} issues logged, ${a.generated.length} generated; the record is ${a.buildRecord}; ${folder}`);
+      const carried = a.carried.length ? `${a.carried.length} carried from the scratch folders, ` : '';
+      io.out(`Decommissioned "${build}" in one commit (${a.commit.slice(0, 7)}): ${a.archived.length} archived, ${carried}${a.decisions} decisions and ${a.issues} issues logged, ${a.generated.length} generated; the record is ${a.buildRecord}; ${folder}`);
       if (a.upgraded.length) io.out(`  the vault was upgraded: ${a.upgraded.join(', ')}`);
+      for (const s of a.skipped) io.out(`  left in place, not carried (${s.why}): ${s.path}`);
+      for (const h of a.held ?? []) io.out(`  carried, but still held open: remove it once nothing uses it: ${h}`);
       return 0;
     }
     const problems = decommissionProblems(root, build, 'check');

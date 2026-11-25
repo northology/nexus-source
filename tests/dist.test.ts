@@ -33,7 +33,7 @@ beforeAll(() => {
   cpSync(join(ARTIFACTS, 'dist', 'nexus-antigravity'), agyPkg, { recursive: true });
 }, 180_000);
 
-const USER_ONLY = ['decommission', 'grill-me', 'init', 'plan'];
+const USER_ONLY = ['adhoc', 'decommission', 'grill-me', 'init', 'plan'];
 const VERSION = (readJsonFile(join(ARTIFACTS, '.claude-plugin', 'plugin.json')) as { version: string }).version;
 type Hook = { type: string; command: string; commandWindows?: string; args?: unknown; timeout: number };
 

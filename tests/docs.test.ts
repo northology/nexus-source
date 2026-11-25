@@ -107,7 +107,7 @@ describe('the docs after the pre-production fixes', () => {
   });
   it('name four kinds of gate, every skill, and what a decommission gate logs', () => {
     expect(flat('reference/guide/overview.md')).toContain('There are four kinds:');
-    expect(flat('README.md')).toContain('the five skills: `nexus`, `/nexus:plan`, `/nexus:decommission`, `/nexus:init` and `grill-me`');
+    expect(flat('README.md')).toContain('the six skills: `nexus`, `/nexus:plan`, `/nexus:adhoc`, `/nexus:decommission`, `/nexus:init` and `grill-me`');
     expect(flat('reference/gates.md')).toContain('Applying the gate writes one entry, named after the gate, to the build\'s decision log');
   });
 });

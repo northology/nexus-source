@@ -10,7 +10,7 @@ import { archiveDir, reportDraft } from './paths.ts';
 const KINDS: [folder: string, cls: string][] = [['specs', 'spec'], ['plans', 'plan'], ['reports', 'report'], ['audits', 'report']];
 
 /** Every file below `dir`, as paths relative to it; names starting with a dot are passed over. */
-function filesBelow(dir: string, rel = ''): string[] {
+export function filesBelow(dir: string, rel = ''): string[] {
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true })
     .filter((e) => !e.name.startsWith('.'))

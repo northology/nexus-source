@@ -125,7 +125,9 @@ After G3 is approved, invoke `superpowers:writing-plans` with:
 >   `"step": "plan"`) with the plan attached.
 > - When offering execution approaches, also offer a Workflow (the Workflow tool), used only if the user asks for it.
 > - During execution, paste `nexus guardrail list --accepted` into every dispatch brief, and run
->   `nexus ledger import <the run's progress.md>` before deleting the execution workspace.
+>   `nexus ledger import <the run's progress.md>` where you would delete the execution workspace. Keep the
+>   workspace instead of deleting it, and write handoffs for the next phase to `.build/<build>/notes/`, which is
+>   committed with the phase: decommission carries both into the build's archive.
 > - When execution reaches the step that would invoke `superpowers:finishing-a-development-branch`,
 >   don't invoke it: run the full test suite and return to `/nexus:plan` step 5.
 

@@ -11,6 +11,7 @@ import { applyGenerate, planGenerate, RULES_DIR } from '../vault/generate.ts';
 import { applyUpgrade, planUpgrade } from '../vault/upgrade.ts';
 import { archiveDocuments } from './archive.ts';
 import { chosenDecisions, recordProblems, writeBuildRecord } from './build-record.ts';
+import { carryScratch, removeCarried, type Carry, type Skipped } from './carry.ts';
 import { BUILD_ATTRIBUTES, currentDecommissionGate, reportDraft, RULE_NOTES } from './paths.ts';
 import { decommissionProblems } from './record.ts';
 import { writeRecords } from './records.ts';
@@ -22,7 +23,25 @@ export interface ApplyOptions {
   /** Whose rule files generate writes and the commit takes; unset is the one this package was built for. */
   harness?: Harness;
 }
-export interface Applied { commit: string; /** The commit that put the build folder, gate answers included, into history first; null when it already was. */ record: string | null; /** The build's record in the vault: its final report. */ buildRecord: string; /** The build folder, when something held it open after the commit and it was left for `git clean -fd`. */ left?: string; archived: string[]; decisions: number; issues: number; generated: string[]; upgraded: string[] }
+export interface Applied {
+  commit: string;
+  /** The commit that put the build folder, gate answers included, into history first; null when it already was. */
+  record: string | null;
+  /** The build's record in the vault: its final report. */
+  buildRecord: string;
+  /** The build folder, when something held it open after the commit and it was left for `git clean -fd`. */
+  left?: string;
+  archived: string[];
+  /** What came into the archive from .scratch/ and the build's Superpowers run workspaces; `skipped` stayed put. */
+  carried: string[];
+  skipped: Skipped[];
+  /** Carried sources something held open, left in place after the commit. */
+  held?: string[];
+  decisions: number;
+  issues: number;
+  generated: string[];
+  upgraded: string[];
+}
 
 /**
  * What the answered gate and the agent's writing still lack, one sentence each: the gate's rows are exactly the build's
@@ -77,6 +96,7 @@ export function applyDecommission(root: string, build: string, opts: ApplyOption
   let staged = false;
   let done: Applied;
   let record: string | null = null;
+  let carry: Carry = { carried: [], skipped: [], sources: [] };
   // Nothing in .build/ but this build and its .gitattributes: the decommission removes the folder too.
   const lastBuild = readdirSync(join(at, '.build')).every((name) => name === build || name === '.gitattributes');
   const dirty = dirtyPaths(at, []);
@@ -88,8 +108,10 @@ export function applyDecommission(root: string, build: string, opts: ApplyOption
   }
   try {
     const archived = archiveDocuments(at, build);
+    doing = 'carrying the scratch folders';
+    carry = carryScratch(at, build);
     doing = "writing the build's record";
-    const buildRecord = writeBuildRecord(at, build, archived);
+    const buildRecord = writeBuildRecord(at, build, archived, carry.carried);
     doing = 'writing the decision and issue logs';
     const records = writeRecords(at, build, chosenDecisions(at, build));
     doing = 'upgrading the vault';
@@ -115,11 +137,14 @@ export function applyDecommission(root: string, build: string, opts: ApplyOption
     // The last build takes .build/.gitattributes with it, so no empty .build/ is left behind.
     if (lastBuild) git(at, ['rm', '-q', '-f', '--cached', '--ignore-unmatch', '--', BUILD_ATTRIBUTES], { env });
     git(at, ['commit', '-q', '-m', `Decommission ${build}`], { env });
-    done = { commit: revParse(at, 'HEAD') ?? '', record, buildRecord, archived, ...records, generated: [...gen.writes, ...gen.removes], upgraded: [...up.adds.map((a) => a.path), ...(up.contract ? ['docs/_meta/contract.md'] : [])] };
+    done = { commit: revParse(at, 'HEAD') ?? '', record, buildRecord, archived, carried: carry.carried, skipped: carry.skipped, ...records, generated: [...gen.writes, ...gen.removes], upgraded: [...up.adds.map((a) => a.path), ...(up.contract ? ['docs/_meta/contract.md'] : [])] };
   } catch (e) {
     if (staged) gitTry(at, ['reset', '-q'], { env });
     throw new NexusError(`decommission apply stopped while ${doing} (${(e as Error).message}). The decommission wasn't committed and ${buildDir}/ is in place: fix it and run apply again, or discard the changes under docs/ with git.`);
   }
+  // The commit holds the carried files: their sources go now, what something holds open stays and is named.
+  const held = removeCarried(at, carry.sources);
+  if (held.length) done = { ...done, held };
   // The commit holds the removal; a folder something still holds open is left for the next `git clean`.
   try {
     rmSync(join(at, buildDir), { recursive: true, force: true, maxRetries: 2, retryDelay: 50 });

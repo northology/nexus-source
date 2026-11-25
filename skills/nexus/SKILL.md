@@ -16,7 +16,7 @@ Add `--build <name>` when a checkout holds more than one build.
 ## Planning
 The user starts planning with `/nexus:plan <build> [phase]`, which runs Superpowers' brainstorming and planning
 inside the build: follow that skill, and never edit a Superpowers file. When a typed `/nexus:<skill>` reaches you as
-plain text, read and follow `${CLAUDE_PLUGIN_ROOT}/skills/<skill>/SKILL.md` (init, plan, decommission or grill-me).
+plain text, follow `${CLAUDE_PLUGIN_ROOT}/skills/<skill>/SKILL.md` (init, plan, adhoc, decommission or grill-me).
 
 ## While a phase is active
 - Record items as they come up: `nexus log add questions <name> --text "<one sentence>" --status exploring --source "chat 11:20"`.

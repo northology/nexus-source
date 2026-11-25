@@ -118,8 +118,11 @@ It commits the build folder as it stands (`Record <build> before decommission`),
 record stay in git history. Then, in one commit, `Decommission <build>`, on the branch you are on:
 
 - every spec, plan, report and audit goes to `docs/superpowers/archive/<build>/`, by phase;
+- the build's `notes/`, `.scratch/` and the build's Superpowers run workspaces (`.superpowers/sdd/`) are carried to
+  the archive's `_carried/` folder, and the last two removed; a file git still ignores there, or one over 5 MB, stays
+  and is named;
 - the final report becomes the build's record, `docs/governance/builds/<build>.md` (`class: build-record`), with a
-  line of the build's approvals and a link to every archived file;
+  line of the build's approvals and a link to every archived and carried file;
 - the decisions `decisions:` lists go to `docs/governance/decisions.json` and every open issue to
   `docs/governance/issues.json`, each entry carrying the build's name;
 - the vault is upgraded if its contract is older, the rule files and hubs are generated, and the vault is checked;

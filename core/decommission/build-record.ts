@@ -67,9 +67,10 @@ const linkTo = (repoPath: string): string => `- [[${repoPath.replace(/^docs\//, 
 
 /**
  * Writes the draft final report into the vault as the build's record: its own properties (but decisions), the
- * build-record ones, then a generated line of the build's approvals and a link to every archived file. Returns its path.
+ * build-record ones, then a generated line of the build's approvals, a link to every archived file, and one to every
+ * file carried from the scratch folders. Returns its path.
  */
-export function writeBuildRecord(root: string, build: string, archived: string[]): string {
+export function writeBuildRecord(root: string, build: string, archived: string[], carried: string[] = []): string {
   const fm = draft(root, build);
   if (!fm || fm.error) throw new NexusError(`the final report can't be read: ${fm?.error ?? 'it is missing'}`);
   const { decisions: _chosen, ...own } = fm.data ?? {};
@@ -82,6 +83,7 @@ export function writeBuildRecord(root: string, build: string, archived: string[]
   const parts = [body];
   if (approved.length) parts.push('## Approvals', approved.join(' · '));
   if (archived.length) parts.push('## Archive', archived.map(linkTo).join('\n'));
+  if (carried.length) parts.push('## Carried', carried.map(linkTo).join('\n'));
   const path = buildRecordPath(build);
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), `---\n${stringify(props)}---\n${parts.join('\n\n')}\n`);

@@ -13,6 +13,8 @@ Most of the time the agent runs them for you as a build moves along; the ones yo
   the build's final report and opens one gate on it: you mark which guardrails become repo rules, or approve the
   report when there are none. Then everything lands in the repo's `docs/` in one commit.
 - **`/nexus:init`** sets a repo up once: its `docs/` vault, Obsidian, and nexus enabled for Claude Code.
+- **`/nexus:adhoc`** brings the `docs/` vault up to date after work done outside a build: the agent updates the notes
+  whose code changed (from `docs touched`) and the month's change entries, then shows you the diff.
 - **The UserPromptSubmit hook** runs before each of your prompts reaches the agent, and adds the active build's state:
   its phase and stage, how many guardrails are accepted, and any gates you've answered. With or without a build, it
   also names each review you've answered that the agent hasn't applied. It never blocks a prompt.
@@ -31,7 +33,7 @@ The plugin registers all three hooks; you don't run them yourself.
 - **Logs and guardrails:** [log add](#/guidance/commands?h=log-add) · [log status](#/guidance/commands?h=log-status) · [guardrail propose](#/guidance/commands?h=guardrail-propose) · [guardrail withdraw](#/guidance/commands?h=guardrail-withdraw) · [guardrail list](#/guidance/commands?h=guardrail-list)
 - **Gates:** [gate open](#/guidance/commands?h=gate-open) · [gate apply](#/guidance/commands?h=gate-apply) · [review open](#/guidance/commands?h=review-open) · [review apply](#/guidance/commands?h=review-apply) · [review list](#/guidance/commands?h=review-list)
 - **Plans and ledgers:** [ledger import](#/guidance/commands?h=ledger-import) · [plan](#/guidance/commands?h=plan) · [plan index](#/guidance/commands?h=plan-index)
-- **Diagnostics:** [check](#/guidance/commands?h=check) · [doctor guard](#/guidance/commands?h=doctor-guard) · [doctor superpowers](#/guidance/commands?h=doctor-superpowers) · [doctor docs](#/guidance/commands?h=doctor-docs) · [docs check](#/guidance/commands?h=docs-check)
+- **Diagnostics:** [check](#/guidance/commands?h=check) · [doctor guard](#/guidance/commands?h=doctor-guard) · [doctor superpowers](#/guidance/commands?h=doctor-superpowers) · [doctor docs](#/guidance/commands?h=doctor-docs) · [docs check](#/guidance/commands?h=docs-check) · [docs touched](#/guidance/commands?h=docs-touched)
 - **Serving and hooks:** [serve](#/guidance/commands?h=serve) · [hook](#/guidance/commands?h=hook) · [guard](#/guidance/commands?h=guard)
 
 ## Builds and phases
@@ -138,7 +140,7 @@ nexus decommission check relay-rebuild
 nexus decommission apply <build>
 ```
 
-Needs the decommission gate applied: a mark-list with a row for every accepted guardrail or, for a build with none, an approve gate the user approved; a rule note for each row you accepted, and the final report drafted in the build, listing its decisions of note (and, where the repo lists components, the ones it touched). It first commits the build folder as it stands, so the gate's answers and the whole record stay in git history. Then, in one commit on the current branch: the build's specs, plans, reports and audits go to docs/superpowers/archive/<build>/, its final report to docs/governance/builds/<build>.md as the build's record, its decisions of note to docs/governance/decisions.json and its open issues to docs/governance/issues.json, the vault is upgraded if it is older, rule files and hubs are generated, the vault is checked, and .build/<build>/ is removed. If a step fails, the decommission isn't committed and the build folder stays. If something holds the build folder open once the commit exists, apply says so and leaves the folder for git clean -fd. It never merges, pushes or deletes a branch. Commits use git's identity, or GIT_AUTHOR_* and GIT_COMMITTER_* when set.
+Needs the decommission gate applied: a mark-list with a row for every accepted guardrail or, for a build with none, an approve gate the user approved; a rule note for each row you accepted, and the final report drafted in the build, listing its decisions of note (and, where the repo lists components, the ones it touched). It first commits the build folder as it stands, so the gate's answers and the whole record stay in git history. Then, in one commit on the current branch: the build's specs, plans, reports and audits go to docs/superpowers/archive/<build>/, its notes/, .scratch/ and its Superpowers run workspaces are carried to the archive's _carried/ folder (the scratch sources are removed after the commit; a file git still ignores there, or one over 5 MB, stays and is named), its final report to docs/governance/builds/<build>.md as the build's record, its decisions of note to docs/governance/decisions.json and its open issues to docs/governance/issues.json, the vault is upgraded if it is older, rule files and hubs are generated, the vault is checked, and .build/<build>/ is removed. If a step fails, the decommission isn't committed and the build folder stays. If something holds the build folder open once the commit exists, apply says so and leaves the folder for git clean -fd. It never merges, pushes or deletes a branch. Commits use git's identity, or GIT_AUTHOR_* and GIT_COMMITTER_* when set.
 
 **When:** After the user answers the decommission gate and the agent has written the rule notes. /nexus:decommission runs it.
 
@@ -524,6 +526,22 @@ Checks every note in the repo's docs/ vault against the class notes in docs/_met
 
 ```bash
 nexus docs check --stale
+```
+
+### docs touched
+
+```
+nexus docs touched [root] [--since <ref>] [--json]
+```
+
+Compares the repo with a starting commit (committed and uncommitted changes, untracked files included, leaving out docs/ and .build/) and lists each thing note whose source covers a changed path, with the paths and how each changed (A, M or D), then the changed paths no note covers. It starts from --since, or else the last commit to the change stream (docs/governance/change/), or else the commit that set the vault up. It reads git and the vault and writes nothing.
+
+**When:** Before recording work done outside a build in the vault; /nexus:adhoc runs it for you.
+
+**Example:**
+
+```bash
+nexus docs touched --since main~5
 ```
 
 ## Serving and hooks

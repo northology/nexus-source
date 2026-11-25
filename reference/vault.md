@@ -44,6 +44,13 @@ No JavaScript query blocks (`dataviewjs`, `datacorejs`) and no Dataview inline f
 
 - `nexus docs check [root] [--file <p>] [--stale] [--json]`: every note, or one; exit 1 on a blocking finding, 2
   when `--file` isn't a note in the vault.
+- `nexus docs touched [root] [--since <ref>] [--json]`: the thing notes whose `source` covers a path changed since
+  `<ref>` (by default the last commit to `docs/governance/change/`, else the commit that set the vault up), committed,
+  uncommitted or untracked, and the changed paths no note covers; `docs/` and `.build/` are left out. Read-only.
+- `/nexus:adhoc` is the sweep for work done outside a build, which has no decommission: it refuses while a build is
+  active, runs `docs touched`, updates or creates those notes and the month's change entries, runs `docs generate`
+  and `docs check`, and shows the diff. It writes no rule notes, `_meta/`, log entries or build records, and commits
+  only when the user asks. No hook starts it; the `CLAUDE.md` block asks the agent to offer it.
 - `nexus doctor docs`: the bundle, the hook and the registry.
 - After each Write or Edit to a vault note, a PostToolUse hook reports findings: fix blocking ones before moving on.
 - `bin/docs-check.mjs` runs the same check with no plugin, for pre-commit and CI.
@@ -117,8 +124,13 @@ walled.
 - `nexus decommission apply <build>` first commits the build folder as it stands (`Record <build> before
   decommission`), so the gate's answers and the whole record stay in git history. Then, in one commit on the
   current branch (`Decommission <build>`): each spec, plan, report and audit goes to
-  `docs/superpowers/archive/<build>/` by phase, with `class` and `build` set and the files beside it; the final
-  report becomes the build's record; the decisions of note and the open issues go to the logs; the vault is
-  upgraded if its contract is older; the rule files and hubs are generated; the vault is checked; and the build
-  folder is removed. If anything fails, the decommission isn't
+  `docs/superpowers/archive/<build>/` by phase, with `class` and `build` set and the files beside it; the build's
+  `notes/`, `.scratch/` and the build's Superpowers run workspaces (`.superpowers/sdd/<workspace>/`, those whose
+  ledger names one of the build's plans) are carried to `docs/superpowers/archive/<build>/_carried/`, a note as a
+  `report` with its own frontmatter kept as a yaml block, and the scratch sources removed once the commit exists
+  (hidden files are passed over; a file git still ignores at its new path and one over 5 MB stay where they are, and
+  apply names them; a note the vault would block, such as one in an `assets/` folder, is carried as `.txt`); the
+  final report becomes the build's record, linking every archived and carried file; the decisions of note and the
+  open issues go to the logs; the vault is upgraded if its contract is older; the rule files and hubs are
+  generated; the vault is checked; and the build folder is removed. If anything fails, the decommission isn't
   committed and the build folder stays. It never merges, pushes or deletes a branch.

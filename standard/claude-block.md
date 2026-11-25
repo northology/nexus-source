@@ -6,7 +6,8 @@
 - `docs/dev/context/` holds generated hubs, one per component: start there.
 - Past decisions, open issues and finished builds are in `docs/governance/decisions.json`, `issues.json` and
   `docs/governance/builds/`: read them before re-deciding.
-- `.scratch/` is untracked scratch space.
+- `.scratch/` is untracked scratch space: a decommission carries what is in it into the build's archive.
+- After work outside a build that changes code the vault describes, offer `/nexus:adhoc` to bring its notes up to date.
 - `nexus <command>` means `node "$HOME/.claude/plugins/marketplaces/nexus/plugins/nexus/bin/nexus.mjs" <command>`:
   the release marketplace's clone, at the same path in every version.
 <!-- nexus:end -->

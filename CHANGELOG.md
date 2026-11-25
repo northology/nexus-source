@@ -2,6 +2,32 @@
 
 nexus follows semantic versioning. In the source repo, the design behind each change is in `design/`, by date.
 
+## 1.4.6 (2026-11-25)
+
+A way to keep the docs vault current outside a build, and decommission keeps the handoffs agents leave in ignored
+folders. Gates, answers and the build files are unchanged.
+
+- **`/nexus:adhoc`:** a sweep for work done outside a build (a fix, an update, an iterative job), which has no
+  decommission to record it. The user starts it; no hook does. It refuses while a build is active, updates the notes
+  whose code changed and the month's change entries, runs `docs generate` and `docs check`, and shows the diff. It
+  writes no rules, decisions or `_meta/`, and commits only when asked. The block `nexus init` writes asks the agent to
+  offer it after such work.
+- **`nexus docs touched [root] [--since <ref>] [--json]`:** lists each thing note whose `source` covers a path changed
+  since the change stream's last commit (or `--since`), committed, uncommitted or untracked, and the changed paths no
+  note covers. Read-only; `/nexus:adhoc` starts from it.
+- **Decommission carries the handoffs:** the build's `notes/` (until now kept only in git history), `.scratch/` and
+  the build's Superpowers run workspaces (`.superpowers/sdd/`, matched by the plan their ledger names) go into
+  `docs/superpowers/archive/<build>/_carried/` in the `Decommission <build>` commit, linked from the build's record;
+  the scratch sources are removed once the commit exists. A carried note becomes a `report` with its own frontmatter
+  kept as a yaml block; one the vault would block (a JavaScript query, one in an `assets/` folder, a generated file's
+  copy) is carried as `.txt`. A file git still ignores at its new path (a key file, a `dist/` folder) or one over
+  5 MB stays where it is, and apply names it; hidden files are passed over. A failed apply leaves every source in
+  place.
+- **Run workspaces are kept:** `/nexus:plan` and the build-stage prompt line now ask the agent to keep the execution
+  workspace after `nexus ledger import` instead of deleting it, and to write next-phase handoffs to the build's
+  `notes/`, which is committed with each phase and so survives a pruned worktree. A worktree's own `.scratch/` and
+  run workspaces are still lost if it is pruned before decommission.
+
 ## 1.4.5 (2026-11-21)
 
 Fixes from an Antigravity pilot, most of them for Antigravity and Codex, and a vault layout from the first commit.

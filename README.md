@@ -96,8 +96,8 @@ build, and had the wall refuse a write to the record.
   `config.toml`, so its spec check can send a subagent.
 - On Windows, if Codex's own sandbox can't set itself up, `workspace-write` runs read-only and `nexus init` can't
   write: run that session with another sandbox mode, or set Codex's Windows sandbox up first.
-- Start nexus's skills as `$nexus:plan`, `$nexus:init` and `$nexus:decommission`: Codex names a plugin's skills
-  `<plugin>:<skill>`.
+- Start nexus's skills as `$nexus:plan`, `$nexus:init`, `$nexus:adhoc` and `$nexus:decommission`: Codex names a
+  plugin's skills `<plugin>:<skill>`.
 - `nexus init` writes its block to `AGENTS.md`; `nexus docs generate` writes the vault's rules into a generated
   section inside that block, since Codex reads no rules folder. Codex reads only the first 32 KiB of `AGENTS.md`, so
   `docs generate` warns when the file would pass that, naming the largest rules.
@@ -112,7 +112,7 @@ build, and had the wall refuse a write to the record.
 - Its hooks run `node ./bin/…` from the plugin's folder, so `node` must be on the PATH Antigravity starts with.
 - A one-shot `agy -p` run ends its background tasks when it finishes, the cockpit included; start the cockpit
   yourself (below) when you work that way.
-- Start nexus's skills as `/nexus:plan`, `/nexus:init` and `/nexus:decommission`.
+- Start nexus's skills as `/nexus:plan`, `/nexus:init`, `/nexus:adhoc` and `/nexus:decommission`.
 - `nexus init` writes its block to `AGENTS.md`; `nexus docs generate` writes `.agents/rules/nexus-<rule>.md`, since
   Antigravity reads that folder flat. Run `nexus docs check` yourself: there is no docs hook.
 
@@ -163,6 +163,17 @@ record, logs the decisions of note and the open issues, archives the build's doc
 `.build/<build>/`. The `Decommission <build>` commit follows a record commit of the build folder. Branches are left
 as they are, and nothing is pushed. See `reference/vault.md`.
 
+The same commit carries the build's `notes/`, `.scratch/` and the build's Superpowers run workspaces
+(`.superpowers/sdd/`) into the build's archive, so the handoffs agents leave between phases aren't lost with the build
+folder or an ignored one.
+
+## Keep the vault current outside a build
+
+Work done outside a build has no decommission to record it. At the end of such an update or job, `/nexus:adhoc`,
+which no hook triggers, runs `nexus docs touched` to list the notes whose code changed since the change stream's last
+commit and the changes no note covers, updates those notes and the month's change entries, checks the vault, and
+shows you the diff. It commits only when you ask, and writes no rules or decisions: those are settled in a build.
+
 ## Health checks
 
 | Check | What it tells you | When |
@@ -207,7 +218,7 @@ The wall binds the agent only: you can always change any file yourself, outside 
 | `server/` | the cockpit's local server and API |
 | `cockpit/` | the cockpit (React and Vite) |
 | `scripts/` | the CLI, the command table, the hook loader and the doc generators |
-| `skills/` | the five skills: `nexus`, `/nexus:plan`, `/nexus:decommission`, `/nexus:init` and `grill-me` |
+| `skills/` | the six skills: `nexus`, `/nexus:plan`, `/nexus:adhoc`, `/nexus:decommission`, `/nexus:init` and `grill-me` |
 | `standard/` | the docs vault standard `nexus init` and `docs upgrade` copy into a repo: classes, components, tags, contract |
 | `reference/` | the reference pages the agent reads, and `guide/`, the Guidance tab's pages |
 | `schemas/` | JSON Schemas for every build file |

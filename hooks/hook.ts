@@ -45,7 +45,7 @@ export function reminderLines(root: string): string[] {
       `show options → .build/${name}/concepts/<topic>/ + concept-pick gate; live refinements → log changes --topic`,
     ];
     if (stage === 'build') {
-      if (!imported) parts.push("ledger → nexus ledger import before deleting the run's workspace");
+      if (!imported) parts.push("ledger → nexus ledger import, and keep the run's workspace: decommission carries it");
       // A fresh session in the build stage may not have the plan skill loaded; this keeps the hand-off to the finish gate.
       parts.push(`finish → ${skillCommand('plan')} step 5`);
     }

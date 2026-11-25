@@ -70,7 +70,7 @@ describe('hook', () => {
     const lines = text.split('\n');
     expect(lines[0]).toBe('nexus: the user has submitted gate answers in the cockpit.');
     expect(lines.at(-1)).toBe(
-      "nexus: build relay-rebuild · phase replay · stage build · 1 guardrail accepted · plans → .build/relay-rebuild/documents/plans/replay · rules → nexus guardrail propose · show options → .build/relay-rebuild/concepts/<topic>/ + concept-pick gate; live refinements → log changes --topic · ledger → nexus ledger import before deleting the run's workspace · finish → /nexus:plan step 5",
+      "nexus: build relay-rebuild · phase replay · stage build · 1 guardrail accepted · plans → .build/relay-rebuild/documents/plans/replay · rules → nexus guardrail propose · show options → .build/relay-rebuild/concepts/<topic>/ + concept-pick gate; live refinements → log changes --topic · ledger → nexus ledger import, and keep the run's workspace: decommission carries it · finish → /nexus:plan step 5",
     );
   });
   it("drops the ledger nudge once the phase's ledger is imported", () => {
